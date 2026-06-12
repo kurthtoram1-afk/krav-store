@@ -1,0 +1,15 @@
+{
+  "name": "krav-store",
+  "version": "2.0.0",
+  "description": "KrAV — Premium Game Currency Store (Flyff Penya & Toram Spina)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "mongodb": "^6.10.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
