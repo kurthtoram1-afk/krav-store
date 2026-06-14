@@ -117,6 +117,28 @@ async function buildStats(){
   return { delivered:done.length, avgRating: avg?Number(avg.toFixed(1)):null, recent };
 }
 
+// Auto-cancel orders left in 'awaiting_payment' (no proof) past the configured limit.
+async function sweepExpired(){
+  try{
+    const cfg = await store.get('krav:config') || {};
+    const mins = Number((cfg.store && cfg.store.autoCancelMins) || 0);
+    if(!mins || mins<=0) return; // 0 / blank = feature off
+    const cutoff = Date.now() - mins*60000;
+    const orders = await store.list('krav:order:');
+    for(const o of orders){
+      if(o && o.status==='awaiting_payment' && Number(o.createdAt) < cutoff){
+        const now=Date.now();
+        o.status='cancelled'; o.updatedAt=now; o.cancelReason='auto';
+        o.timeline = o.timeline||[]; o.timeline.push({status:'cancelled',at:now,auto:true});
+        o.messages = o.messages||[];
+        o.messages.push({from:'seller', text:'This order was automatically cancelled because payment was not completed in time. You can place a new order anytime.', at:now});
+        o.unreadForBuyer=true;
+        await store.set('krav:order:'+o.id, o);
+      }
+    }
+  }catch(e){ console.error('sweep error', e.message); }
+}
+
 /* ================= server ================= */
 const server = http.createServer(async (req,res)=>{
   const u = new URL(req.url, `http://${req.headers.host}`);
@@ -141,6 +163,7 @@ const server = http.createServer(async (req,res)=>{
       }
       if(p==='/api/me' && req.method==='GET'){
         const email=userEmail(req); if(!email) return send(res,401,{error:'Not logged in'});
+        await sweepExpired();
         const user=await store.get('krav:user:'+email);
         const orders=(await store.list('krav:order:')).filter(o=>o && o.userEmail===email).sort((a,b)=>b.createdAt-a.createdAt).map(orderSummary);
         return send(res,200,{ user:publicUser(user), orders });
@@ -242,6 +265,7 @@ const server = http.createServer(async (req,res)=>{
       // admin list all orders (summary)
       if(p==='/api/admin/orders' && req.method==='GET'){
         if(!isAdmin(req)) return send(res,403,{error:'forbidden'});
+        await sweepExpired();
         const orders=(await store.list('krav:order:')).sort((a,b)=>b.createdAt-a.createdAt).map(o=>({ ...orderSummary(o), ign:o.ign, userEmail:o.userEmail, payment:o.payment }));
         return send(res,200,{ orders });
       }
@@ -297,4 +321,5 @@ const server = http.createServer(async (req,res)=>{
   catch(e){ console.error('Mongo failed, using file store:', e.message); store = fileStore(); }
   await ensureSecret();
   server.listen(PORT, ()=>console.log(`KrAV server running on port ${PORT} (storage: ${store.mode})`));
+  setInterval(()=>sweepExpired(), 5*60000); // periodic auto-cancel sweep while awake
 })();
