@@ -448,7 +448,7 @@
 </div></div>
 
 <div class="admin" id="adminPanel">
-  <div class="admin-top"><div class="admin-orb"></div><div class="brand" style="font-size:18px"><span class="bname">Kr<b style="color:var(--gold)">AV</b></span></div><span class="tag">Seller</span><span class="live-pill"><span class="live-dot"></span>Live</span><div class="spacer"></div><button class="mini-btn" id="viewStoreBtn">View store</button><button class="mini-btn danger" id="adminClose">Exit</button></div>
+  <div class="admin-top"><div class="admin-orb"></div><div class="brand" style="font-size:18px"><span class="bname">Kr<b style="color:var(--gold)">AV</b></span></div><span class="tag">Seller</span><span class="live-pill"><span class="live-dot"></span>Live</span><div class="spacer"></div><button class="mini-btn" id="viewStoreBtn">View store</button><button class="mini-btn danger" id="adminClose">Log out</button></div>
   <div class="admin-tabs">
     <div class="admin-tab active" data-pane="aorders">Orders<span class="n" id="nOrders" style="display:none">0</span></div>
     <div class="admin-tab" data-pane="products">Products &amp; Prices</div>
@@ -585,6 +585,8 @@ async function doAuth(){
     const d = await api(authMode==='reg'?'/api/auth/register':'/api/auth/login',{method:'POST',body:JSON.stringify(body)});
     USER_TOKEN=d.token; USER=d.user;
     localStorage.setItem('krav:utok',USER_TOKEN); localStorage.setItem('krav:user',JSON.stringify(USER));
+    // logging in as a user signs out the admin/seller session
+    if(ADMIN_TOKEN){ ADMIN_TOKEN=null; localStorage.removeItem('krav:atok'); OWNER=false; document.getElementById('adminPanel').classList.remove('open'); document.getElementById('ownerAlert').style.display='none'; }
     updateAuthUI(); document.getElementById('authModal').classList.remove('open');
     document.getElementById('aEmail').value=''; document.getElementById('aPass').value=''; document.getElementById('aName').value='';
     toast('Welcome, '+USER.name+'! 🎉');
@@ -961,10 +963,17 @@ document.getElementById('writeReview').onclick=openReview;
 document.getElementById('rvSubmit').onclick=submitReview;
 ['authModal','reviewModal','adminLogin'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{ if(e.target.id===id) closeModal(id); }));
 
-document.getElementById('adminOpen').onclick=()=>{ document.getElementById('adminPass').value=''; openModal('adminLogin'); setTimeout(()=>document.getElementById('adminPass').focus(),100); };
-document.getElementById('adminLoginBtn').onclick=async()=>{ try{ const d=await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:document.getElementById('adminPass').value})}); ADMIN_TOKEN=d.token; localStorage.setItem('krav:atok',ADMIN_TOKEN); closeModal('adminLogin'); await loadConfig(); renderAdminConfig(); renderAdminOrders(); renderAdminReviews(); document.getElementById('adminPanel').classList.add('open'); OWNER=true; lastAttention=null; checkAttention(); }catch(e){ toast('Wrong password','err'); } };
+async function openAdminPanel(){
+  try{ await api('/api/admin/orders'); }
+  catch(e){ ADMIN_TOKEN=null; localStorage.removeItem('krav:atok'); OWNER=false; document.getElementById('adminPass').value=''; openModal('adminLogin'); toast('Please log in again','err'); return; }
+  if(USER){ USER=null; USER_TOKEN=null; localStorage.removeItem('krav:utok'); localStorage.removeItem('krav:user'); updateAuthUI(); }
+  await loadConfig(); renderAdminConfig(); renderAdminOrders(); renderAdminReviews();
+  document.getElementById('adminPanel').classList.add('open'); OWNER=true; lastAttention=null; checkAttention();
+}
+document.getElementById('adminOpen').onclick=()=>{ if(ADMIN_TOKEN){ openAdminPanel(); } else { document.getElementById('adminPass').value=''; openModal('adminLogin'); setTimeout(()=>document.getElementById('adminPass').focus(),100); } };
+document.getElementById('adminLoginBtn').onclick=async()=>{ try{ const d=await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:document.getElementById('adminPass').value})}); ADMIN_TOKEN=d.token; localStorage.setItem('krav:atok',ADMIN_TOKEN); closeModal('adminLogin'); openAdminPanel(); }catch(e){ toast('Wrong password','err'); } };
 document.getElementById('adminPass').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('adminLoginBtn').click(); });
-document.getElementById('adminClose').onclick=()=>{ document.getElementById('adminPanel').classList.remove('open'); };
+document.getElementById('adminClose').onclick=()=>{ ADMIN_TOKEN=null; localStorage.removeItem('krav:atok'); OWNER=false; document.getElementById('ownerAlert').style.display='none'; document.getElementById('adminPanel').classList.remove('open'); toast('Logged out of seller panel'); };
 document.getElementById('viewStoreBtn').onclick=()=>{ document.getElementById('adminPanel').classList.remove('open'); renderStore(); };
 document.getElementById('refreshAOrders').onclick=renderAdminOrders;
 document.getElementById('ordSearch').addEventListener('input',()=>renderAdminOrders());
@@ -998,6 +1007,7 @@ function applyReveal(){ document.querySelectorAll('.reveal').forEach(el=>{ if(!e
   var cc=document.querySelector('.contact-card'); if(cc) cc.classList.add('reveal');
   applyReveal();
   if(USER_TOKEN){ try{ const d=await api('/api/me'); USER=d.user; localStorage.setItem('krav:user',JSON.stringify(USER)); updateAuthUI(); }catch(e){ logout(); } }
+  if(ADMIN_TOKEN){ try{ await api('/api/admin/orders'); OWNER=true; checkAttention(); }catch(e){ ADMIN_TOKEN=null; localStorage.removeItem('krav:atok'); OWNER=false; } }
 })();
 </script>
 </body>
