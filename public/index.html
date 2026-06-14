@@ -4,1471 +4,744 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KrAV — Premium Game Currency Store</title>
-<meta name="description" content="KrAV — Buy Flyff Universe Penya and Toram Online Spina at fair prices. Fast in-game delivery, GCash & bank payments, live support, and order tracking.">
+<meta name="description" content="KrAV — Buy Flyff Universe Penya and Toram Online Spina safely. Account-protected orders, proof-of-payment escrow, live seller chat, fast in-game delivery.">
 <meta property="og:title" content="KrAV — Premium Game Currency Store">
-<meta property="og:description" content="Buy Flyff Universe Penya and Toram Online Spina. Fast in-game delivery, GCash & bank payments, live support.">
-<meta property="og:type" content="website">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta property="og:description" content="Buy Flyff Penya and Toram Spina safely with proof-of-payment escrow and live support.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#07060E; --ink2:#0C0A18; --panel:#120E22; --panel2:#1A1430;
-    --line:#2B2347; --line-soft:#1F1938;
-    --gold:#FFC93C; --gold-deep:#E8A917; --gold-soft:rgba(255,201,60,.12);
-    --violet:#8B5CF6; --violet-soft:rgba(139,92,246,.14);
-    --cyan:#22D3EE; --cyan-soft:rgba(34,211,238,.12);
-    --text:#F4F1FF; --muted:#A89FC8; --dim:#6F6691;
-    --danger:#FF6B7A; --good:#3EE0A0;
-    --fd:'Unbounded',sans-serif; --fb:'Outfit',sans-serif; --fm:'JetBrains Mono',monospace;
-    --r:20px;
+    --ink:#07060E;--ink2:#0C0A18;--panel:#120E22;--panel2:#1A1430;--line:#2B2347;--line-soft:#1F1938;
+    --gold:#FFC93C;--gold-deep:#E8A917;--gold-soft:rgba(255,201,60,.12);
+    --violet:#8B5CF6;--violet-soft:rgba(139,92,246,.14);--cyan:#22D3EE;--cyan-soft:rgba(34,211,238,.12);
+    --text:#F4F1FF;--muted:#A89FC8;--dim:#6F6691;--danger:#FF6B7A;--good:#3EE0A0;--warn:#FFC93C;
+    --fd:'Unbounded',sans-serif;--fb:'Outfit',sans-serif;--fm:'JetBrains Mono',monospace;--r:20px;
     --shadow:0 30px 70px -30px rgba(0,0,0,.85);
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
   body{background:var(--ink);color:var(--text);font-family:var(--fb);line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-  a{color:inherit;text-decoration:none}
-  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  a{color:inherit;text-decoration:none}button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
   input,select,textarea{font-family:inherit}
-  .wrap{max-width:1160px;margin:0 auto;padding:0 22px}
-  .fm{font-family:var(--fm)} .fd{font-family:var(--fd)}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 22px}.fm{font-family:var(--fm)}.fd{font-family:var(--fd)}
   ::selection{background:var(--gold);color:#1c1303}
-
-  /* ambient aurora */
-  .aurora{position:fixed;inset:0;z-index:-1;pointer-events:none;
-    background:
-      radial-gradient(900px 540px at 85% -8%, rgba(139,92,246,.20), transparent 60%),
-      radial-gradient(720px 460px at -8% 12%, rgba(255,201,60,.10), transparent 55%),
-      radial-gradient(700px 500px at 50% 110%, rgba(34,211,238,.08), transparent 60%);}
-  .grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .04 0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");}
-
-  /* ===== ANNOUNCEMENT ===== */
-  .announce{background:linear-gradient(90deg,var(--gold),#ffdd7a,var(--gold));color:#1c1303;font-weight:600;font-size:13.5px;text-align:center;padding:9px 16px;letter-spacing:.2px}
-
-  /* ===== NAV ===== */
+  .aurora{position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(900px 540px at 85% -8%,rgba(139,92,246,.20),transparent 60%),radial-gradient(720px 460px at -8% 12%,rgba(255,201,60,.10),transparent 55%),radial-gradient(700px 500px at 50% 110%,rgba(34,211,238,.08),transparent 60%)}
+  .announce{background:linear-gradient(90deg,var(--gold),#ffdd7a,var(--gold));color:#1c1303;font-weight:600;font-size:13.5px;text-align:center;padding:9px 16px}
   header.nav{position:sticky;top:0;z-index:50;background:rgba(7,6,14,.78);backdrop-filter:blur(16px);border-bottom:1px solid var(--line-soft)}
   .nav-inner{display:flex;align-items:center;gap:20px;height:70px}
-  .brand{display:flex;align-items:center;gap:12px;font-family:var(--fd);font-weight:900;font-size:21px;letter-spacing:.5px}
-  .brand .coin{width:36px;height:36px;flex:none;animation:spin-y 8s linear infinite}
-  @keyframes spin-y{0%{transform:rotateY(0)}100%{transform:rotateY(360deg)}}
+  .brand{display:flex;align-items:center;gap:12px;font-family:var(--fd);font-weight:900;font-size:21px}
+  .brand .coin{width:36px;height:36px;flex:none;animation:spin-y 8s linear infinite}@keyframes spin-y{to{transform:rotateY(360deg)}}
   .brand b{color:var(--gold)}
-  .nav-links{display:flex;gap:28px;margin-left:22px}
-  .nav-links a{color:var(--muted);font-weight:500;font-size:14.5px;transition:.2s;position:relative}
-  .nav-links a:hover{color:var(--text)}
-  .nav-links>a::after,.nav-drop>a::after{content:'';position:absolute;left:0;bottom:-6px;width:0;height:2px;background:var(--gold);transition:width .25s}
-  .nav-links>a:hover::after,.nav-drop>a:hover::after{width:100%}
-  /* games dropdown */
-  .nav-drop{position:relative}
-  .nav-drop>a{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
-  .nav-drop>a svg{transition:transform .25s}
-  .nav-drop:hover>a svg,.nav-drop:focus-within>a svg{transform:rotate(180deg)}
+  .nav-links{display:flex;gap:26px;margin-left:22px}
+  .nav-links a,.nav-drop>a{color:var(--muted);font-weight:500;font-size:14.5px;transition:.2s;position:relative;cursor:pointer}
+  .nav-links a:hover,.nav-drop>a:hover{color:var(--text)}
+  .nav-drop{position:relative}.nav-drop>a{display:inline-flex;align-items:center;gap:6px}
+  .nav-drop>a svg{transition:transform .25s}.nav-drop:hover>a svg{transform:rotate(180deg)}
   .drop-menu{position:absolute;top:calc(100% + 16px);left:-14px;min-width:248px;background:var(--ink2);border:1px solid var(--line);border-radius:17px;padding:10px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);pointer-events:none;transition:.22s;z-index:60}
   .drop-menu::before{content:'';position:absolute;top:-16px;left:0;right:0;height:16px}
-  .nav-drop:hover .drop-menu,.nav-drop:focus-within .drop-menu{opacity:1;transform:none;pointer-events:auto}
+  .nav-drop:hover .drop-menu{opacity:1;transform:none;pointer-events:auto}
   .drop-item{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;transition:background .15s}
   .drop-item:hover{background:var(--panel)}
   .drop-item .gi{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-family:var(--fd);font-weight:700;font-size:13px;flex:none}
   .gi-f{background:var(--gold-soft);color:var(--gold);border:1px solid rgba(255,201,60,.3)}
   .gi-t{background:var(--cyan-soft);color:var(--cyan);border:1px solid rgba(34,211,238,.3)}
   .gi-s{background:var(--violet-soft);color:var(--violet);border:1px solid rgba(139,92,246,.3);font-size:17px}
-  .drop-item b{display:block;font-size:14px;color:var(--text);font-weight:600}
-  .drop-item small{font-size:12px;color:var(--dim)}
-  .drop-item.soon{opacity:.55;cursor:default}
-  .drop-item::after{display:none!important}
+  .drop-item b{display:block;font-size:14px;color:var(--text);font-weight:600}.drop-item small{font-size:12px;color:var(--dim)}
+  .drop-item.soon{opacity:.55}
   .nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
   .icon-btn{width:42px;height:42px;border-radius:12px;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);transition:.2s;background:var(--panel);position:relative}
-  .icon-btn:hover{color:var(--text);border-color:var(--violet);transform:translateY(-1px)}
-  .alert-dot{position:absolute;top:-4px;right:-4px;width:13px;height:13px;border-radius:50%;background:var(--danger);border:2px solid var(--ink);display:none;animation:dotpulse 1.6s ease-in-out infinite}
-  @keyframes dotpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
-  .cart-btn{position:relative}
+  .icon-btn:hover{color:var(--text);border-color:var(--violet)}
+  .alert-dot{position:absolute;top:-4px;right:-4px;width:12px;height:12px;border-radius:50%;background:var(--danger);border:2px solid var(--ink);display:none}
   .cart-badge{position:absolute;top:-6px;right:-6px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:var(--gold);color:#1c1303;font-size:11px;font-weight:700;display:grid;place-items:center;font-family:var(--fm)}
-
-  /* ===== HERO ===== */
-  .hero{position:relative;padding:74px 0 26px;overflow:hidden}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;font-weight:600;font-size:15px;padding:14px 24px;border-radius:13px;transition:transform .15s,box-shadow .25s,background .2s}
+  .btn-gold{background:linear-gradient(105deg,#FFE08A,var(--gold) 50%,var(--gold-deep));color:#1c1303;box-shadow:0 12px 30px -12px rgba(255,201,60,.55)}
+  .btn-gold:hover{transform:translateY(-2px)}
+  .btn-ghost{border:1px solid var(--line);color:var(--text);background:rgba(18,14,34,.6)}.btn-ghost:hover{border-color:var(--violet)}
+  .btn-sm{padding:10px 16px;font-size:13.5px;border-radius:11px}
+  .btn-acct{display:inline-flex;align-items:center;gap:9px;padding:9px 15px;border-radius:12px;border:1px solid var(--line);background:var(--panel);font-weight:600;font-size:14px;color:var(--text)}
+  .btn-acct:hover{border-color:var(--gold)}
+  .btn-acct .av{width:24px;height:24px;border-radius:50%;background:var(--gold-soft);color:var(--gold);display:grid;place-items:center;font-size:12px;font-weight:700}
+  .hero{position:relative;padding:70px 0 24px;overflow:hidden}
   .hero-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:46px;align-items:center}
   .eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold)}
   .eyebrow::before{content:'';width:26px;height:1.5px;background:var(--gold)}
-  .hero h1{font-family:var(--fd);font-weight:900;font-size:clamp(32px,4.6vw,54px);line-height:1.08;margin:22px 0 18px;letter-spacing:-.5px}
-  .hero h1 .g{background:linear-gradient(105deg,#FFE9A8 0%,var(--gold) 45%,#FF9F45 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero h1{font-family:var(--fd);font-weight:900;font-size:clamp(32px,4.6vw,52px);line-height:1.08;margin:22px 0 18px;letter-spacing:-.5px}
+  .hero h1 .g{background:linear-gradient(105deg,#FFE9A8,var(--gold) 45%,#FF9F45);-webkit-background-clip:text;background-clip:text;color:transparent}
   .hero p.lead{color:var(--muted);font-size:17px;max-width:470px}
   .hero-cta{display:flex;gap:13px;margin-top:30px;flex-wrap:wrap}
-  .btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:15px;padding:15px 26px;border-radius:14px;transition:transform .15s, box-shadow .25s, background .2s;position:relative;overflow:hidden}
-  .btn-gold{background:linear-gradient(105deg,#FFE08A,var(--gold) 50%,var(--gold-deep));color:#1c1303;box-shadow:0 14px 36px -12px rgba(255,201,60,.55)}
-  .btn-gold:hover{transform:translateY(-2px);box-shadow:0 18px 44px -12px rgba(255,201,60,.7)}
-  .btn-ghost{border:1px solid var(--line);color:var(--text);background:rgba(18,14,34,.6)}
-  .btn-ghost:hover{border-color:var(--violet);transform:translateY(-2px)}
-
-  /* hero stats */
   .hero-stats{display:flex;gap:34px;margin-top:38px;flex-wrap:wrap}
-  .hstat .v{font-family:var(--fd);font-weight:700;font-size:24px;color:var(--text)}
-  .hstat .v em{color:var(--gold);font-style:normal}
-  .hstat .l{font-size:12.5px;color:var(--dim);text-transform:uppercase;letter-spacing:1.2px;margin-top:3px}
-
-  /* vault portal art */
-  .portal-wrap{position:relative;height:400px;display:grid;place-items:center;perspective:900px}
-  .portal{position:relative;width:330px;height:330px;display:grid;place-items:center}
-  .ring{position:absolute;inset:0;border-radius:50%;padding:2px;
-    background:conic-gradient(from var(--a,0deg), transparent 0%, var(--gold) 12%, transparent 30%, var(--violet) 55%, transparent 70%, var(--cyan) 88%, transparent 100%);
-    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
-    animation:ringspin 9s linear infinite}
-  .ring.r2{inset:26px;animation-duration:14s;animation-direction:reverse;opacity:.6}
-  .ring.r3{inset:54px;animation-duration:20s;opacity:.35}
-  @property --a{syntax:'<angle>';initial-value:0deg;inherits:false}
-  @keyframes ringspin{to{--a:360deg}}
-  .portal-core{width:170px;height:170px;border-radius:50%;display:grid;place-items:center;
-    background:radial-gradient(circle at 35% 30%, #2A2150, #110D22 70%);
-    border:1px solid var(--line);box-shadow:0 0 80px rgba(139,92,246,.35), inset 0 0 40px rgba(0,0,0,.6)}
-  .portal-core svg{filter:drop-shadow(0 12px 28px rgba(255,201,60,.5));animation:bob 4.5s ease-in-out infinite}
-  @keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-12px) rotate(4deg)}}
-  .orbit-coin{position:absolute;width:44px;height:44px;animation:orbit var(--d,10s) linear infinite}
-  @keyframes orbit{from{transform:rotate(var(--o,0deg)) translateX(168px) rotate(calc(var(--o,0deg) * -1))}to{transform:rotate(calc(var(--o,0deg) + 360deg)) translateX(168px) rotate(calc((var(--o,0deg) + 360deg) * -1))}}
-
-  /* ===== TICKER ===== */
+  .hstat .v{font-family:var(--fd);font-weight:700;font-size:23px}.hstat .v em{color:var(--gold);font-style:normal}
+  .hstat .l{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:1.1px;margin-top:3px}
+  .portal-wrap{position:relative;height:380px;display:grid;place-items:center}
+  .portal{position:relative;width:320px;height:320px;display:grid;place-items:center}
+  .ring{position:absolute;inset:0;border-radius:50%;padding:2px;background:conic-gradient(from var(--a,0deg),transparent 0%,var(--gold) 12%,transparent 30%,var(--violet) 55%,transparent 70%,var(--cyan) 88%,transparent 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:rs 9s linear infinite}
+  .ring.r2{inset:26px;animation-duration:14s;animation-direction:reverse;opacity:.6}.ring.r3{inset:54px;animation-duration:20s;opacity:.35}
+  @property --a{syntax:'<angle>';initial-value:0deg;inherits:false}@keyframes rs{to{--a:360deg}}
+  .portal-core{width:160px;height:160px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#2A2150,#110D22 70%);border:1px solid var(--line);box-shadow:0 0 80px rgba(139,92,246,.35),inset 0 0 40px rgba(0,0,0,.6)}
+  .portal-core svg{filter:drop-shadow(0 12px 28px rgba(255,201,60,.5));animation:bob 4.5s ease-in-out infinite}@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
   .ticker{border-top:1px solid var(--line-soft);border-bottom:1px solid var(--line-soft);background:rgba(18,14,34,.5);overflow:hidden;padding:13px 0}
-  .ticker-track{display:flex;gap:46px;width:max-content;animation:scrollx 32s linear infinite}
-  .ticker:hover .ticker-track{animation-play-state:paused}
-  @keyframes scrollx{to{transform:translateX(-50%)}}
+  .ticker-track{display:flex;gap:46px;width:max-content;animation:sx 32s linear infinite}.ticker:hover .ticker-track{animation-play-state:paused}@keyframes sx{to{transform:translateX(-50%)}}
   .tick{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--muted);white-space:nowrap}
-  .tick .dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 10px var(--good)}
-  .tick b{color:var(--text);font-weight:600}
-  .tick .fm{color:var(--gold);font-size:12.5px}
-
-  /* ===== SECTIONS ===== */
-  section.block{padding:72px 0}
-  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:34px;flex-wrap:wrap}
+  .tick .dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 10px var(--good)}.tick b{color:var(--text)}.tick .fm{color:var(--gold);font-size:12.5px}
+  section.block{padding:66px 0}
+  .sec-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:32px;flex-wrap:wrap}
   .sec-eyebrow{font-size:11.5px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--dim);margin-bottom:10px;display:flex;align-items:center;gap:9px}
   .sec-eyebrow::before{content:'';width:22px;height:1.5px;background:currentColor}
-  .flyff .sec-eyebrow{color:var(--gold)} .toram .sec-eyebrow{color:var(--cyan)}
-  .sec-head h2{font-family:var(--fd);font-weight:700;font-size:clamp(23px,3vw,30px);letter-spacing:-.3px}
+  .flyff .sec-eyebrow{color:var(--gold)}.toram .sec-eyebrow{color:var(--cyan)}
+  .sec-head h2{font-family:var(--fd);font-weight:700;font-size:clamp(23px,3vw,30px)}
   .sec-head .sub{color:var(--dim);font-size:14px;margin-top:6px;max-width:520px}
-
   .pkg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:18px}
-  .pkg{position:relative;background:linear-gradient(165deg,var(--panel2),var(--panel) 70%);border:1px solid var(--line);border-radius:var(--r);padding:26px 22px 22px;transition:transform .22s, border-color .25s, box-shadow .25s;display:flex;flex-direction:column;overflow:hidden}
-  .pkg::before{content:'';position:absolute;inset:0;background:radial-gradient(280px 120px at 50% -20%, var(--glow,rgba(255,201,60,.16)), transparent 70%);opacity:0;transition:opacity .3s}
-  .toram .pkg{--glow:rgba(34,211,238,.16)}
+  .pkg{position:relative;background:linear-gradient(165deg,var(--panel2),var(--panel) 70%);border:1px solid var(--line);border-radius:var(--r);padding:26px 22px 22px;transition:transform .22s,border-color .25s,box-shadow .25s;display:flex;flex-direction:column}
   .pkg:hover{transform:translateY(-6px)}
-  .pkg:hover::before{opacity:1}
   .flyff .pkg:hover{border-color:rgba(255,201,60,.55);box-shadow:0 24px 50px -22px rgba(255,201,60,.3)}
   .toram .pkg:hover{border-color:rgba(34,211,238,.55);box-shadow:0 24px 50px -22px rgba(34,211,238,.3)}
-  .pkg .amt{font-family:var(--fm);font-weight:700;font-size:25px;letter-spacing:-1px;position:relative}
-  .flyff .pkg .amt{color:var(--gold)} .toram .pkg .amt{color:var(--cyan)}
-  .pkg .unit{font-size:12px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:1.6px;margin-top:3px;position:relative}
-  .pkg .price{font-family:var(--fd);font-weight:700;font-size:24px;margin-top:18px;position:relative}
-  .pkg .price.tba{font-size:13.5px;color:var(--dim);font-weight:500;font-family:var(--fb)}
-  .pkg .badge{position:absolute;top:0;right:18px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:6px 11px 5px;border-radius:0 0 9px 9px;background:linear-gradient(105deg,var(--violet),#6D3FE0);color:#fff;z-index:2}
-  .pkg .add{margin-top:18px;width:100%;justify-content:center;font-size:14px;padding:12px;border-radius:11px;position:relative}
-  .flyff .pkg .add{background:var(--gold-soft);color:var(--gold);border:1px solid rgba(255,201,60,.3)}
-  .flyff .pkg .add:hover{background:var(--gold);color:#1c1303}
-  .toram .pkg .add{background:var(--cyan-soft);color:var(--cyan);border:1px solid rgba(34,211,238,.3)}
-  .toram .pkg .add:hover{background:var(--cyan);color:#04222a}
+  .pkg .amt{font-family:var(--fm);font-weight:700;font-size:25px;letter-spacing:-1px}.flyff .pkg .amt{color:var(--gold)}.toram .pkg .amt{color:var(--cyan)}
+  .pkg .unit{font-size:12px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:1.6px;margin-top:3px}
+  .pkg .price{font-family:var(--fd);font-weight:700;font-size:24px;margin-top:18px}.pkg .price.tba{font-size:13.5px;color:var(--dim);font-weight:500;font-family:var(--fb)}
+  .pkg .badge{position:absolute;top:0;right:18px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:6px 11px 5px;border-radius:0 0 9px 9px;background:linear-gradient(105deg,var(--violet),#6D3FE0);color:#fff}
+  .pkg .add{margin-top:18px;width:100%;font-size:14px;padding:12px;border-radius:11px}
+  .flyff .pkg .add{background:var(--gold-soft);color:var(--gold);border:1px solid rgba(255,201,60,.3)}.flyff .pkg .add:hover{background:var(--gold);color:#1c1303}
+  .toram .pkg .add{background:var(--cyan-soft);color:var(--cyan);border:1px solid rgba(34,211,238,.3)}.toram .pkg .add:hover{background:var(--cyan);color:#04222a}
   .pkg .add:disabled{opacity:.35;cursor:not-allowed}
   .empty-note{color:var(--dim);font-size:14px;padding:26px;border:1px dashed var(--line);border-radius:16px;text-align:center}
-  .custom-cta{margin-top:18px;font-size:14px;color:var(--dim)}
-  .custom-cta .link{color:var(--gold);font-weight:600;cursor:pointer}
-  .custom-cta .link:hover{text-decoration:underline}
-  .toram .custom-cta .link{color:var(--cyan)}
-
-  /* ===== HOW ===== */
-  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:step}
-  .step{background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--r);padding:30px 26px;position:relative;overflow:hidden;transition:border-color .25s}
-  .step:hover{border-color:var(--line)}
-  .step::before{counter-increment:step;content:counter(step,decimal-leading-zero);position:absolute;top:-14px;right:10px;font-family:var(--fd);font-weight:900;font-size:84px;color:transparent;-webkit-text-stroke:1px var(--line);opacity:.8}
-  .step .ic{width:46px;height:46px;border-radius:13px;background:var(--gold-soft);border:1px solid rgba(255,201,60,.25);display:grid;place-items:center;color:var(--gold);margin-bottom:18px}
-  .step h3{font-family:var(--fd);font-weight:700;font-size:16.5px;margin-bottom:8px}
-  .step p{color:var(--muted);font-size:14px;max-width:90%}
-
-  /* ===== REVIEWS ===== */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .step{background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--r);padding:26px 22px;position:relative;overflow:hidden}
+  .step .ic{width:44px;height:44px;border-radius:12px;background:var(--gold-soft);border:1px solid rgba(255,201,60,.25);display:grid;place-items:center;color:var(--gold);margin-bottom:16px}
+  .step h3{font-family:var(--fd);font-weight:700;font-size:15px;margin-bottom:7px}.step p{color:var(--muted);font-size:13.5px}
   .rev-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
   .rev{background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;gap:12px}
-  .rev .stars{color:var(--gold);letter-spacing:3px;font-size:14px}
-  .rev p{color:var(--muted);font-size:14.5px;flex:1}
-  .rev .who{display:flex;align-items:center;gap:11px}
-  .rev .av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px;background:var(--violet-soft);color:var(--violet);border:1px solid rgba(139,92,246,.3)}
-  .rev .who b{font-size:14px}
-  .rev .who span{display:block;font-size:12px;color:var(--dim)}
-  .rev-empty{grid-column:1/-1}
-
-  /* ===== FAQ ===== */
+  .rev .stars{color:var(--gold);letter-spacing:3px;font-size:14px}.rev p{color:var(--muted);font-size:14.5px;flex:1}
+  .rev .who{display:flex;align-items:center;gap:11px}.rev .av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-weight:700;background:var(--violet-soft);color:var(--violet);border:1px solid rgba(139,92,246,.3)}
+  .rev .who b{font-size:14px}.rev .who span{display:block;font-size:12px;color:var(--dim)}
   .faq-list{max-width:760px;margin:0 auto}
-  .faq{border:1px solid var(--line-soft);border-radius:16px;margin-bottom:12px;background:var(--panel);overflow:hidden;transition:border-color .25s}
-  .faq[open]{border-color:var(--line)}
+  .faq{border:1px solid var(--line-soft);border-radius:16px;margin-bottom:12px;background:var(--panel);overflow:hidden}
   .faq summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:19px 22px;cursor:pointer;font-weight:600;font-size:15.5px}
   .faq summary::-webkit-details-marker{display:none}
   .faq summary .pm{width:26px;height:26px;border-radius:8px;border:1px solid var(--line);display:grid;place-items:center;color:var(--gold);flex:none;transition:transform .25s;font-weight:700}
-  .faq[open] summary .pm{transform:rotate(45deg)}
-  .faq .faq-a{padding:0 22px 20px;color:var(--muted);font-size:14.5px;max-width:640px}
-
-  /* ===== CONTACT ===== */
-  .contact-card{position:relative;background:linear-gradient(120deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:28px;padding:46px;display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center;overflow:hidden}
-  .contact-card::before{content:'';position:absolute;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(255,201,60,.14),transparent 65%);top:-160px;right:-80px}
-  .contact-card h2{font-family:var(--fd);font-weight:700;font-size:26px;margin-bottom:10px}
-  .contact-card p{color:var(--muted);font-size:15px;max-width:440px}
-  .contact-btns{display:flex;gap:12px;flex-wrap:wrap;position:relative}
-  .btn-msgr{background:#0084FF;color:#fff} .btn-discord{background:#5865F2;color:#fff}
-  .btn-msgr:hover,.btn-discord:hover{transform:translateY(-2px)}
-
-  footer{border-top:1px solid var(--line-soft);padding:36px 0;margin-top:50px}
+  .faq[open] summary .pm{transform:rotate(45deg)}.faq .faq-a{padding:0 22px 20px;color:var(--muted);font-size:14.5px}
+  .contact-card{position:relative;background:linear-gradient(120deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:28px;padding:44px;display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center;overflow:hidden}
+  .contact-card h2{font-family:var(--fd);font-weight:700;font-size:25px;margin-bottom:10px}.contact-card p{color:var(--muted);font-size:15px;max-width:440px}
+  .contact-btns{display:flex;gap:12px;flex-wrap:wrap}.btn-msgr{background:#0084FF;color:#fff}.btn-discord{background:#5865F2;color:#fff}
+  footer{border-top:1px solid var(--line-soft);padding:34px 0;margin-top:48px}
   .foot-grid{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;color:var(--dim);font-size:13.5px}
-  .foot-grid a{color:var(--muted)} .foot-grid a:hover{color:var(--text)}
-  .foot-links{display:flex;gap:22px;flex-wrap:wrap}
-
-  /* ===== DRAWERS & MODALS ===== */
-  .overlay{position:fixed;inset:0;background:rgba(4,3,9,.74);backdrop-filter:blur(5px);z-index:60;opacity:0;pointer-events:none;transition:opacity .25s}
-  .overlay.open{opacity:1;pointer-events:auto}
-  .drawer{position:fixed;top:0;right:0;height:100%;width:min(450px,100%);background:var(--ink2);border-left:1px solid var(--line);z-index:70;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
-  .drawer.open{transform:translateX(0)}
+  .foot-links{display:flex;gap:22px;flex-wrap:wrap}.foot-links a{cursor:pointer}.foot-links a:hover{color:var(--text)}
+  .overlay{position:fixed;inset:0;background:rgba(4,3,9,.74);backdrop-filter:blur(5px);z-index:60;opacity:0;pointer-events:none;transition:opacity .25s}.overlay.open{opacity:1;pointer-events:auto}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:min(460px,100%);background:var(--ink2);border-left:1px solid var(--line);z-index:70;transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}.drawer.open{transform:translateX(0)}
   .drawer-head{display:flex;align-items:center;justify-content:space-between;padding:21px 24px;border-bottom:1px solid var(--line-soft)}
   .drawer-head h3{font-family:var(--fd);font-weight:700;font-size:18px}
-  .drawer-body{flex:1;overflow-y:auto;padding:24px}
-  .drawer-foot{border-top:1px solid var(--line-soft);padding:18px 24px}
-  .close-x{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;color:var(--muted);border:1px solid var(--line)}
-  .close-x:hover{color:var(--text);border-color:var(--violet)}
-
-  .cart-item{display:flex;gap:12px;align-items:center;padding:15px 0;border-bottom:1px solid var(--line-soft)}
-  .ci-main{flex:1}
-  .ci-amt{font-family:var(--fm);font-weight:700;font-size:15px}
-  .ci-sub{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
-  .qty{display:flex;align-items:center;gap:10px;margin-top:8px}
-  .qty button{width:27px;height:27px;border-radius:8px;border:1px solid var(--line);display:grid;place-items:center;font-weight:700;color:var(--muted)}
-  .qty button:hover{color:var(--text);border-color:var(--violet)}
-  .qty span{font-family:var(--fm);min-width:20px;text-align:center;font-weight:700}
-  .ci-price{font-family:var(--fd);font-weight:700;text-align:right;font-size:15px}
-  .ci-remove{font-size:11.5px;color:var(--danger);margin-top:6px;cursor:pointer}
+  .drawer-body{flex:1;overflow-y:auto;padding:24px}.drawer-foot{border-top:1px solid var(--line-soft);padding:18px 24px}
+  .close-x{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;color:var(--muted);border:1px solid var(--line)}.close-x:hover{color:var(--text)}
+  .cart-item{display:flex;gap:12px;align-items:center;padding:15px 0;border-bottom:1px solid var(--line-soft)}.ci-main{flex:1}
+  .ci-amt{font-family:var(--fm);font-weight:700;font-size:15px}.ci-sub{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+  .qty{display:flex;align-items:center;gap:10px;margin-top:8px}.qty button{width:27px;height:27px;border-radius:8px;border:1px solid var(--line);display:grid;place-items:center;font-weight:700;color:var(--muted)}
+  .qty span{font-family:var(--fm);min-width:20px;text-align:center;font-weight:700}.ci-price{font-family:var(--fd);font-weight:700;font-size:15px}.ci-remove{font-size:11.5px;color:var(--danger);margin-top:6px;cursor:pointer}
   .cart-empty{text-align:center;color:var(--dim);padding:70px 20px}
-  .cart-total{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:15px;color:var(--muted)}
-  .cart-total b{font-family:var(--fd);font-size:24px;color:var(--gold)}
-
-  .field{margin-bottom:16px}
-  .field label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:7px}
-  .field label .req{color:var(--gold)}
+  .cart-total{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-size:15px;color:var(--muted)}.cart-total b{font-family:var(--fd);font-size:24px;color:var(--gold)}
+  .field{margin-bottom:16px}.field label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:7px}.field label .req{color:var(--gold)}
   .field input,.field select,.field textarea{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px;color:var(--text);font-size:14.5px;transition:border-color .2s}
-  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--violet)}
-  .field textarea{resize:vertical;min-height:70px}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--violet)}.field textarea{resize:vertical;min-height:64px}
   .pay-opts{display:flex;flex-direction:column;gap:9px}
-  .pay-opt{display:flex;align-items:center;gap:13px;padding:14px 16px;border:1px solid var(--line);border-radius:13px;cursor:pointer;transition:.2s;background:var(--panel)}
-  .pay-opt:hover{border-color:var(--violet)}
-  .pay-opt.sel{border-color:var(--gold);background:var(--gold-soft)}
-  .pay-opt .radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--dim);flex:none}
-  .pay-opt.sel .radio{border-color:var(--gold);background:radial-gradient(circle,var(--gold) 40%,transparent 46%)}
-  .po-type{font-weight:600;font-size:14.5px}
-  .po-acct{font-size:12.5px;color:var(--dim);font-family:var(--fm)}
-
-  .modal{position:fixed;inset:0;z-index:80;display:none;place-items:center;padding:20px;background:rgba(4,3,9,.74);backdrop-filter:blur(5px)}
-  .modal.open{display:grid}
-  .modal-card{background:var(--ink2);border:1px solid var(--line);border-radius:24px;max-width:500px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow)}
-  .mc-head{padding:30px 28px 0;text-align:center}
-  .check-circle{width:62px;height:62px;border-radius:50%;background:var(--gold-soft);border:1px solid rgba(255,201,60,.4);display:grid;place-items:center;margin:0 auto 18px;color:var(--gold)}
-  .modal-card h3{font-family:var(--fd);font-weight:700;font-size:21px;margin-bottom:8px}
-  .mc-sub{color:var(--muted);font-size:14px;padding:0 8px}
-  .mc-body{padding:24px 28px 28px}
-  .ref-box{background:var(--panel);border:1px dashed var(--line);border-radius:13px;padding:15px;text-align:center;margin:18px 0}
-  .ref-box .lbl{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--dim)}
-  .ref-box .ref{font-family:var(--fm);font-weight:700;font-size:23px;color:var(--gold);margin-top:5px}
+  .pay-opt{display:flex;align-items:center;gap:13px;padding:14px 16px;border:1px solid var(--line);border-radius:13px;cursor:pointer;background:var(--panel)}.pay-opt:hover{border-color:var(--violet)}.pay-opt.sel{border-color:var(--gold);background:var(--gold-soft)}
+  .pay-opt .radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--dim);flex:none}.pay-opt.sel .radio{border-color:var(--gold);background:radial-gradient(circle,var(--gold) 40%,transparent 46%)}
+  .po-type{font-weight:600;font-size:14.5px}.po-acct{font-size:12.5px;color:var(--dim);font-family:var(--fm)}
+  .modal{position:fixed;inset:0;z-index:80;display:none;place-items:center;padding:20px;background:rgba(4,3,9,.74);backdrop-filter:blur(5px)}.modal.open{display:grid}
+  .modal-card{background:var(--ink2);border:1px solid var(--line);border-radius:24px;max-width:460px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow)}
+  .mc-head{padding:28px 28px 0;text-align:center}.modal-card h3{font-family:var(--fd);font-weight:700;font-size:21px;margin-bottom:8px}.mc-sub{color:var(--muted);font-size:14px}
+  .mc-body{padding:22px 28px 28px}
+  .link{color:var(--gold);font-weight:600;cursor:pointer}.link:hover{text-decoration:underline}.center{text-align:center}
+  .tabs{display:flex;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:5px;margin-bottom:22px}
+  .tabs button{flex:1;padding:11px;border-radius:9px;font-weight:600;font-size:14px;color:var(--muted)}.tabs button.on{background:var(--gold);color:#1c1303}
+  .stepper{display:flex;align-items:flex-start;justify-content:space-between;margin:8px 0 22px;position:relative}
+  .stepper::before{content:'';position:absolute;top:15px;left:8%;right:8%;height:2px;background:var(--line)}
+  .st-node{display:flex;flex-direction:column;align-items:center;gap:7px;flex:1;position:relative;z-index:2}
+  .st-dot{width:32px;height:32px;border-radius:50%;background:var(--panel2);border:2px solid var(--line);display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--dim)}
+  .st-node.done .st-dot{background:var(--good);border-color:var(--good);color:#04231a}
+  .st-node.active .st-dot{background:var(--gold);border-color:var(--gold);color:#1c1303;box-shadow:0 0 0 5px var(--gold-soft)}
+  .st-lbl{font-size:10.5px;color:var(--dim);text-align:center;max-width:74px;line-height:1.3}.st-node.active .st-lbl,.st-node.done .st-lbl{color:var(--text)}
+  .ord-status{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:5px 11px;border-radius:20px}
+  .stt-awaiting_payment{background:rgba(255,201,60,.15);color:var(--gold)}
+  .stt-proof_submitted{background:rgba(34,211,238,.15);color:var(--cyan)}
+  .stt-payment_verified{background:rgba(139,92,246,.18);color:#B79AFF}
+  .stt-delivered{background:rgba(62,224,160,.15);color:var(--good)}
+  .stt-completed{background:rgba(62,224,160,.22);color:var(--good)}
+  .stt-cancelled{background:rgba(255,107,122,.15);color:var(--danger)}
   .pay-detail{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:17px;margin-bottom:16px}
-  .pd-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px}
-  .pd-row span:first-child{color:var(--muted)}
-  .pd-row .fm{font-weight:700}
-  textarea.summary{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px;color:var(--muted);font-size:12.5px;font-family:var(--fm);min-height:130px;resize:vertical;margin-bottom:13px}
-  .send-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .send-btns .btn{justify-content:center;font-size:14px;padding:13px}
-  .btn-copy{background:var(--panel);border:1px solid var(--line);grid-column:1/-1}
-  .link{color:var(--gold);font-weight:600;cursor:pointer}
-  .link:hover{text-decoration:underline}
-  .center{text-align:center}
-
-  .stars-input{display:flex;gap:7px;font-size:27px;color:var(--line);cursor:pointer;user-select:none}
-  .stars-input span{transition:transform .12s}
-  .stars-input span:hover{transform:scale(1.18)}
-  .stars-input span.on{color:var(--gold)}
-
-  /* ===== CHAT WIDGET ===== */
-  .chat-fab{position:fixed;bottom:24px;right:24px;z-index:55;width:60px;height:60px;border-radius:50%;display:grid;place-items:center;color:#1c1303;background:linear-gradient(115deg,#FFE08A,var(--gold) 55%,var(--gold-deep));box-shadow:0 16px 40px -10px rgba(255,201,60,.6);transition:transform .2s}
-  .chat-fab:hover{transform:scale(1.07)}
-  .chat-fab .pulse{position:absolute;inset:0;border-radius:50%;border:2px solid var(--gold);animation:pulse 2.4s ease-out infinite}
-  @keyframes pulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.55);opacity:0}}
-  .chat-box{position:fixed;bottom:96px;right:24px;z-index:56;width:min(370px,calc(100vw - 32px));height:500px;max-height:calc(100vh - 130px);background:var(--ink2);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;transform:translateY(16px) scale(.97);opacity:0;pointer-events:none;transition:.28s cubic-bezier(.4,0,.2,1)}
-  .chat-box.open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
-  .chat-head{display:flex;align-items:center;gap:12px;padding:16px 18px;background:linear-gradient(115deg,var(--panel2),var(--panel));border-bottom:1px solid var(--line-soft)}
-  .chat-head .cav{width:38px;height:38px;border-radius:50%;background:var(--gold-soft);border:1px solid rgba(255,201,60,.35);display:grid;place-items:center;color:var(--gold);position:relative}
-  .chat-head .cav::after{content:'';position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;background:var(--good);border:2px solid var(--ink2)}
-  .chat-head b{font-size:14.5px;display:block}
-  .chat-head span{font-size:12px;color:var(--good)}
-  .chat-head .close-x{margin-left:auto;width:32px;height:32px}
-  .chat-body{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:11px}
-  .msg{max-width:84%;padding:11px 15px;border-radius:16px;font-size:14px;line-height:1.5;animation:msgin .25s ease}
-  @keyframes msgin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-  .msg.bot{background:var(--panel);border:1px solid var(--line-soft);border-bottom-left-radius:5px;align-self:flex-start;color:var(--text)}
-  .msg.user{background:var(--gold);color:#1c1303;font-weight:500;border-bottom-right-radius:5px;align-self:flex-end}
-  .chips{display:flex;flex-wrap:wrap;gap:8px;align-self:flex-start;max-width:95%}
-  .chip-q{font-size:12.5px;font-weight:600;color:var(--gold);background:var(--gold-soft);border:1px solid rgba(255,201,60,.3);padding:8px 13px;border-radius:20px;transition:.2s}
-  .chip-q:hover{background:var(--gold);color:#1c1303}
-  .chat-foot{border-top:1px solid var(--line-soft);padding:12px;display:flex;gap:9px}
-  .chat-foot input{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 14px;color:var(--text);font-size:14px}
-  .chat-foot input:focus{outline:none;border-color:var(--violet)}
-  .chat-foot button{width:42px;height:42px;border-radius:12px;background:var(--gold);color:#1c1303;display:grid;place-items:center;flex:none}
-
-  /* ===== ADMIN ===== */
-  .admin{position:fixed;inset:0;z-index:90;background:var(--ink);display:none;flex-direction:column;overflow:hidden}
-  .admin.open{display:flex}
+  .pd-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px}.pd-row span:first-child{color:var(--muted)}.pd-row .fm{font-weight:700}
+  .upload-zone{border:2px dashed var(--line);border-radius:14px;padding:26px;text-align:center;cursor:pointer;transition:.2s;color:var(--dim)}.upload-zone:hover{border-color:var(--gold);color:var(--gold)}
+  .proof-preview{max-width:100%;border-radius:12px;border:1px solid var(--line);margin-top:12px}
+  .ochat{background:var(--panel);border:1px solid var(--line-soft);border-radius:14px;display:flex;flex-direction:column;height:300px;overflow:hidden;margin-top:8px}
+  .ochat-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px}
+  .om{max-width:82%;padding:9px 13px;border-radius:14px;font-size:13.5px;line-height:1.45}
+  .om.buyer{background:var(--gold);color:#1c1303;align-self:flex-end;border-bottom-right-radius:4px;font-weight:500}
+  .om.seller{background:var(--panel2);border:1px solid var(--line-soft);align-self:flex-start;border-bottom-left-radius:4px}
+  .om .tt{display:block;font-size:10px;opacity:.6;margin-top:3px}
+  .ochat-foot{border-top:1px solid var(--line-soft);padding:10px;display:flex;gap:8px}
+  .ochat-foot input{flex:1;background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:10px 13px;color:var(--text);font-size:14px}
+  .ochat-foot button{width:42px;border-radius:10px;background:var(--gold);color:#1c1303;display:grid;place-items:center;flex:none}
+  .ord-row{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px 17px;margin-bottom:11px;cursor:pointer;transition:.18s}
+  .ord-row:hover{border-color:var(--gold)}
+  .ord-row .ref{font-family:var(--fm);font-weight:700;color:var(--gold);font-size:14px}
+  .ord-row .meta{font-size:12.5px;color:var(--dim);margin-top:3px}
+  .admin{position:fixed;inset:0;z-index:90;background:var(--ink);display:none;flex-direction:column;overflow:hidden}.admin.open{display:flex}
   .admin-top{display:flex;align-items:center;gap:14px;padding:16px 24px;border-bottom:1px solid var(--line);background:var(--ink2)}
-  .admin-top .tag{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);background:var(--gold-soft);padding:5px 11px;border-radius:20px;font-weight:600}
-  .admin-top .spacer{flex:1}
+  .admin-top .tag{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);background:var(--gold-soft);padding:5px 11px;border-radius:20px;font-weight:600}.admin-top .spacer{flex:1}
   .admin-tabs{display:flex;gap:4px;padding:0 24px;border-bottom:1px solid var(--line);background:var(--ink2);overflow-x:auto}
-  .admin-tab{padding:15px 16px;font-size:14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;position:relative}
-  .admin-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
-  .admin-tab .n{display:inline-grid;place-items:center;min-width:18px;height:18px;border-radius:9px;background:var(--violet);color:#fff;font-size:10.5px;font-family:var(--fm);margin-left:6px;padding:0 5px}
-  .admin-body{flex:1;overflow-y:auto;padding:30px 24px}
-  .admin-pane{display:none;max-width:780px;margin:0 auto}
-  .admin-pane.active{display:block}
-  .admin-pane h3{font-family:var(--fd);font-size:17px;margin-bottom:5px}
-  .admin-pane .hint{color:var(--dim);font-size:13.5px;margin-bottom:22px}
+  .admin-tab{padding:15px 16px;font-size:14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}.admin-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+  .admin-tab .n{display:inline-grid;place-items:center;min-width:18px;height:18px;border-radius:9px;background:var(--danger);color:#fff;font-size:10.5px;font-family:var(--fm);margin-left:6px;padding:0 5px}
+  .admin-body{flex:1;overflow-y:auto;padding:28px 24px}.admin-pane{display:none;max-width:820px;margin:0 auto}.admin-pane.active{display:block}
+  .admin-pane h3{font-family:var(--fd);font-size:17px;margin-bottom:5px}.admin-pane .hint{color:var(--dim);font-size:13.5px;margin-bottom:20px}
   .a-card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:18px;margin-bottom:12px}
-  .a-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .a-row3{display:grid;grid-template-columns:1.4fr 1fr auto;gap:12px;align-items:end}
+  .a-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .a-field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600}
   .a-field input,.a-field select,.a-field textarea{width:100%;background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:11px 13px;color:var(--text);font-size:14px}
-  .a-field input:focus,.a-field select:focus,.a-field textarea:focus{outline:none;border-color:var(--violet)}
   .a-actions{display:flex;gap:8px;align-items:center;margin-top:13px;flex-wrap:wrap}
-  .mini-btn{font-size:13px;font-weight:600;padding:9px 15px;border-radius:10px;border:1px solid var(--line);color:var(--muted);transition:.2s}
-  .mini-btn:hover{color:var(--text);border-color:var(--violet)}
-  .mini-btn.danger{color:var(--danger);border-color:rgba(255,107,122,.3)}
-  .mini-btn.danger:hover{background:rgba(255,107,122,.1)}
-  .mini-btn.gold{background:var(--gold);color:#1c1303;border-color:var(--gold)}
-  .mini-btn.gold:hover{box-shadow:0 8px 24px -8px rgba(255,201,60,.6)}
+  .mini-btn{font-size:13px;font-weight:600;padding:9px 15px;border-radius:10px;border:1px solid var(--line);color:var(--muted)}.mini-btn:hover{color:var(--text);border-color:var(--violet)}
+  .mini-btn.gold{background:var(--gold);color:#1c1303;border-color:var(--gold)}.mini-btn.good{background:var(--good);color:#04231a;border-color:var(--good)}
+  .mini-btn.danger{color:var(--danger);border-color:rgba(255,107,122,.3)}.mini-btn.danger:hover{background:rgba(255,107,122,.1)}
   .toggle{display:inline-flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);cursor:pointer}
-  .toggle .sw{width:40px;height:23px;border-radius:20px;background:var(--line);position:relative;transition:.2s}
-  .toggle .sw::after{content:'';position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:var(--dim);transition:.2s}
-  .toggle.on .sw{background:var(--gold)}
-  .toggle.on .sw::after{left:19px;background:#1c1303}
+  .toggle .sw{width:40px;height:23px;border-radius:20px;background:var(--line);position:relative;transition:.2s}.toggle .sw::after{content:'';position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;background:var(--dim);transition:.2s}
+  .toggle.on .sw{background:var(--gold)}.toggle.on .sw::after{left:19px;background:#1c1303}
   .group-label{font-family:var(--fm);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin:22px 0 11px}
-  .ord-card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:15px 17px;margin-bottom:11px}
-  .ord-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-  .ord-ref{font-family:var(--fm);font-weight:700;color:var(--gold)}
-  .ord-status{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:5px 11px;border-radius:20px}
-  .st-pending{background:rgba(255,201,60,.15);color:var(--gold)}
-  .st-paid{background:rgba(139,92,246,.18);color:#B79AFF}
-  .st-delivered{background:rgba(62,224,160,.15);color:var(--good)}
-  .st-open{background:rgba(34,211,238,.15);color:var(--cyan)}
-  .st-resolved{background:rgba(62,224,160,.15);color:var(--good)}
-  .ord-items{font-size:13.5px;color:var(--muted);margin:9px 0}
-  .ord-meta{font-size:12.5px;color:var(--dim);display:flex;gap:14px;flex-wrap:wrap}
-  /* admin live chat thread */
-  .thread{max-height:230px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;background:var(--ink2);border:1px solid var(--line-soft);border-radius:11px;padding:12px;margin:10px 0}
-  .tmsg{max-width:82%;padding:8px 12px;border-radius:12px;font-size:13.5px;line-height:1.45}
-  .tmsg.buyer{background:var(--panel2);border:1px solid var(--line-soft);align-self:flex-start;border-bottom-left-radius:4px}
-  .tmsg.owner{background:var(--gold);color:#1c1303;font-weight:500;align-self:flex-end;border-bottom-right-radius:4px}
-  .tmsg .tt{display:block;font-size:10.5px;opacity:.6;margin-top:3px}
-  .reply-row{display:flex;gap:8px;margin-top:10px}
-  .reply-in{flex:1;background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:10px 13px;color:var(--text);font-size:14px}
-  .reply-in:focus{outline:none;border-color:var(--violet)}
-
-  #toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:14px 24px;border-radius:13px;font-size:14px;font-weight:500;z-index:200;opacity:0;pointer-events:none;transition:.3s;box-shadow:var(--shadow)}
-  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  #toast.ok{border-color:rgba(62,224,160,.4)} #toast.err{border-color:rgba(255,107,122,.4)}
-
-  .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease, transform .6s ease}
-  .reveal.in{opacity:1;transform:none}
-
-  @media(max-width:880px){
-    .hero-grid{grid-template-columns:1fr}
-    .portal-wrap{height:300px;order:-1}
-    .portal{width:250px;height:250px}
-    @keyframes orbit{from{transform:rotate(var(--o,0deg)) translateX(126px) rotate(calc(var(--o,0deg) * -1))}to{transform:rotate(calc(var(--o,0deg) + 360deg)) translateX(126px) rotate(calc((var(--o,0deg) + 360deg) * -1))}}
-    .steps{grid-template-columns:1fr}
-    .contact-card{grid-template-columns:1fr;padding:32px 26px}
-    .nav-links{display:none}
-    .a-row,.a-row3{grid-template-columns:1fr}
-    .hero-stats{gap:24px}
-  }
+  .proof-img{max-width:280px;border-radius:12px;border:1px solid var(--line);margin-top:8px;cursor:zoom-in}
+  #toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:14px 24px;border-radius:13px;font-size:14px;font-weight:500;z-index:200;opacity:0;pointer-events:none;transition:.3s;box-shadow:var(--shadow);max-width:90vw;text-align:center}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}#toast.ok{border-color:rgba(62,224,160,.4)}#toast.err{border-color:rgba(255,107,122,.4)}
+  .lightbox{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.9);display:none;place-items:center;padding:20px}.lightbox.open{display:grid}.lightbox img{max-width:96vw;max-height:92vh;border-radius:12px}
+  @media(max-width:880px){.hero-grid{grid-template-columns:1fr}.portal-wrap{height:280px;order:-1}.portal{width:240px;height:240px}.steps{grid-template-columns:1fr 1fr}.contact-card{grid-template-columns:1fr;padding:30px 24px}.nav-links{display:none}.a-row,.a-row3{grid-template-columns:1fr}}
   @media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
-<div class="aurora"></div><div class="grain"></div>
-
+<div class="aurora"></div>
 <div class="announce" id="announceBar" style="display:none"></div>
 
-<!-- NAV -->
-<header class="nav">
-  <div class="wrap nav-inner">
-    <div class="brand">
-      <svg class="coin" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" fill="url(#cg)" stroke="#E8A917" stroke-width="1.5"/><circle cx="20" cy="20" r="14" fill="none" stroke="#1c1303" stroke-opacity=".25"/><path d="M14 13h3.4v5.3L22.4 13H26l-5 5.6L26.4 27H22.6l-3.8-6.2-1.4 1.5V27H14z" fill="#1c1303"/><defs><linearGradient id="cg" x1="4" y1="4" x2="36" y2="36"><stop stop-color="#FFE49A"/><stop offset="1" stop-color="#E8A917"/></linearGradient></defs></svg>
-      <span class="bname">Kr<b>AV</b></span>
-    </div>
-    <nav class="nav-links">
-      <div class="nav-drop">
-        <a href="#flyff">Games <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg></a>
-        <div class="drop-menu">
-          <a class="drop-item" href="#flyff"><span class="gi gi-f">FU</span><span><b>Flyff Universe</b><small>Penya packages</small></span></a>
-          <a class="drop-item" href="#toram"><span class="gi gi-t">TO</span><span><b>Toram Online</b><small>Spina packages</small></span></a>
-          <div class="drop-item soon"><span class="gi gi-s">+</span><span><b>More games soon</b><small>Items &amp; new currencies</small></span></div>
-        </div>
+<header class="nav"><div class="wrap nav-inner">
+  <div class="brand">
+    <svg class="coin" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" fill="url(#cg)" stroke="#E8A917" stroke-width="1.5"/><path d="M14 13h3.4v5.3L22.4 13H26l-5 5.6L26.4 27H22.6l-3.8-6.2-1.4 1.5V27H14z" fill="#1c1303"/><defs><linearGradient id="cg" x1="4" y1="4" x2="36" y2="36"><stop stop-color="#FFE49A"/><stop offset="1" stop-color="#E8A917"/></linearGradient></defs></svg>
+    <span class="bname">Kr<b>AV</b></span>
+  </div>
+  <nav class="nav-links">
+    <div class="nav-drop"><a href="#flyff">Games <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg></a>
+      <div class="drop-menu">
+        <a class="drop-item" href="#flyff"><span class="gi gi-f">FU</span><span><b>Flyff Universe</b><small>Penya packages</small></span></a>
+        <a class="drop-item" href="#toram"><span class="gi gi-t">TO</span><span><b>Toram Online</b><small>Spina packages</small></span></a>
+        <div class="drop-item soon"><span class="gi gi-s">+</span><span><b>More games soon</b><small>Items &amp; new currencies</small></span></div>
       </div>
-      <a href="#reviews">Reviews</a>
-      <a href="#faq">FAQ</a>
-      <a href="#" id="trackLink">Track Order</a>
-    </nav>
-    <div class="nav-right">
-      <button class="icon-btn" id="adminOpen" title="Owner admin">
-        <span class="alert-dot" id="ownerAlert"></span>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
-      <button class="icon-btn cart-btn" id="cartOpen" title="Cart">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-        <span class="cart-badge" id="cartBadge" style="display:none">0</span>
-      </button>
+    </div>
+    <a href="#how">How it works</a><a href="#reviews">Reviews</a><a href="#faq">FAQ</a>
+  </nav>
+  <div class="nav-right">
+    <button class="icon-btn" id="adminOpen" title="Owner admin"><span class="alert-dot" id="ownerAlert"></span>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+    <button class="icon-btn" id="cartOpen" title="Cart">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span class="cart-badge" id="cartBadge" style="display:none">0</span>
+    </button>
+    <button class="btn-acct" id="acctBtn"><span class="av" id="acctAv">?</span><span id="acctLabel">Log in</span></button>
+  </div>
+</div></header>
+
+<section class="hero"><div class="wrap hero-grid">
+  <div>
+    <span class="eyebrow">Trusted Game Currency Marketplace</span>
+    <h1 id="heroTitle">Level up your wallet. <span class="g">Safe, escrow-protected delivery.</span></h1>
+    <p class="lead" id="heroLead">Buy Flyff Universe Penya and Toram Online Spina with confidence. Create an account, pay, upload your proof of payment, and we deliver in-game — every step tracked and protected.</p>
+    <div class="hero-cta"><a href="#flyff" class="btn btn-gold">Shop Penya</a><a href="#toram" class="btn btn-ghost">Shop Spina</a></div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="v"><em id="statOrders">0</em>+</div><div class="l">Orders delivered</div></div>
+      <div class="hstat"><div class="v"><em id="statRating">5.0</em>★</div><div class="l">Customer rating</div></div>
+      <div class="hstat"><div class="v">🔒 <em>Escrow</em></div><div class="l">Proof-protected</div></div>
     </div>
   </div>
-</header>
+  <div class="portal-wrap"><div class="portal"><div class="ring"></div><div class="ring r2"></div><div class="ring r3"></div>
+    <div class="portal-core"><svg width="84" height="84" viewBox="0 0 200 200" fill="none">
+      <ellipse cx="100" cy="138" rx="58" ry="17" fill="url(#hc)"/><ellipse cx="100" cy="106" rx="58" ry="17" fill="url(#hc)"/><ellipse cx="100" cy="74" rx="58" ry="17" fill="url(#hc)"/>
+      <text x="100" y="81" text-anchor="middle" font-family="Unbounded" font-weight="900" font-size="20" fill="#1c1303">KrAV</text>
+      <defs><linearGradient id="hc" x1="42" y1="57" x2="158" y2="91"><stop stop-color="#FFE49A"/><stop offset="1" stop-color="#FFC93C"/></linearGradient></defs></svg></div>
+  </div></div>
+</div></section>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="wrap hero-grid">
-    <div>
-      <span class="eyebrow">Trusted Game Currency Vault</span>
-      <h1 id="heroTitle">Level up your wallet. <span class="g">In-game riches, delivered fast.</span></h1>
-      <p class="lead" id="heroLead">Buy Flyff Universe Penya and Toram Online Spina at fair prices, with quick in-game delivery and real human support. Pick a package, pay, and receive — it's that simple.</p>
-      <div class="hero-cta">
-        <a href="#flyff" class="btn btn-gold">Shop Penya
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        <a href="#toram" class="btn btn-ghost">Shop Spina</a>
-      </div>
-      <div class="hero-stats">
-        <div class="hstat"><div class="v"><em id="statOrders">0</em>+</div><div class="l">Orders delivered</div></div>
-        <div class="hstat"><div class="v"><em id="statRating">—</em>★</div><div class="l">Customer rating</div></div>
-        <div class="hstat"><div class="v">&lt;<em>30</em>min</div><div class="l">Avg. reply time</div></div>
-      </div>
-    </div>
-    <div class="portal-wrap">
-      <div class="portal">
-        <div class="ring"></div><div class="ring r2"></div><div class="ring r3"></div>
-        <div class="portal-core">
-          <svg width="92" height="92" viewBox="0 0 200 200" fill="none">
-            <ellipse cx="100" cy="146" rx="58" ry="17" fill="#E8A917"/><ellipse cx="100" cy="138" rx="58" ry="17" fill="url(#hc)"/>
-            <ellipse cx="100" cy="114" rx="58" ry="17" fill="#E8A917"/><ellipse cx="100" cy="106" rx="58" ry="17" fill="url(#hc)"/>
-            <ellipse cx="100" cy="82" rx="58" ry="17" fill="#E8A917"/><ellipse cx="100" cy="74" rx="58" ry="17" fill="url(#hc)"/>
-            <text x="100" y="81" text-anchor="middle" font-family="Unbounded" font-weight="900" font-size="20" fill="#1c1303">KrAV</text>
-            <defs><linearGradient id="hc" x1="42" y1="57" x2="158" y2="91"><stop stop-color="#FFE49A"/><stop offset="1" stop-color="#FFC93C"/></linearGradient></defs>
-          </svg>
-        </div>
-        <div class="orbit-coin" style="--o:0deg;--d:11s"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#FFC93C" stroke="#E8A917" stroke-width="2"/><text x="20" y="26" text-anchor="middle" font-size="16" font-weight="800" fill="#1c1303">P</text></svg></div>
-        <div class="orbit-coin" style="--o:120deg;--d:13s"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#22D3EE" stroke="#0FA8C2" stroke-width="2"/><text x="20" y="26" text-anchor="middle" font-size="16" font-weight="800" fill="#04222a">S</text></svg></div>
-        <div class="orbit-coin" style="--o:240deg;--d:15s"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#8B5CF6" stroke="#6D3FE0" stroke-width="2"/><text x="20" y="26" text-anchor="middle" font-size="14" font-weight="800" fill="#fff">✦</text></svg></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- TICKER -->
 <div class="ticker"><div class="ticker-track" id="tickerTrack"></div></div>
 
-<!-- FLYFF -->
-<section class="block flyff reveal" id="flyff">
-  <div class="wrap">
-    <div class="sec-head">
-      <div>
-        <div class="sec-eyebrow">Flyff Universe</div>
-        <h2>Penya Packages</h2>
-        <p class="sub">Hand-delivered through secure in-game trade. Choose your amount below — bigger packs, better value.</p>
-      </div>
-    </div>
-    <div class="pkg-grid" id="flyffGrid"></div>
-    <p class="custom-cta">Need a different amount? <span class="link" data-custom="flyff">Request a custom Penya quote →</span></p>
-  </div>
-</section>
+<section class="block flyff" id="flyff"><div class="wrap">
+  <div class="sec-head"><div><div class="sec-eyebrow">Flyff Universe</div><h2>Penya Packages</h2><p class="sub">Hand-delivered through secure in-game trade. Pick your amount below.</p></div></div>
+  <div class="pkg-grid" id="flyffGrid"></div>
+</div></section>
 
-<!-- TORAM -->
-<section class="block toram reveal" id="toram">
-  <div class="wrap">
-    <div class="sec-head">
-      <div>
-        <div class="sec-eyebrow">Toram Online</div>
-        <h2>Spina Packages</h2>
-        <p class="sub">Fast and safe Spina delivery straight to your character. More games coming soon.</p>
-      </div>
-    </div>
-    <div class="pkg-grid" id="toramGrid"></div>
-    <p class="custom-cta">Need a different amount? <span class="link" data-custom="toram">Request a custom Spina quote →</span></p>
-  </div>
-</section>
+<section class="block toram" id="toram"><div class="wrap">
+  <div class="sec-head"><div><div class="sec-eyebrow">Toram Online</div><h2>Spina Packages</h2><p class="sub">Fast and safe Spina delivery straight to your character.</p></div></div>
+  <div class="pkg-grid" id="toramGrid"></div>
+</div></section>
 
-<!-- HOW -->
-<section class="block reveal" id="how">
-  <div class="wrap">
-    <div class="sec-head"><div><div class="sec-eyebrow" style="color:var(--violet)">Simple process</div><h2>How ordering works</h2></div></div>
-    <div class="steps">
-      <div class="step">
-        <div class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
-        <h3>Pick your package</h3><p>Add Penya or Spina to your cart — mix games and amounts freely.</p>
-      </div>
-      <div class="step">
-        <div class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div>
-        <h3>Pay via GCash or Bank</h3><p>Checkout shows the exact payment details. Send proof via Messenger or Discord.</p>
-      </div>
-      <div class="step">
-        <div class="ic"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg></div>
-        <h3>Receive in-game</h3><p>We trade the currency directly to your character — usually within minutes.</p>
-      </div>
-    </div>
+<section class="block" id="how"><div class="wrap">
+  <div class="sec-head"><div><div class="sec-eyebrow" style="color:var(--violet)">Escrow-protected</div><h2>How a safe order works</h2></div></div>
+  <div class="steps">
+    <div class="step"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg></div><h3>1. Order</h3><p>Log in, add Penya/Spina, and place your order. You get a private order page.</p></div>
+    <div class="step"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><h3>2. Pay &amp; upload proof</h3><p>Pay via GCash/Bank, then upload your receipt screenshot right on the order page.</p></div>
+    <div class="step"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><h3>3. Seller verifies</h3><p>We confirm your payment. Chat with us live on the order page anytime.</p></div>
+    <div class="step"><div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg></div><h3>4. Delivered</h3><p>We trade the currency to your character. You confirm — done &amp; protected!</p></div>
   </div>
-</section>
+</div></section>
 
-<!-- REVIEWS -->
-<section class="block reveal" id="reviews">
-  <div class="wrap">
-    <div class="sec-head">
-      <div>
-        <div class="sec-eyebrow" style="color:var(--good)">Wall of fame</div>
-        <h2>What players say</h2>
-        <p class="sub">Real reviews from real customers. Ordered before? Add yours!</p>
-      </div>
-      <button class="btn btn-ghost" id="writeReview" style="padding:12px 20px;font-size:14px">✍ Write a review</button>
-    </div>
-    <div class="rev-grid" id="revGrid"></div>
-  </div>
-</section>
+<section class="block" id="reviews"><div class="wrap">
+  <div class="sec-head"><div><div class="sec-eyebrow" style="color:var(--good)">Wall of fame</div><h2>What players say</h2></div><button class="btn btn-ghost btn-sm" id="writeReview">✍ Write a review</button></div>
+  <div class="rev-grid" id="revGrid"></div>
+</div></section>
 
-<!-- FAQ -->
-<section class="block reveal" id="faq">
-  <div class="wrap">
-    <div class="sec-head center" style="justify-content:center;text-align:center"><div style="width:100%"><div class="sec-eyebrow" style="color:var(--cyan);justify-content:center">Good to know</div><h2>Frequently asked questions</h2></div></div>
-    <div class="faq-list" id="faqList"></div>
-  </div>
-</section>
+<section class="block" id="faq"><div class="wrap">
+  <div class="sec-head" style="justify-content:center;text-align:center"><div style="width:100%"><div class="sec-eyebrow" style="color:var(--cyan);justify-content:center">Good to know</div><h2>Frequently asked questions</h2></div></div>
+  <div class="faq-list" id="faqList"></div>
+</div></section>
 
-<!-- CONTACT -->
-<section class="block reveal">
-  <div class="wrap">
-    <div class="contact-card">
-      <div>
-        <h2>Questions? Talk to a human.</h2>
-        <p>Message us anytime for custom amounts, bulk orders, or anything else. We usually reply within 30 minutes.</p>
-      </div>
-      <div class="contact-btns" id="contactBtns"></div>
-    </div>
-  </div>
-</section>
+<section class="block"><div class="wrap"><div class="contact-card">
+  <div><h2>Need help? Talk to us.</h2><p>For custom amounts, bulk orders, or anything else — reach us anytime. Logged-in buyers can also chat with the seller directly inside each order.</p></div>
+  <div class="contact-btns" id="contactBtns"></div>
+</div></div></section>
 
-<footer>
-  <div class="wrap foot-grid">
-    <div>© <span id="yr"></span> <span class="bname2">KrAV</span> — Premium Game Currency Store<br><span style="font-size:12.5px">Flyff Universe · Toram Online · More games soon</span></div>
-    <div class="foot-links">
-      <a href="#flyff">Shop</a><a href="#reviews">Reviews</a><a href="#faq">FAQ</a><a href="#" id="trackLink2">Track Order</a><a href="#" id="supportLink">Support</a>
-    </div>
-  </div>
-</footer>
+<footer><div class="wrap foot-grid">
+  <div>© <span id="yr"></span> <span class="bname2">KrAV</span> — Premium Game Currency Store<br><span style="font-size:12.5px">Flyff Universe · Toram Online · More games soon</span></div>
+  <div class="foot-links"><a href="#flyff">Shop</a><a href="#reviews">Reviews</a><a href="#faq">FAQ</a><a id="myOrdersLink">My Orders</a></div>
+</div></footer>
 
-<!-- CART DRAWER -->
 <div class="overlay" id="cartOverlay"></div>
-<aside class="drawer" id="cartDrawer">
-  <div class="drawer-head"><h3>Your Cart</h3><button class="close-x" data-close="cart"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+<aside class="drawer" id="cartDrawer"><div class="drawer-head"><h3>Your Cart</h3><button class="close-x" data-close="cart">✕</button></div>
   <div class="drawer-body" id="cartBody"></div>
-  <div class="drawer-foot" id="cartFoot" style="display:none">
-    <div class="cart-total"><span>Total</span><b id="cartTotal">₱0</b></div>
-    <button class="btn btn-gold" style="width:100%;justify-content:center" id="checkoutBtn">Proceed to checkout</button>
-  </div>
+  <div class="drawer-foot" id="cartFoot" style="display:none"><div class="cart-total"><span>Total</span><b id="cartTotal">₱0</b></div><button class="btn btn-gold" style="width:100%" id="checkoutBtn">Proceed to checkout</button></div>
 </aside>
 
-<!-- CHECKOUT DRAWER -->
 <div class="overlay" id="coOverlay"></div>
-<aside class="drawer" id="coDrawer">
-  <div class="drawer-head"><h3>Checkout</h3><button class="close-x" data-close="co"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
+<aside class="drawer" id="coDrawer"><div class="drawer-head"><h3>Checkout</h3><button class="close-x" data-close="co">✕</button></div>
   <div class="drawer-body">
     <div class="field"><label>In-game name (IGN) <span class="req">*</span></label><input id="fIgn" placeholder="Your character name"></div>
     <div class="field"><label>Server / World <span style="color:var(--dim)">(optional)</span></label><input id="fServer" placeholder="e.g. your Flyff server or Toram world"></div>
-    <div class="field"><label>Payment method <span class="req">*</span></label><div class="pay-opts" id="payOpts"></div></div>
+    <div class="field"><label>Pay with <span class="req">*</span></label><div class="pay-opts" id="payOpts"></div></div>
     <div class="field"><label>Note <span style="color:var(--dim)">(optional)</span></label><textarea id="fNote" placeholder="Anything we should know?"></textarea></div>
     <div class="cart-total" style="padding-top:10px;border-top:1px solid var(--line-soft)"><span>Total to pay</span><b id="coTotal">₱0</b></div>
   </div>
-  <div class="drawer-foot"><button class="btn btn-gold" style="width:100%;justify-content:center" id="placeBtn">Place order</button></div>
+  <div class="drawer-foot"><button class="btn btn-gold" style="width:100%" id="placeBtn">Place order</button></div>
 </aside>
 
-<!-- CONFIRMATION MODAL -->
-<div class="modal" id="confirmModal">
-  <div class="modal-card">
-    <div class="mc-head">
-      <div class="check-circle"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></div>
-      <h3>Order received!</h3>
-      <p class="mc-sub">Pay using the details below, then send your order summary + proof of payment via Messenger or Discord so we can process it.</p>
-    </div>
-    <div class="mc-body">
-      <div class="ref-box"><div class="lbl">Order reference</div><div class="ref" id="confRef">—</div></div>
-      <div class="pay-detail" id="confPay"></div>
-      <textarea class="summary" id="confSummary" readonly></textarea>
-      <div class="send-btns">
-        <button class="btn btn-copy" id="copyBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy order details</button>
-        <a class="btn btn-msgr" id="msgrBtn" target="_blank">Messenger</a>
-        <a class="btn btn-discord" id="discordBtn" target="_blank">Discord</a>
-      </div>
-      <p class="center" style="margin-top:18px;font-size:13px;color:var(--dim)">Save your reference: <span class="fm" id="confRef2"></span> · <span class="link" id="confDone">Done</span></p>
-    </div>
-  </div>
-</div>
+<div class="overlay" id="txOverlay"></div>
+<aside class="drawer" id="txDrawer" style="width:min(520px,100%)"><div class="drawer-head"><h3 id="txTitle">Order</h3><button class="close-x" data-close="tx">✕</button></div>
+  <div class="drawer-body" id="txBody"></div>
+</aside>
 
-<!-- TRACK MODAL -->
-<div class="modal" id="trackModal">
-  <div class="modal-card">
-    <div class="mc-head"><h3 style="margin-top:10px">Track your order</h3><p class="mc-sub">Enter your order reference (e.g. KRAV-XXXXX).</p></div>
-    <div class="mc-body">
-      <div class="field"><input id="trackInput" placeholder="KRAV-XXXXX" style="text-transform:uppercase"></div>
-      <button class="btn btn-gold" style="width:100%;justify-content:center" id="trackBtn">Check status</button>
-      <div id="trackResult" style="margin-top:16px"></div>
-      <p class="center" style="margin-top:14px"><span class="link" data-close="trackModal">Close</span></p>
-    </div>
-  </div>
-</div>
+<div class="overlay" id="moOverlay"></div>
+<aside class="drawer" id="moDrawer"><div class="drawer-head"><h3>My Orders</h3><button class="close-x" data-close="mo">✕</button></div>
+  <div class="drawer-body" id="moBody"></div>
+</aside>
 
-<!-- REVIEW MODAL -->
-<div class="modal" id="reviewModal">
-  <div class="modal-card">
-    <div class="mc-head"><h3 style="margin-top:10px">Write a review</h3><p class="mc-sub">Tell other players about your experience with KrAV.</p></div>
-    <div class="mc-body">
-      <div class="field"><label>Your name / IGN <span class="req">*</span></label><input id="rvName" placeholder="e.g. BladeMaster99"></div>
-      <div class="field"><label>Game</label><select id="rvGame"><option value="Flyff Universe">Flyff Universe</option><option value="Toram Online">Toram Online</option></select></div>
-      <div class="field"><label>Rating <span class="req">*</span></label><div class="stars-input" id="rvStars"><span data-s="1">★</span><span data-s="2">★</span><span data-s="3">★</span><span data-s="4">★</span><span data-s="5">★</span></div></div>
-      <div class="field"><label>Your review <span class="req">*</span></label><textarea id="rvText" placeholder="Fast delivery, legit seller..."></textarea></div>
-      <button class="btn btn-gold" style="width:100%;justify-content:center" id="rvSubmit">Post review</button>
-      <p class="center" style="margin-top:14px"><span class="link" data-close="reviewModal">Cancel</span></p>
-    </div>
+<div class="modal" id="authModal"><div class="modal-card">
+  <div class="mc-head"><h3 id="authTitle">Welcome to KrAV</h3><p class="mc-sub">Log in or create an account to order safely.</p></div>
+  <div class="mc-body">
+    <div class="tabs"><button id="tabLogin" class="on">Log in</button><button id="tabReg">Sign up</button></div>
+    <div id="regName" class="field" style="display:none"><label>Your name / IGN <span class="req">*</span></label><input id="aName" placeholder="e.g. BladeMaster"></div>
+    <div class="field"><label>Email <span class="req">*</span></label><input id="aEmail" type="email" placeholder="you@email.com"></div>
+    <div class="field"><label>Password <span class="req">*</span></label><input id="aPass" type="password" placeholder="At least 6 characters"></div>
+    <button class="btn btn-gold" style="width:100%" id="authSubmit">Log in</button>
+    <p class="center" style="margin-top:12px"><span class="link" data-close="authModal">Cancel</span></p>
   </div>
-</div>
+</div></div>
 
-<!-- SUPPORT / CUSTOM QUOTE MODAL -->
-<div class="modal" id="supportModal">
-  <div class="modal-card">
-    <div class="mc-head"><h3 style="margin-top:10px" id="supTitle">Contact support</h3><p class="mc-sub" id="supSub">Leave us a message and we'll get back to you. You can also reach us instantly on Messenger or Discord.</p></div>
-    <div class="mc-body">
-      <div class="field"><label>Your name / IGN <span class="req">*</span></label><input id="supName"></div>
-      <div class="field"><label>How can we reach you? <span class="req">*</span></label><input id="supContact" placeholder="Messenger name, Discord tag, or email"></div>
-      <div class="field"><label>Message <span class="req">*</span></label><textarea id="supMsg" placeholder="Type your question or request..."></textarea></div>
-      <button class="btn btn-gold" style="width:100%;justify-content:center" id="supSubmit">Send message</button>
-      <p class="center" style="margin-top:14px"><span class="link" data-close="supportModal">Cancel</span></p>
-    </div>
+<div class="modal" id="reviewModal"><div class="modal-card">
+  <div class="mc-head"><h3 style="margin-top:8px">Write a review</h3><p class="mc-sub">Tell other players about your experience.</p></div>
+  <div class="mc-body">
+    <div class="field"><label>Your name / IGN <span class="req">*</span></label><input id="rvName"></div>
+    <div class="field"><label>Game</label><select id="rvGame"><option>Flyff Universe</option><option>Toram Online</option></select></div>
+    <div class="field"><label>Rating <span class="req">*</span></label><div style="display:flex;gap:7px;font-size:27px;color:var(--line);cursor:pointer" id="rvStars"><span data-s="1">★</span><span data-s="2">★</span><span data-s="3">★</span><span data-s="4">★</span><span data-s="5">★</span></div></div>
+    <div class="field"><label>Review <span class="req">*</span></label><textarea id="rvText" placeholder="Fast and legit!"></textarea></div>
+    <button class="btn btn-gold" style="width:100%" id="rvSubmit">Post review</button>
+    <p class="center" style="margin-top:12px"><span class="link" data-close="reviewModal">Cancel</span></p>
   </div>
-</div>
+</div></div>
 
-<!-- ADMIN LOGIN -->
-<div class="modal" id="adminLogin">
-  <div class="modal-card" style="max-width:380px">
-    <div class="mc-head"><div class="check-circle"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><h3 style="margin-top:4px">Owner login</h3><p class="mc-sub">For the store owner only.</p></div>
-    <div class="mc-body">
-      <div class="field"><input type="password" id="adminPass" placeholder="Password"></div>
-      <button class="btn btn-gold" style="width:100%;justify-content:center" id="adminLoginBtn">Log in</button>
-      <p class="center" style="margin-top:12px"><span class="link" data-close="adminLogin">Cancel</span></p>
-    </div>
-  </div>
-</div>
+<div class="modal" id="adminLogin"><div class="modal-card" style="max-width:380px">
+  <div class="mc-head"><h3 style="margin-top:8px">Owner login</h3><p class="mc-sub">For the store owner only.</p></div>
+  <div class="mc-body"><div class="field"><input type="password" id="adminPass" placeholder="Admin password"></div>
+  <button class="btn btn-gold" style="width:100%" id="adminLoginBtn">Log in</button>
+  <p class="center" style="margin-top:12px"><span class="link" data-close="adminLogin">Cancel</span></p></div>
+</div></div>
 
-<!-- ADMIN PANEL -->
 <div class="admin" id="adminPanel">
-  <div class="admin-top">
-    <div class="brand" style="font-size:18px"><span class="bname">Kr<b style="color:var(--gold)">AV</b></span></div>
-    <span class="tag">Admin</span>
-    <div class="spacer"></div>
-    <button class="mini-btn" id="viewStoreBtn">View store</button>
-    <button class="mini-btn danger" id="adminClose">Exit</button>
-  </div>
+  <div class="admin-top"><div class="brand" style="font-size:18px"><span class="bname">Kr<b style="color:var(--gold)">AV</b></span></div><span class="tag">Seller</span><div class="spacer"></div><button class="mini-btn" id="viewStoreBtn">View store</button><button class="mini-btn danger" id="adminClose">Exit</button></div>
   <div class="admin-tabs">
-    <div class="admin-tab active" data-pane="products">Products &amp; Prices</div>
+    <div class="admin-tab active" data-pane="aorders">Orders<span class="n" id="nOrders" style="display:none">0</span></div>
+    <div class="admin-tab" data-pane="products">Products &amp; Prices</div>
     <div class="admin-tab" data-pane="payments">Payments</div>
-    <div class="admin-tab" data-pane="orders">Orders<span class="n" id="nOrders" style="display:none">0</span></div>
-    <div class="admin-tab" data-pane="chats">Live Chats<span class="n" id="nChats" style="display:none">0</span></div>
-    <div class="admin-tab" data-pane="tickets">Messages<span class="n" id="nTickets" style="display:none">0</span></div>
-    <div class="admin-tab" data-pane="reviews">Reviews</div>
+    <div class="admin-tab" data-pane="areviews">Reviews</div>
     <div class="admin-tab" data-pane="settings">Store &amp; Links</div>
   </div>
   <div class="admin-body">
-    <div class="admin-pane active" id="pane-products">
-      <h3>Products &amp; Prices</h3>
-      <p class="hint">Edit amounts and prices anytime. Toggle a package on/off or add new ones. Click <b>Save changes</b> to go live.</p>
-      <div class="group-label">Flyff Universe — Penya</div>
-      <div id="adminFlyff"></div>
-      <button class="mini-btn" data-addpkg="flyff">+ Add Penya package</button>
-      <div class="group-label">Toram Online — Spina</div>
-      <div id="adminToram"></div>
-      <button class="mini-btn" data-addpkg="toram">+ Add Spina package</button>
-      <div class="a-actions" style="margin-top:24px"><button class="mini-btn gold" id="saveProducts">Save changes</button></div>
-    </div>
-
-    <div class="admin-pane" id="pane-payments">
-      <h3>Payment Methods</h3>
-      <p class="hint">If your GCash hits its limit, just toggle it off and switch on another account. Only active methods are shown to customers.</p>
-      <div id="adminPayments"></div>
-      <button class="mini-btn" id="addPayment">+ Add payment method</button>
-      <div class="a-actions" style="margin-top:24px"><button class="mini-btn gold" id="savePayments">Save changes</button></div>
-    </div>
-
-    <div class="admin-pane" id="pane-orders">
-      <h3>Orders</h3>
-      <p class="hint">All orders placed through the website. Update the status as you confirm payment and deliver.</p>
-      <div class="a-actions" style="margin-bottom:16px"><button class="mini-btn" id="refreshOrders">↻ Refresh</button></div>
+    <div class="admin-pane active" id="pane-aorders"><h3>Orders</h3><p class="hint">Manage transactions. Review proof of payment, verify, deliver, and chat with buyers. Red dot = needs your attention.</p>
+      <div class="a-actions" style="margin-bottom:16px"><button class="mini-btn" id="refreshAOrders">↻ Refresh</button></div>
       <div id="adminOrders"></div>
     </div>
-
-    <div class="admin-pane" id="pane-chats">
-      <h3>Live Chats</h3>
-      <p class="hint">Live conversations with buyers from the chat bubble on your site. Your replies appear directly in their chat window. This list auto-refreshes while open.</p>
-      <div class="a-actions" style="margin-bottom:16px"><button class="mini-btn" id="refreshChats">↻ Refresh</button></div>
-      <div id="adminChats"></div>
+    <div class="admin-pane" id="pane-products"><h3>Products &amp; Prices</h3><p class="hint">Edit amounts and prices. Toggle on/off or add new. Click Save.</p>
+      <div class="group-label">Flyff Universe — Penya</div><div id="adminFlyff"></div><button class="mini-btn" data-addpkg="flyff">+ Add Penya package</button>
+      <div class="group-label">Toram Online — Spina</div><div id="adminToram"></div><button class="mini-btn" data-addpkg="toram">+ Add Spina package</button>
+      <div class="a-actions" style="margin-top:24px"><button class="mini-btn gold" id="saveProducts">Save changes</button></div>
     </div>
-
-    <div class="admin-pane" id="pane-tickets">
-      <h3>Customer Messages</h3>
-      <p class="hint">Support messages and custom quote requests from customers. Reply to them through their listed contact, then mark as resolved.</p>
-      <div class="a-actions" style="margin-bottom:16px"><button class="mini-btn" id="refreshTickets">↻ Refresh</button></div>
-      <div id="adminTickets"></div>
+    <div class="admin-pane" id="pane-payments"><h3>Payment Methods</h3><p class="hint">If your GCash hits its limit, toggle it off and switch on another. Only active ones show to buyers.</p>
+      <div id="adminPayments"></div><button class="mini-btn" id="addPayment">+ Add payment method</button>
+      <div class="a-actions" style="margin-top:24px"><button class="mini-btn gold" id="savePayments">Save changes</button></div>
     </div>
-
-    <div class="admin-pane" id="pane-reviews">
-      <h3>Reviews</h3>
-      <p class="hint">Customer reviews shown on the website. Delete anything inappropriate.</p>
-      <div class="a-actions" style="margin-bottom:16px"><button class="mini-btn" id="refreshReviews">↻ Refresh</button></div>
-      <div id="adminReviews"></div>
+    <div class="admin-pane" id="pane-areviews"><h3>Reviews</h3><p class="hint">Customer reviews on your site. Delete anything inappropriate.</p>
+      <div class="a-actions" style="margin-bottom:16px"><button class="mini-btn" id="refreshReviews">↻ Refresh</button></div><div id="adminReviews"></div>
     </div>
-
-    <div class="admin-pane" id="pane-settings">
-      <h3>Store &amp; Links</h3>
-      <p class="hint">Update your store name, hero text, announcement bar, contact links, and admin password.</p>
+    <div class="admin-pane" id="pane-settings"><h3>Store &amp; Links</h3><p class="hint">Store name, hero text, announcement bar, contact links, admin password.</p>
       <div class="a-card">
         <div class="a-field" style="margin-bottom:12px"><label>Store name</label><input id="setName"></div>
         <div class="a-field" style="margin-bottom:12px"><label>Hero headline</label><input id="setTagline"></div>
         <div class="a-field" style="margin-bottom:12px"><label>Hero description</label><textarea id="setLead" rows="2"></textarea></div>
-        <div class="a-field" style="margin-bottom:12px"><label>Announcement bar (leave blank to hide)</label><input id="setAnnounce" placeholder="e.g. 🎉 Weekend promo — 10% bonus Penya on all orders!"></div>
-        <div class="a-row">
-          <div class="a-field"><label>Messenger link (m.me/...)</label><input id="setMsgr" placeholder="https://m.me/yourpage"></div>
-          <div class="a-field"><label>Discord invite link</label><input id="setDiscord" placeholder="https://discord.gg/xxxx"></div>
-        </div>
-        <div class="a-field" style="margin-top:12px;max-width:280px"><label>Admin password <span style="color:var(--dim);font-weight:400">(leave blank to keep current)</span></label><input id="setPass" placeholder="Enter a new password to change"></div>
+        <div class="a-field" style="margin-bottom:12px"><label>Announcement bar (blank to hide)</label><input id="setAnnounce" placeholder="🎉 Weekend promo!"></div>
+        <div class="a-row"><div class="a-field"><label>Messenger link</label><input id="setMsgr" placeholder="https://m.me/yourpage"></div><div class="a-field"><label>Discord link</label><input id="setDiscord" placeholder="https://discord.gg/xxxx"></div></div>
+        <div class="a-field" style="margin-top:12px;max-width:280px"><label>Admin password <span style="color:var(--dim);font-weight:400">(blank = keep current)</span></label><input id="setPass" placeholder="New password"></div>
       </div>
       <div class="a-actions"><button class="mini-btn gold" id="saveSettings">Save changes</button></div>
     </div>
   </div>
 </div>
 
-<!-- CHAT WIDGET -->
-<button class="chat-fab" id="chatFab" title="Customer support">
-  <span class="pulse"></span>
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/></svg>
-</button>
-<div class="chat-box" id="chatBox">
-  <div class="chat-head">
-    <div class="cav"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 1 7 7v3a7 7 0 0 1-14 0V9a7 7 0 0 1 7-7z"/><path d="M8 21h8"/><path d="M12 19v2"/></svg></div>
-    <div><b>KrAV Support</b><span>● Online</span></div>
-    <button class="close-x" id="chatClose"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
-  </div>
-  <div class="chat-body" id="chatBody"></div>
-  <div class="chat-foot">
-    <input id="chatInput" placeholder="Type a message...">
-    <button id="chatSend"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
-  </div>
-</div>
-
+<div class="lightbox" id="lightbox"><img id="lightboxImg" src="" alt="proof"></div>
 <div id="toast"></div>
+<input type="file" id="proofFile" accept="image/*" style="display:none">
 
 <script>
-/* ============ STATE & STORAGE ============ */
-const CKEY = 'krav:config';
-let CONFIG = null, CART = [], selectedPay = null, rvRating = 0;
+let USER_TOKEN = localStorage.getItem('krav:utok')||null;
+let ADMIN_TOKEN = localStorage.getItem('krav:atok')||null;
+let USER = null; try{ USER = JSON.parse(localStorage.getItem('krav:user')||'null'); }catch(e){}
+let CONFIG = { store:{}, contacts:{}, payments:[], packages:[] };
+let CART = [], selectedPay=null, rvRating=0, authMode='login', authAfter=null;
 
-const GAMES = { flyff:{name:'Flyff Universe',currency:'Penya'}, toram:{name:'Toram Online',currency:'Spina'} };
-
-const DEFAULT_CONFIG = {
-  store:{ name:'KrAV',
-    tagline:'Level up your wallet. ||In-game riches, delivered fast.',
-    lead:"Buy Flyff Universe Penya and Toram Online Spina at fair prices, with quick in-game delivery and real human support. Pick a package, pay, and receive — it's that simple.",
-    announce:'' },
-  contacts:{ messenger:'', discord:'' },
-  payments:[
-    { id:'pay1', type:'GCash', name:'(Your GCash name)', number:'09xx xxx xxxx', active:true },
-    { id:'pay2', type:'Bank', name:'(Account name + bank)', number:'(Account number)', active:false }
-  ],
-  packages:[
-    { id:'f1', game:'flyff', label:'100,000,000', price:0, badge:'', active:true },
-    { id:'f2', game:'flyff', label:'500,000,000', price:0, badge:'Popular', active:true },
-    { id:'f3', game:'flyff', label:'1,000,000,000', price:0, badge:'Best value', active:true },
-    { id:'t1', game:'toram', label:'10,000,000', price:0, badge:'', active:true },
-    { id:'t2', game:'toram', label:'50,000,000', price:0, badge:'Popular', active:true },
-    { id:'t3', game:'toram', label:'100,000,000', price:0, badge:'Best value', active:true }
-  ]
-};
-
-const FAQS = [
-  { q:'Is buying from KrAV safe?', a:'Yes. We deliver via normal in-game trade and never ask for your account password. Your order reference lets you track everything, and you can verify us anytime on Messenger or Discord before paying.' },
-  { q:'How fast is delivery?', a:'Most orders are delivered within minutes to a few hours after payment is confirmed, depending on whether we are online. You will get a heads-up through your contact channel before the trade.' },
-  { q:'What payment methods do you accept?', a:'We currently accept the payment methods shown at checkout (GCash, bank transfer, and others as available). The exact account details appear after you place your order.' },
-  { q:'How does the in-game delivery work?', a:'After payment, we meet your character in-game at an agreed spot and trade the currency directly to you. Make sure your IGN and server in the order are correct.' },
-  { q:'Can I order an amount that is not listed?', a:'Absolutely! Use the "Request a custom quote" link under each game section or message us directly — we will quote you a fair price for any amount.' },
-  { q:'What if I have a problem with my order?', a:'Use the Track Order page with your reference, message us on Messenger/Discord, or send a support message through the chat bubble. We will sort it out quickly.' }
-];
-
-const peso = n => new Intl.NumberFormat('en-PH',{style:'currency',currency:'PHP',minimumFractionDigits:0,maximumFractionDigits:2}).format(n);
-const uid = p => p + Math.random().toString(36).slice(2,7);
-const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-/* ---- backend API data layer ---- */
-let ADMIN_TOKEN = localStorage.getItem('krav:token') || null;
-async function api(p, opts={}){
+async function api(p, opts){ opts=opts||{};
   const headers = Object.assign({'Content-Type':'application/json'}, opts.headers||{});
+  if(USER_TOKEN) headers['x-auth-token']=USER_TOKEN;
   if(ADMIN_TOKEN) headers['x-admin-token']=ADMIN_TOKEN;
   const r = await fetch(p, Object.assign({}, opts, {headers}));
-  if(!r.ok) throw new Error('API '+r.status);
-  return r.json();
+  const data = await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(data.error || ('Error '+r.status));
+  return data;
 }
-async function sGet(k){ try{ const d=await api('/api/kv?key='+encodeURIComponent(k)); return d.value??null; }catch(e){ return null; } }
-async function sSet(k,v){ try{ await api('/api/kv',{method:'POST',body:JSON.stringify({key:k,value:v})}); return true; }catch(e){ console.error(e); return false; } }
-async function sDel(k){ try{ await api('/api/kv?key='+encodeURIComponent(k),{method:'DELETE'}); }catch(e){} }
-async function sList(prefix){ try{ const d=await api('/api/kv/list?prefix='+encodeURIComponent(prefix)); return d.values||[]; }catch(e){ return []; } }
-const saveConfig = () => sSet(CKEY, CONFIG);
+const peso = n => new Intl.NumberFormat('en-PH',{style:'currency',currency:'PHP',minimumFractionDigits:0,maximumFractionDigits:2}).format(n||0);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const GAMES={flyff:{currency:'Penya'},toram:{currency:'Spina'}};
+let toastT; function toast(m,k){ k=k||'ok'; const t=document.getElementById('toast'); t.textContent=m; t.className='show '+k; clearTimeout(toastT); toastT=setTimeout(()=>t.className='',3000); }
 
-
-/* ============ TOAST ============ */
-let toastT;
-function toast(msg,kind='ok'){ const t=document.getElementById('toast'); t.textContent=msg; t.className='show '+kind; clearTimeout(toastT); toastT=setTimeout(()=>t.className='',2600); }
-
-/* ============ RENDER STORE ============ */
+async function loadConfig(){ try{ const d=await api('/api/kv?key=krav:config'); if(d.value) CONFIG=Object.assign(CONFIG,d.value); }catch(e){} }
 function renderStore(){
   document.getElementById('yr').textContent=new Date().getFullYear();
   const nm=esc(CONFIG.store.name||'KrAV');
-  document.querySelectorAll('.bname').forEach(s=>{ s.innerHTML = nm.length>2 ? nm.slice(0,-2)+'<b>'+nm.slice(-2)+'</b>' : '<b>'+nm+'</b>'; });
+  document.querySelectorAll('.bname').forEach(s=>s.innerHTML= nm.length>2?nm.slice(0,-2)+'<b>'+nm.slice(-2)+'</b>':'<b>'+nm+'</b>');
   document.querySelectorAll('.bname2').forEach(s=>s.textContent=CONFIG.store.name||'KrAV');
-  const tl=(CONFIG.store.tagline||'').split('||');
-  document.getElementById('heroTitle').innerHTML=esc(tl[0]||'')+' <span class="g">'+esc(tl[1]||'')+'</span>';
-  document.getElementById('heroLead').textContent=CONFIG.store.lead||'';
-  const ab=document.getElementById('announceBar');
-  if(CONFIG.store.announce){ ab.textContent=CONFIG.store.announce; ab.style.display='block'; } else ab.style.display='none';
-
-  ['flyff','toram'].forEach(game=>{
-    const grid=document.getElementById(game+'Grid');
-    const pkgs=CONFIG.packages.filter(p=>p.game===game&&p.active);
-    if(!pkgs.length){ grid.innerHTML='<div class="empty-note">No packages here yet — check back soon!</div>'; return; }
-    grid.innerHTML=pkgs.map(p=>{
-      const priced=Number(p.price)>0;
-      return `<div class="pkg">
-        ${p.badge?`<span class="badge">${esc(p.badge)}</span>`:''}
-        <div class="amt">${esc(p.label)}</div>
-        <div class="unit">${GAMES[game].currency}</div>
-        <div class="price ${priced?'':'tba'}">${priced?peso(p.price):'Price coming soon'}</div>
-        <button class="add" data-add="${p.id}" ${priced?'':'disabled'}>${priced?'Add to cart':'Unavailable'}</button>
-      </div>`;
-    }).join('');
+  if(CONFIG.store.tagline){ const t=(CONFIG.store.tagline||'').split('||'); document.getElementById('heroTitle').innerHTML=esc(t[0]||'')+' <span class="g">'+esc(t[1]||'')+'</span>'; }
+  if(CONFIG.store.lead) document.getElementById('heroLead').textContent=CONFIG.store.lead;
+  const ab=document.getElementById('announceBar'); if(CONFIG.store.announce){ ab.textContent=CONFIG.store.announce; ab.style.display='block'; } else ab.style.display='none';
+  ['flyff','toram'].forEach(g=>{
+    const grid=document.getElementById(g+'Grid'); const pk=(CONFIG.packages||[]).filter(p=>p.game===g&&p.active);
+    grid.innerHTML = pk.length? pk.map(p=>{ const ok=Number(p.price)>0; return '<div class="pkg">'+(p.badge?'<span class="badge">'+esc(p.badge)+'</span>':'')+'<div class="amt">'+esc(p.label)+'</div><div class="unit">'+GAMES[g].currency+'</div><div class="price '+(ok?'':'tba')+'">'+(ok?peso(p.price):'Price coming soon')+'</div><button class="add" data-add="'+p.id+'" '+(ok?'':'disabled')+'>'+(ok?'Add to cart':'Unavailable')+'</button></div>'; }).join('') : '<div class="empty-note">No packages here yet — check back soon!</div>';
   });
-
   const cb=document.getElementById('contactBtns'); cb.innerHTML='';
-  if(CONFIG.contacts.messenger) cb.insertAdjacentHTML('beforeend',`<a class="btn btn-msgr" href="${esc(CONFIG.contacts.messenger)}" target="_blank">Messenger</a>`);
-  if(CONFIG.contacts.discord) cb.insertAdjacentHTML('beforeend',`<a class="btn btn-discord" href="${esc(CONFIG.contacts.discord)}" target="_blank">Discord</a>`);
-  cb.insertAdjacentHTML('beforeend',`<button class="btn btn-ghost" id="leaveMsgBtn">Leave a message</button>`);
-  document.getElementById('leaveMsgBtn').onclick=()=>openSupport('support');
+  if(CONFIG.contacts.messenger) cb.insertAdjacentHTML('beforeend','<a class="btn btn-msgr" href="'+esc(CONFIG.contacts.messenger)+'" target="_blank">Messenger</a>');
+  if(CONFIG.contacts.discord) cb.insertAdjacentHTML('beforeend','<a class="btn btn-discord" href="'+esc(CONFIG.contacts.discord)+'" target="_blank">Discord</a>');
+}
+const FAQS=[
+  {q:'How does escrow / proof of payment work?',a:'After you pay, you upload a screenshot of your receipt on your order page. The seller verifies it before delivering your currency in-game — so both sides are protected.'},
+  {q:'Do I need an account?',a:'Yes — a free account (email + password) keeps your orders private, lets you track status, upload proof, and chat with the seller securely.'},
+  {q:'How fast is delivery?',a:'Usually minutes to a few hours after your payment is verified. You can chat with the seller on your order page anytime.'},
+  {q:'What payments do you accept?',a:'GCash and bank transfer (and others as shown at checkout). The exact account appears on your order page after you order.'},
+  {q:'Is my payment safe?',a:'You pay directly to the listed GCash/bank account and upload proof. The seller only delivers after verifying — and every order is tracked with a status timeline.'},
+  {q:'Can I order a custom amount?',a:'Yes! Message us via Messenger or Discord for custom amounts or bulk orders.'}
+];
+function renderFaqs(){ document.getElementById('faqList').innerHTML=FAQS.map(f=>'<details class="faq"><summary>'+esc(f.q)+'<span class="pm">+</span></summary><div class="faq-a">'+esc(f.a)+'</div></details>').join(''); }
+async function renderReviews(){ let r=[]; try{ const d=await api('/api/kv/list?prefix=krav:review:'); r=d.values||[]; }catch(e){} r.sort((a,b)=>b.createdAt-a.createdAt);
+  document.getElementById('revGrid').innerHTML = r.length? r.slice(0,9).map(x=>'<div class="rev"><div class="stars">'+'★'.repeat(x.rating)+'☆'.repeat(5-x.rating)+'</div><p>"'+esc(x.text)+'"</p><div class="who"><div class="av">'+esc((x.name||'?')[0].toUpperCase())+'</div><div><b>'+esc(x.name)+'</b><span>'+esc(x.game||'')+'</span></div></div></div>').join('') : '<div class="empty-note" style="grid-column:1/-1">No reviews yet — be the first! ⭐</div>'; }
+async function renderStats(){ let s={delivered:0,avgRating:null,recent:[]}; try{ s=await api('/api/stats'); }catch(e){}
+  const el=document.getElementById('statOrders'); let c=0,t=s.delivered||0,step=Math.max(1,Math.ceil(t/40)); const iv=setInterval(()=>{c=Math.min(t,c+step);el.textContent=c;if(c>=t)clearInterval(iv);},30);
+  if(s.avgRating) document.getElementById('statRating').textContent=s.avgRating.toFixed(1);
+  let ticks = (s.recent&&s.recent.length)? s.recent.map(o=>'<div class="tick"><span class="dot"></span><b>'+esc(o.ign)+'</b> received '+esc(o.label)+' '+esc(o.currency)+' <span class="fm">✓ delivered</span></div>') : ['<div class="tick"><span class="dot"></span><b>Escrow-protected</b> orders <span class="fm">🔒</span></div>','<div class="tick"><span class="dot"></span><b>Fast delivery</b> — usually minutes <span class="fm">⚡</span></div>','<div class="tick"><span class="dot"></span><b>GCash &amp; Bank</b> accepted <span class="fm">✓</span></div>','<div class="tick"><span class="dot"></span><b>Live seller chat</b> on every order <span class="fm">💬</span></div>'];
+  document.getElementById('tickerTrack').innerHTML=ticks.join('')+ticks.join('');
 }
 
-function renderFaqs(){
-  document.getElementById('faqList').innerHTML = FAQS.map(f=>`
-    <details class="faq"><summary>${esc(f.q)}<span class="pm">+</span></summary><div class="faq-a">${esc(f.a)}</div></details>`).join('');
+function updateAuthUI(){
+  const lbl=document.getElementById('acctLabel'), av=document.getElementById('acctAv');
+  if(USER){ lbl.textContent=USER.name.split(' ')[0]; av.textContent=USER.name[0].toUpperCase(); }
+  else { lbl.textContent='Log in'; av.textContent='?'; }
 }
-
-async function renderReviews(){
-  const reviews = await sList('krav:review:');
-  reviews.sort((a,b)=>b.createdAt-a.createdAt);
-  const grid=document.getElementById('revGrid');
-  if(!reviews.length){
-    grid.innerHTML='<div class="empty-note rev-empty">No reviews yet — be the first to share your experience! ⭐</div>';
-  } else {
-    grid.innerHTML=reviews.slice(0,9).map(r=>`<div class="rev">
-      <div class="stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
-      <p>"${esc(r.text)}"</p>
-      <div class="who"><div class="av">${esc((r.name||'?').charAt(0).toUpperCase())}</div><div><b>${esc(r.name)}</b><span>${esc(r.game||'')}</span></div></div>
-    </div>`).join('');
-  }
-  // stats
-  const avg = reviews.length ? (reviews.reduce((s,r)=>s+r.rating,0)/reviews.length) : null;
-  document.getElementById('statRating').textContent = avg? avg.toFixed(1) : '5.0';
+function openAuth(mode, after){ authMode=mode||'login'; authAfter=after||null; setAuthTab(authMode); document.getElementById('authModal').classList.add('open'); }
+function setAuthTab(m){ authMode=m;
+  document.getElementById('tabLogin').classList.toggle('on',m==='login');
+  document.getElementById('tabReg').classList.toggle('on',m==='reg');
+  document.getElementById('regName').style.display = m==='reg'?'block':'none';
+  document.getElementById('authSubmit').textContent = m==='reg'?'Create account':'Log in';
+  document.getElementById('authTitle').textContent = m==='reg'?'Create your account':'Welcome back';
 }
-
-async function renderTickerAndStats(){
-  let stats={delivered:0,avgRating:null,recent:[]};
-  try{ stats=await api('/api/stats'); }catch(e){}
-  // animated counter
-  const target = stats.delivered||0;
-  const el=document.getElementById('statOrders');
-  let cur=0; const stepN=Math.max(1,Math.ceil(target/40));
-  const iv=setInterval(()=>{ cur=Math.min(target,cur+stepN); el.textContent=cur; if(cur>=target) clearInterval(iv); },30);
-  if(stats.avgRating) document.getElementById('statRating').textContent=stats.avgRating.toFixed(1);
-
-  // ticker: show recent delivered orders if available, otherwise tasteful generic messages
-  let ticks=[];
-  if(stats.recent && stats.recent.length){
-    ticks = stats.recent.map(o=>`<div class="tick"><span class="dot"></span><b>${esc(o.ign)}</b> received ${esc(o.label)} ${esc(o.currency)} <span class="fm">✓ delivered</span></div>`);
-  } else {
-    ticks=[
-      '<div class="tick"><span class="dot"></span><b>Fast delivery</b> — most orders done in minutes <span class="fm">⚡</span></div>',
-      '<div class="tick"><span class="dot"></span><b>GCash &amp; Bank</b> payments accepted <span class="fm">✓</span></div>',
-      '<div class="tick"><span class="dot"></span><b>Flyff Universe Penya</b> in stock <span class="fm">✦</span></div>',
-      '<div class="tick"><span class="dot"></span><b>Toram Online Spina</b> in stock <span class="fm">✦</span></div>',
-      '<div class="tick"><span class="dot"></span><b>Custom amounts</b> available on request <span class="fm">★</span></div>',
-      '<div class="tick"><span class="dot"></span><b>Live support</b> — chat with us anytime <span class="fm">●</span></div>'
-    ];
-  }
-  document.getElementById('tickerTrack').innerHTML = ticks.join('')+ticks.join(''); // duplicated for seamless loop
+async function doAuth(){
+  const email=document.getElementById('aEmail').value.trim(), pass=document.getElementById('aPass').value, name=document.getElementById('aName').value.trim();
+  try{
+    const body = authMode==='reg'? {email:email,password:pass,name:name} : {email:email,password:pass};
+    const d = await api(authMode==='reg'?'/api/auth/register':'/api/auth/login',{method:'POST',body:JSON.stringify(body)});
+    USER_TOKEN=d.token; USER=d.user;
+    localStorage.setItem('krav:utok',USER_TOKEN); localStorage.setItem('krav:user',JSON.stringify(USER));
+    updateAuthUI(); document.getElementById('authModal').classList.remove('open');
+    document.getElementById('aEmail').value=''; document.getElementById('aPass').value=''; document.getElementById('aName').value='';
+    toast('Welcome, '+USER.name+'! 🎉');
+    if(authAfter){ const fn=authAfter; authAfter=null; fn(); }
+  }catch(e){ toast(e.message,'err'); }
 }
+function logout(){ USER=null; USER_TOKEN=null; localStorage.removeItem('krav:utok'); localStorage.removeItem('krav:user'); updateAuthUI(); }
 
-/* ============ CART ============ */
-const findPkg = id => CONFIG.packages.find(p=>p.id===id);
-const cartTotal = () => CART.reduce((s,i)=>{ const p=findPkg(i.id); return s+(p?Number(p.price)*i.qty:0); },0);
+const findPkg=id=>(CONFIG.packages||[]).find(p=>p.id===id);
+const cartTotal=()=>CART.reduce((s,i)=>{const p=findPkg(i.id);return s+(p?Number(p.price)*i.qty:0);},0);
 function updateBadge(){ const n=CART.reduce((s,i)=>s+i.qty,0); const b=document.getElementById('cartBadge'); b.style.display=n?'grid':'none'; b.textContent=n; }
-function addToCart(id){ const ex=CART.find(i=>i.id===id); if(ex)ex.qty++; else CART.push({id,qty:1}); updateBadge(); renderCart(); toast('Added to cart'); }
-function renderCart(){
-  const body=document.getElementById('cartBody'), foot=document.getElementById('cartFoot');
-  if(!CART.length){
-    body.innerHTML='<div class="cart-empty"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--dim);margin-bottom:12px"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><p>Your cart is empty.</p><p style="font-size:13px;margin-top:6px">Add some Penya or Spina to get started!</p></div>';
-    foot.style.display='none'; return;
-  }
-  body.innerHTML=CART.map(i=>{
-    const p=findPkg(i.id); if(!p)return'';
-    return `<div class="cart-item">
-      <div class="ci-main">
-        <div class="ci-amt">${esc(p.label)}</div>
-        <div class="ci-sub">${GAMES[p.game].currency} · ${peso(p.price)} each</div>
-        <div class="qty"><button data-q="-" data-id="${p.id}">−</button><span>${i.qty}</span><button data-q="+" data-id="${p.id}">+</button></div>
-        <div class="ci-remove" data-rm="${p.id}">Remove</div>
-      </div>
-      <div class="ci-price">${peso(p.price*i.qty)}</div>
-    </div>`;
-  }).join('');
-  foot.style.display='block';
-  document.getElementById('cartTotal').textContent=peso(cartTotal());
+function addToCart(id){ const e=CART.find(i=>i.id===id); if(e)e.qty++; else CART.push({id:id,qty:1}); updateBadge(); renderCart(); toast('Added to cart'); }
+function renderCart(){ const b=document.getElementById('cartBody'),f=document.getElementById('cartFoot');
+  if(!CART.length){ b.innerHTML='<div class="cart-empty"><p>Your cart is empty.</p><p style="font-size:13px;margin-top:6px">Add some Penya or Spina to get started!</p></div>'; f.style.display='none'; return; }
+  b.innerHTML=CART.map(i=>{const p=findPkg(i.id);if(!p)return'';return '<div class="cart-item"><div class="ci-main"><div class="ci-amt">'+esc(p.label)+'</div><div class="ci-sub">'+GAMES[p.game].currency+' · '+peso(p.price)+' each</div><div class="qty"><button data-q="-" data-id="'+p.id+'">−</button><span>'+i.qty+'</span><button data-q="+" data-id="'+p.id+'">+</button></div><div class="ci-remove" data-rm="'+p.id+'">Remove</div></div><div class="ci-price">'+peso(p.price*i.qty)+'</div></div>';}).join('');
+  f.style.display='block'; document.getElementById('cartTotal').textContent=peso(cartTotal());
 }
-
-/* ============ DRAWERS / MODALS ============ */
 function openDrawer(w){ document.getElementById(w+'Overlay').classList.add('open'); document.getElementById(w+'Drawer').classList.add('open'); }
 function closeDrawer(w){ document.getElementById(w+'Overlay').classList.remove('open'); document.getElementById(w+'Drawer').classList.remove('open'); }
-function openModal(id){ document.getElementById(id).classList.add('open'); }
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function openModal(id){ document.getElementById(id).classList.add('open'); } function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 
-/* ============ CHECKOUT ============ */
-function openCheckout(){
+function startCheckout(){
   if(!CART.length){ toast('Your cart is empty','err'); return; }
+  if(!USER){ closeDrawer('cart'); openAuth('login', ()=>startCheckout()); toast('Please log in to checkout'); return; }
   closeDrawer('cart');
-  const active=CONFIG.payments.filter(p=>p.active);
-  const po=document.getElementById('payOpts');
-  if(!active.length){ po.innerHTML='<div style="color:var(--dim);font-size:13px">No payment methods are active right now. (Owner: set them in the admin panel.)</div>'; selectedPay=null; }
-  else{
-    selectedPay=active[0].id;
-    po.innerHTML=active.map(p=>`<div class="pay-opt ${p.id===selectedPay?'sel':''}" data-pay="${p.id}">
-      <div class="radio"></div>
-      <div><div class="po-type">${esc(p.type)}</div><div class="po-acct">${esc(p.name)} · ${esc(p.number)}</div></div>
-    </div>`).join('');
-  }
-  document.getElementById('coTotal').textContent=peso(cartTotal());
-  openDrawer('co');
+  const active=(CONFIG.payments||[]).filter(p=>p.active); const po=document.getElementById('payOpts');
+  if(!active.length){ po.innerHTML='<div style="color:var(--dim);font-size:13px">No payment methods available right now.</div>'; selectedPay=null; }
+  else { selectedPay=active[0].id; po.innerHTML=active.map(p=>'<div class="pay-opt '+(p.id===selectedPay?'sel':'')+'" data-pay="'+p.id+'"><div class="radio"></div><div><div class="po-type">'+esc(p.type)+'</div><div class="po-acct">'+esc(p.name)+' · '+esc(p.number)+'</div></div></div>').join(''); }
+  document.getElementById('coTotal').textContent=peso(cartTotal()); openDrawer('co');
 }
 async function placeOrder(){
   const ign=document.getElementById('fIgn').value.trim();
-  if(!ign){ toast('Please enter your IGN','err'); document.getElementById('fIgn').focus(); return; }
+  if(!ign){ toast('Please enter your IGN','err'); return; }
   if(!selectedPay){ toast('Please select a payment method','err'); return; }
-  const pay=CONFIG.payments.find(p=>p.id===selectedPay);
-  const items=CART.map(i=>{ const p=findPkg(i.id); return {label:p.label,currency:GAMES[p.game].currency,qty:i.qty,price:Number(p.price)}; });
-  const order={
-    id:'KRAV-'+Date.now().toString(36).toUpperCase().slice(-5),
-    ign, server:document.getElementById('fServer').value.trim(),
-    note:document.getElementById('fNote').value.trim(),
-    payment:pay?{type:pay.type,name:pay.name,number:pay.number}:null,
-    items, total:cartTotal(), status:'pending', createdAt:Date.now()
-  };
-  if(!await sSet('krav:order:'+order.id, order)){ toast('Something went wrong saving your order. Please try again.','err'); return; }
-  showConfirmation(order);
-  CART=[]; updateBadge(); renderCart();
-  ['fIgn','fServer','fNote'].forEach(id=>document.getElementById(id).value='');
-  closeDrawer('co');
-}
-function buildSummary(o){
-  let s=`=== ORDER ${o.id} ===\nIGN: ${o.ign}\n`;
-  if(o.server)s+=`Server: ${o.server}\n`;
-  s+=`\nItems:\n`;
-  o.items.forEach(it=>{ s+=`• ${it.label} ${it.currency} x${it.qty} — ${peso(it.price*it.qty)}\n`; });
-  s+=`\nTOTAL: ${peso(o.total)}\n`;
-  if(o.payment)s+=`Payment: ${o.payment.type} (${o.payment.name} — ${o.payment.number})\n`;
-  if(o.note)s+=`Note: ${o.note}\n`;
-  s+=`\n(Attach your proof of payment screenshot.)`;
-  return s;
-}
-function showConfirmation(o){
-  document.getElementById('confRef').textContent=o.id;
-  document.getElementById('confRef2').textContent=o.id;
-  const pd=document.getElementById('confPay');
-  pd.innerHTML = o.payment ? `<div class="pd-row"><span>Pay via</span><span class="fm">${esc(o.payment.type)}</span></div>
-    <div class="pd-row"><span>Account name</span><span class="fm">${esc(o.payment.name)}</span></div>
-    <div class="pd-row"><span>Account number</span><span class="fm">${esc(o.payment.number)}</span></div>
-    <div class="pd-row" style="border-top:1px solid var(--line-soft);margin-top:6px;padding-top:10px"><span>Amount</span><span class="fm" style="color:var(--gold)">${peso(o.total)}</span></div>` : '';
-  document.getElementById('confSummary').value=buildSummary(o);
-  const mb=document.getElementById('msgrBtn'), db=document.getElementById('discordBtn');
-  if(CONFIG.contacts.messenger){ mb.href=CONFIG.contacts.messenger; mb.style.display='flex'; } else mb.style.display='none';
-  if(CONFIG.contacts.discord){ db.href=CONFIG.contacts.discord; db.style.display='flex'; } else db.style.display='none';
-  openModal('confirmModal');
-}
-
-/* ============ TRACK ============ */
-async function trackOrder(){
-  const ref=document.getElementById('trackInput').value.trim().toUpperCase();
-  const res=document.getElementById('trackResult');
-  if(!ref){ res.innerHTML=''; return; }
-  res.innerHTML='<p style="color:var(--dim);font-size:13px">Checking...</p>';
-  const o=await sGet('krav:order:'+ref);
-  if(!o){ res.innerHTML='<div class="empty-note">No order found for '+esc(ref)+'. Double-check your reference or contact support.</div>'; return; }
-  const stMap={pending:'st-pending',paid:'st-paid',delivered:'st-delivered'};
-  res.innerHTML=`<div class="ord-card">
-    <div class="ord-top"><span class="ord-ref">${o.id}</span><span class="ord-status ${stMap[o.status]}">${o.status}</span></div>
-    <div class="ord-items">${o.items.map(i=>esc(i.label)+' '+i.currency+' ×'+i.qty).join(', ')}</div>
-    <div class="ord-meta"><span>IGN: ${esc(o.ign)}</span><span>Total: ${peso(o.total)}</span></div>
-  </div>`;
-}
-
-/* ============ REVIEWS ============ */
-function openReview(){ rvRating=0; paintStars(); ['rvName','rvText'].forEach(id=>document.getElementById(id).value=''); openModal('reviewModal'); }
-function paintStars(){ document.querySelectorAll('#rvStars span').forEach(s=>s.classList.toggle('on', Number(s.dataset.s)<=rvRating)); }
-async function submitReview(){
-  const name=document.getElementById('rvName').value.trim();
-  const text=document.getElementById('rvText').value.trim();
-  if(!name||!text||!rvRating){ toast('Please add your name, rating, and review','err'); return; }
-  const rv={ id:uid('rv'), name, game:document.getElementById('rvGame').value, rating:rvRating, text, createdAt:Date.now() };
-  if(await sSet('krav:review:'+rv.id, rv)){ closeModal('reviewModal'); toast('Thanks for your review! ⭐'); renderReviews(); }
-  else toast('Could not post review. Try again.','err');
-}
-
-/* ============ SUPPORT / TICKETS ============ */
-let supKind='support';
-function openSupport(kind, game){
-  supKind=kind;
-  document.getElementById('supTitle').textContent = kind==='quote' ? 'Request a custom quote' : 'Contact support';
-  document.getElementById('supSub').textContent = kind==='quote'
-    ? `Tell us how much ${game==='toram'?'Spina':'Penya'} you need and we'll send you a price.`
-    : "Leave us a message and we'll get back to you. You can also reach us instantly on Messenger or Discord.";
-  document.getElementById('supMsg').placeholder = kind==='quote' ? 'e.g. I need 2.5B Penya — how much?' : 'Type your question or request...';
-  ['supName','supContact','supMsg'].forEach(id=>document.getElementById(id).value='');
-  openModal('supportModal');
-}
-async function submitSupport(){
-  const name=document.getElementById('supName').value.trim();
-  const contact=document.getElementById('supContact').value.trim();
-  const msg=document.getElementById('supMsg').value.trim();
-  if(!name||!contact||!msg){ toast('Please fill in all fields','err'); return; }
-  const tk={ id:uid('tk'), kind:supKind, name, contact, msg, status:'open', createdAt:Date.now() };
-  if(await sSet('krav:ticket:'+tk.id, tk)){ closeModal('supportModal'); toast("Message sent! We'll get back to you soon. 💬"); }
-  else toast('Could not send. Try again.','err');
-}
-
-/* ============ CHAT WIDGET ============ */
-const CHAT_QA=[
-  { k:'How do I order?', a:"Easy! Pick a package from the Flyff or Toram section, add it to your cart, and checkout with your IGN. You'll get payment details and an order reference right away. 🛒" },
-  { k:'Is this safe & legit?', a:'Yes! We deliver through normal in-game trades and never ask for your password. You can also check our customer reviews on the page, and chat with us on Messenger/Discord before paying. 🛡️' },
-  { k:'How fast is delivery?', a:"Most orders are delivered within minutes to a few hours after payment is confirmed. We'll message you before the in-game trade. ⚡" },
-  { k:'Payment methods?', a:'We accept the methods shown at checkout — typically GCash and bank transfer. Exact account details appear after you place your order. 💳' },
-  { k:'Track my order', a:'Click "Track Order" in the menu and enter your KRAV-XXXXX reference to see its live status. 🔎' },
-  { k:'Custom amount?', a:'Sure! Use the "Request a custom quote" link under each game section, or leave a message here and we\'ll quote you a fair price. ✨' }
-];
-function chatBot(text){ const b=document.getElementById('chatBody'); b.insertAdjacentHTML('beforeend',`<div class="msg bot">${text}</div>`); b.scrollTop=b.scrollHeight; }
-function chatUser(text){ const b=document.getElementById('chatBody'); b.insertAdjacentHTML('beforeend',`<div class="msg user">${esc(text)}</div>`); b.scrollTop=b.scrollHeight; }
-function chatChips(){
-  const b=document.getElementById('chatBody');
-  b.insertAdjacentHTML('beforeend',`<div class="chips"><button class="chip-q" data-chip="live">🟢 Live chat with the owner</button>${CHAT_QA.map((q,i)=>`<button class="chip-q" data-chip="${i}">${q.k}</button>`).join('')}</div>`);
-  b.scrollTop=b.scrollHeight;
-}
-
-/* ---- live buyer <-> owner chat ---- */
-const LIVE={ conv:null, await:false, shown:0, pollT:null };
-async function startLiveChat(){
-  chatUser('Live chat with the owner');
   try{
-    const saved=localStorage.getItem('krav:my-conv');
-    if(saved){ const c=await sGet('krav:conv:'+saved); if(c){ LIVE.conv=c; LIVE.shown=0; enterLive(true); return; } }
-  }catch(e){}
-  LIVE.await=true;
-  chatBot("You're starting a live chat with the owner. 🟢 First — what's your name or IGN?");
+    const d=await api('/api/orders',{method:'POST',body:JSON.stringify({ items:CART.map(i=>({id:i.id,qty:i.qty})), ign:ign, server:document.getElementById('fServer').value.trim(), note:document.getElementById('fNote').value.trim(), paymentId:selectedPay })});
+    CART=[]; updateBadge(); renderCart(); ['fIgn','fServer','fNote'].forEach(id=>document.getElementById(id).value='');
+    closeDrawer('co'); openTransaction(d.order.id); toast('Order placed! Now pay and upload your proof. 🧾');
+  }catch(e){ toast(e.message,'err'); }
 }
-async function createConv(name){
-  const c={ id:uid('cv'), name, messages:[], status:'open', createdAt:Date.now(), updatedAt:Date.now() };
-  if(!await sSet('krav:conv:'+c.id, c)){ chatBot('Hmm, could not start the chat. Please try again.'); LIVE.await=false; return; }
-  try{ localStorage.setItem('krav:my-conv', c.id); }catch(e){}
-  LIVE.conv=c; LIVE.await=false; LIVE.shown=0;
-  enterLive(false);
+
+const STEP_LABELS=[['awaiting_payment','Order placed'],['proof_submitted','Proof sent'],['payment_verified','Verified'],['delivered','Delivered'],['completed','Completed']];
+const STATUS_TEXT={awaiting_payment:'Awaiting payment',proof_submitted:'Proof submitted',payment_verified:'Payment verified',delivered:'Delivered',completed:'Completed',cancelled:'Cancelled'};
+let TX={id:null,order:null,poll:null,shownMsgs:0};
+function openTransaction(id){ TX.id=id; TX.shownMsgs=0; TX.order=null; openDrawer('tx'); loadTx(true); startTxPoll(); }
+function closeTx(){ closeDrawer('tx'); stopTxPoll(); TX.id=null; }
+function startTxPoll(){ stopTxPoll(); TX.poll=setInterval(()=>loadTx(false),5000); }
+function stopTxPoll(){ if(TX.poll){clearInterval(TX.poll);TX.poll=null;} }
+async function loadTx(full){
+  if(!TX.id) return;
+  try{ const d=await api('/api/orders/'+TX.id); const prev=TX.order; TX.order=d.order; renderTx(prev, full); }
+  catch(e){ if(full){ document.getElementById('txBody').innerHTML='<div class="empty-note">'+esc(e.message)+'</div>'; } }
 }
-function enterLive(resumed){
-  chatBot(resumed
-    ? `Welcome back, <b>${esc(LIVE.conv.name)}</b>! Here's your conversation with the owner: 👇`
-    : `You're connected, <b>${esc(LIVE.conv.name)}</b>! Type below and your message goes straight to the owner. Replies show up right here — give it a few moments. 💬`);
-  renderLiveMsgs();
-  startPoll();
-}
-function renderLiveMsgs(){
-  if(!LIVE.conv) return;
-  const ms=LIVE.conv.messages;
-  for(let i=LIVE.shown;i<ms.length;i++){
-    const m=ms[i];
-    if(m.from==='owner') chatBot('👑 <b>Owner:</b> '+esc(m.text));
-    else chatUser(m.text);
+function stepIndex(st){ const m={awaiting_payment:0,proof_submitted:1,payment_verified:2,delivered:3,completed:4}; return m[st]!==undefined?m[st]:0; }
+function renderTx(prev, full){
+  const o=TX.order; if(!o) return;
+  document.getElementById('txTitle').textContent='Order '+o.id;
+  const cur=stepIndex(o.status); const cancelled=o.status==='cancelled';
+  const statusChanged = !prev || prev.status!==o.status;
+  if(full || statusChanged || !document.getElementById('txShell')){
+    let stepper='<div class="stepper">'+STEP_LABELS.map((s,i)=>'<div class="st-node '+(i<cur?'done':'')+' '+(i===cur&&!cancelled?'active':'')+'"><div class="st-dot">'+(i<cur?'✓':(i+1))+'</div><div class="st-lbl">'+s[1]+'</div></div>').join('')+'</div>';
+    let payBox = o.payment ? '<div class="pay-detail"><div class="pd-row"><span>Pay via</span><span class="fm">'+esc(o.payment.type)+'</span></div><div class="pd-row"><span>Account name</span><span class="fm">'+esc(o.payment.name)+'</span></div><div class="pd-row"><span>Account number</span><span class="fm">'+esc(o.payment.number)+'</span></div><div class="pd-row" style="border-top:1px solid var(--line-soft);margin-top:6px;padding-top:10px"><span>Amount to pay</span><span class="fm" style="color:var(--gold)">'+peso(o.total)+'</span></div></div>' : '';
+    let action='';
+    if(o.status==='awaiting_payment'){
+      action='<p style="font-size:13.5px;color:var(--muted);margin-bottom:10px">Send <b style="color:var(--gold)">'+peso(o.total)+'</b> to the account above, then upload your receipt screenshot:</p><div class="upload-zone" id="uploadZone"><div style="font-size:30px;margin-bottom:6px">📷</div>Tap to upload proof of payment<br><span style="font-size:12px">(screenshot of your GCash/bank receipt)</span></div><div id="proofPreviewWrap"></div>';
+    } else if(o.status==='proof_submitted'){
+      action='<div class="pay-detail" style="border-color:rgba(34,211,238,.3)"><b style="color:var(--cyan)">✓ Proof submitted!</b><p style="font-size:13.5px;color:var(--muted);margin-top:6px">Waiting for the seller to verify your payment. You will see it update here. Chat below if you have questions.</p></div>'+(o.proof?'<img src="'+o.proof+'" class="proof-preview" alt="proof">':'');
+    } else if(o.status==='payment_verified'){
+      action='<div class="pay-detail" style="border-color:rgba(139,92,246,.3)"><b style="color:#B79AFF">✓ Payment verified!</b><p style="font-size:13.5px;color:var(--muted);margin-top:6px">The seller is preparing your in-game delivery. Make sure your IGN <b>'+esc(o.ign)+'</b> is online/reachable.</p></div>';
+    } else if(o.status==='delivered'){
+      action='<div class="pay-detail" style="border-color:rgba(62,224,160,.3)"><b style="color:var(--good)">📦 Delivered!</b><p style="font-size:13.5px;color:var(--muted);margin-top:6px">The seller marked this as delivered in-game. Got your currency? Confirm to complete the order.</p></div><button class="btn btn-gold" style="width:100%" id="confirmBtn">✓ I received it — Complete order</button>';
+    } else if(o.status==='completed'){
+      action='<div class="pay-detail" style="border-color:rgba(62,224,160,.4);text-align:center"><div style="font-size:34px">🎉</div><b style="color:var(--good)">Order completed!</b><p style="font-size:13.5px;color:var(--muted);margin-top:6px">Thank you! Enjoyed the service? <span class="link" id="txReview">Leave a review ★</span></p></div>';
+    } else if(o.status==='cancelled'){
+      action='<div class="pay-detail" style="border-color:rgba(255,107,122,.3)"><b style="color:var(--danger)">Order cancelled</b><p style="font-size:13.5px;color:var(--muted);margin-top:6px">This order was cancelled. Chat below or contact support if you need help.</p></div>';
+    }
+    const items=o.items.map(i=>esc(i.label)+' '+i.currency+' ×'+i.qty).join(', ');
+    document.getElementById('txBody').innerHTML='<div id="txShell"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><span class="ord-status stt-'+o.status+'">'+STATUS_TEXT[o.status]+'</span><span style="font-size:12.5px;color:var(--dim)">'+new Date(o.createdAt).toLocaleString()+'</span></div>'+stepper+'<div class="pay-detail" style="background:var(--panel2)"><div class="pd-row"><span>Items</span><span style="text-align:right;max-width:60%">'+items+'</span></div><div class="pd-row"><span>IGN</span><span class="fm">'+esc(o.ign)+'</span></div>'+(o.server?'<div class="pd-row"><span>Server</span><span>'+esc(o.server)+'</span></div>':'')+'</div>'+payBox+action+'<div class="group-label" style="margin-top:22px">💬 Chat with seller</div><div class="ochat"><div class="ochat-body" id="ochatBody"></div><div class="ochat-foot"><input id="ochatInput" placeholder="Type a message..."><button id="ochatSend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button></div></div></div>';
+    TX.shownMsgs=0;
+    const uz=document.getElementById('uploadZone'); if(uz) uz.onclick=()=>{ document.getElementById('proofFile').click(); };
+    const cf=document.getElementById('confirmBtn'); if(cf) cf.onclick=confirmReceived;
+    const tr=document.getElementById('txReview'); if(tr) tr.onclick=()=>openReview();
+    const si=document.getElementById('ochatInput'); if(si) si.addEventListener('keydown',e=>{ if(e.key==='Enter') sendTxMsg(); });
+    const sb=document.getElementById('ochatSend'); if(sb) sb.onclick=sendTxMsg;
   }
-  LIVE.shown=ms.length;
+  renderTxChat();
 }
-async function sendLive(text){
-  chatUser(text); LIVE.shown++;
-  LIVE.conv.messages.push({from:'buyer',text,at:Date.now()});
-  LIVE.conv.updatedAt=Date.now();
-  await sSet('krav:conv:'+LIVE.conv.id, LIVE.conv);
+function renderTxChat(){
+  const o=TX.order; const body=document.getElementById('ochatBody'); if(!body) return;
+  const msgs=o.messages||[];
+  if(msgs.length<TX.shownMsgs){ body.innerHTML=''; TX.shownMsgs=0; }
+  if(!msgs.length){ if(!body.dataset.empty){ body.dataset.empty='1'; body.innerHTML='<div style="color:var(--dim);font-size:13px;text-align:center;margin:auto">No messages yet. Say hi or ask a question! 👋</div>'; } return; }
+  if(body.dataset.empty){ body.innerHTML=''; body.dataset.empty=''; }
+  for(let i=TX.shownMsgs;i<msgs.length;i++){ const m=msgs[i]; body.insertAdjacentHTML('beforeend','<div class="om '+m.from+'">'+esc(m.text)+'<span class="tt">'+(m.from==='seller'?'Seller':'You')+' · '+new Date(m.at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'</span></div>'); }
+  TX.shownMsgs=msgs.length; body.scrollTop=body.scrollHeight;
 }
-async function pollConv(){
-  if(!LIVE.conv) return;
-  const c=await sGet('krav:conv:'+LIVE.conv.id);
-  if(c){ LIVE.conv=c; renderLiveMsgs(); }
+async function sendTxMsg(){ const i=document.getElementById('ochatInput'); const v=i.value.trim(); if(!v) return; i.value='';
+  try{ await api('/api/orders/'+TX.id+'/message',{method:'POST',body:JSON.stringify({text:v})}); await loadTx(false); }catch(e){ toast(e.message,'err'); }
 }
-function startPoll(){ stopPoll(); LIVE.pollT=setInterval(pollConv, 5000); }
-function stopPoll(){ if(LIVE.pollT){ clearInterval(LIVE.pollT); LIVE.pollT=null; } }
+async function confirmReceived(){ try{ await api('/api/orders/'+TX.id+'/confirm',{method:'POST'}); toast('Order completed — thank you! 🎉'); loadTx(true); }catch(e){ toast(e.message,'err'); } }
 
-let chatStarted=false;
-function openChat(){
-  document.getElementById('chatBox').classList.add('open');
-  if(!chatStarted){
-    chatStarted=true;
-    setTimeout(()=>{ chatBot(`Hi there! 👋 Welcome to ${esc(CONFIG.store.name||'KrAV')}. I'm the store assistant — how can I help?`); chatChips(); },250);
-  } else if(LIVE.conv){ pollConv(); startPoll(); }
-}
-function chatHandle(text){
-  if(LIVE.await){ chatUser(text); createConv(text.trim().slice(0,40)||'Guest'); return; }
-  if(LIVE.conv){ sendLive(text); return; }
-  chatUser(text);
-  setTimeout(()=>{
-    const t=text.toLowerCase();
-    let ans=null;
-    if(/(order|buy|purchase|checkout)/.test(t)) ans=CHAT_QA[0].a;
-    else if(/(safe|legit|scam|trust)/.test(t)) ans=CHAT_QA[1].a;
-    else if(/(fast|deliver|long|time|when)/.test(t)) ans=CHAT_QA[2].a;
-    else if(/(pay|gcash|bank|method)/.test(t)) ans=CHAT_QA[3].a;
-    else if(/(track|status|reference)/.test(t)) ans=CHAT_QA[4].a;
-    else if(/(custom|amount|bulk|quote)/.test(t)) ans=CHAT_QA[5].a;
-    else if(/(human|person|owner|admin|talk)/.test(t)) ans=humanAnswer();
-    else ans="Good question! I'm just a simple helper bot 🤖 — for anything specific, tap \"Talk to a human\" below or leave us a message and the owner will reply personally.";
-    chatBot(ans); chatChips();
-  },550);
-}
-function humanAnswer(){
-  let links=[];
-  if(CONFIG.contacts.messenger) links.push(`<a href="${esc(CONFIG.contacts.messenger)}" target="_blank" style="color:var(--gold);font-weight:600">Messenger</a>`);
-  if(CONFIG.contacts.discord) links.push(`<a href="${esc(CONFIG.contacts.discord)}" target="_blank" style="color:var(--gold);font-weight:600">Discord</a>`);
-  const reach = links.length ? `You can reach the owner directly on ${links.join(' or ')}. ` : '';
-  return `${reach}Or tap below to leave a message and we'll get back to you! <br><br><button class="chip-q" data-chip="ticket">📝 Leave a message</button>`;
+document.getElementById('proofFile').addEventListener('change', e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{ const img=new Image(); img.onload=()=>{
+    const max=1000; let w=img.width,h=img.height; if(w>max){ h=h*max/w; w=max; } if(h>max){ w=w*max/h; h=max; }
+    const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h);
+    let q=0.7, dataUrl=c.toDataURL('image/jpeg',q);
+    while(dataUrl.length>2.4e6 && q>0.3){ q-=0.1; dataUrl=c.toDataURL('image/jpeg',q); }
+    const wrap=document.getElementById('proofPreviewWrap');
+    if(wrap){ wrap.innerHTML='<img src="'+dataUrl+'" class="proof-preview"><button class="btn btn-gold" style="width:100%;margin-top:10px" id="submitProof">Submit proof of payment</button>';
+      const sp=document.getElementById('submitProof'); if(sp) sp.onclick=()=>submitProof(dataUrl); }
+  }; img.src=ev.target.result; };
+  reader.readAsDataURL(file);
+  e.target.value='';
+});
+async function submitProof(dataUrl){
+  try{ await api('/api/orders/'+TX.id+'/proof',{method:'POST',body:JSON.stringify({image:dataUrl})}); toast('Proof submitted! Seller will verify soon. ✓'); loadTx(true); }
+  catch(e){ toast(e.message,'err'); }
 }
 
-/* ============ OWNER NOTIFICATIONS ============ */
-let OWNER=false, lastUnread=null;
-function beep(){
-  try{
-    const ctx=new (window.AudioContext||window.webkitAudioContext)();
-    const o=ctx.createOscillator(), g=ctx.createGain();
-    o.connect(g); g.connect(ctx.destination);
-    o.type='sine'; o.frequency.value=880; g.gain.value=.12;
-    o.start(); o.frequency.setValueAtTime(1175,ctx.currentTime+.12);
-    g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+.4);
-    o.stop(ctx.currentTime+.4);
-  }catch(e){}
+async function openMyOrders(){
+  if(!USER){ openAuth('login',()=>openMyOrders()); return; }
+  openDrawer('mo'); const b=document.getElementById('moBody'); b.innerHTML='<div style="color:var(--dim);padding:20px;text-align:center">Loading...</div>';
+  try{ const d=await api('/api/me'); const o=d.orders||[];
+    b.innerHTML = o.length? o.map(x=>'<div class="ord-row" data-openorder="'+x.id+'"><div><div class="ref">'+x.id+'</div><div class="meta">'+x.items.map(i=>i.label+' '+i.currency).join(', ')+' · '+peso(x.total)+'</div></div><span class="ord-status stt-'+x.status+'">'+STATUS_TEXT[x.status]+'</span></div>').join('')+'<div style="text-align:center;margin-top:16px"><span class="link" id="logoutLink">Log out</span></div>' : '<div class="empty-note">No orders yet. Browse the store and place your first order!</div><div style="text-align:center;margin-top:16px"><span class="link" id="logoutLink">Log out</span></div>';
+    const ll=document.getElementById('logoutLink'); if(ll) ll.onclick=()=>{ logout(); closeDrawer('mo'); toast('Logged out'); };
+  }catch(e){ b.innerHTML='<div class="empty-note">'+esc(e.message)+'</div>'; }
 }
-async function checkNewMessages(){
+
+function openReview(){ rvRating=0; paintStars(); document.getElementById('rvName').value=USER?USER.name:''; document.getElementById('rvText').value=''; openModal('reviewModal'); }
+function paintStars(){ document.querySelectorAll('#rvStars span').forEach(s=>s.style.color=Number(s.dataset.s)<=rvRating?'var(--gold)':'var(--line)'); }
+async function submitReview(){ const name=document.getElementById('rvName').value.trim(),text=document.getElementById('rvText').value.trim();
+  if(!name||!text||!rvRating){ toast('Add name, rating, and review','err'); return; }
+  try{ await api('/api/kv',{method:'POST',body:JSON.stringify({key:'krav:review:'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),value:{name:name,game:document.getElementById('rvGame').value,rating:rvRating,text:text,createdAt:Date.now()}})}); closeModal('reviewModal'); toast('Thanks for your review! ⭐'); renderReviews(); }catch(e){ toast(e.message,'err'); }
+}
+
+let OWNER=false, lastAttention=null;
+function beep(){ try{ const c=new(window.AudioContext||window.webkitAudioContext)(); const o=c.createOscillator(),g=c.createGain(); o.connect(g);g.connect(c.destination); o.type='sine';o.frequency.value=880;g.gain.value=.12;o.start();o.frequency.setValueAtTime(1175,c.currentTime+.12);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.4);o.stop(c.currentTime+.4);}catch(e){} }
+async function checkAttention(){
   if(!OWNER) return;
-  const convs=await sList('krav:conv:');
-  const unread=convs.filter(c=>{ const last=c.messages[c.messages.length-1]; return last && last.from==='buyer'; }).length;
-  const dot=document.getElementById('ownerAlert');
-  dot.style.display = unread>0 ? 'block' : 'none';
-  const n=document.getElementById('nChats'); n.style.display=unread?'inline-grid':'none'; n.textContent=unread;
-  if(lastUnread!==null && unread>lastUnread){
-    beep();
-    toast(`🔔 New message from a buyer! (${unread} waiting)`);
-    if(document.getElementById('adminPanel').classList.contains('open') &&
-       document.getElementById('pane-chats').classList.contains('active')) renderChats();
-  }
-  lastUnread=unread;
+  try{ const d=await api('/api/admin/orders'); const need=(d.orders||[]).filter(o=>o.unreadForSeller).length;
+    const dot=document.getElementById('ownerAlert'); dot.style.display=need?'block':'none';
+    const n=document.getElementById('nOrders'); n.style.display=need?'inline-grid':'none'; n.textContent=need;
+    if(lastAttention!==null && need>lastAttention){ beep(); toast('🔔 New activity on an order!'); if(document.getElementById('pane-aorders').classList.contains('active')) renderAdminOrders(); }
+    lastAttention=need;
+  }catch(e){}
 }
-setInterval(checkNewMessages, 8000);
+setInterval(checkAttention,8000);
 
-/* ============ ADMIN ============ */
-function renderAdmin(){
-  ['flyff','toram'].forEach(game=>{
-    const wrap=document.getElementById('admin'+game.charAt(0).toUpperCase()+game.slice(1));
-    const pkgs=CONFIG.packages.filter(p=>p.game===game);
-    wrap.innerHTML=pkgs.map(p=>`<div class="a-card">
-      <div class="a-row3">
-        <div class="a-field"><label>Amount (label)</label><input data-pf="label" data-id="${p.id}" value="${esc(p.label)}"></div>
-        <div class="a-field"><label>Price (₱)</label><input type="number" data-pf="price" data-id="${p.id}" value="${p.price}"></div>
-        <div class="a-field"><label>Badge</label><input data-pf="badge" data-id="${p.id}" value="${esc(p.badge||'')}" placeholder="(none)" style="max-width:120px"></div>
-      </div>
-      <div class="a-actions">
-        <span class="toggle ${p.active?'on':''}" data-toggle="${p.id}"><span class="sw"></span>${p.active?'Visible':'Hidden'}</span>
-        <button class="mini-btn danger" data-delpkg="${p.id}" style="margin-left:auto">Delete</button>
-      </div>
-    </div>`).join('') || '<p style="color:var(--dim);font-size:13px;margin-bottom:10px">No packages yet.</p>';
-  });
-  renderAdminPayments();
-  document.getElementById('setName').value=CONFIG.store.name||'';
-  document.getElementById('setTagline').value=(CONFIG.store.tagline||'').replace('||',' ');
-  document.getElementById('setLead').value=CONFIG.store.lead||'';
-  document.getElementById('setAnnounce').value=CONFIG.store.announce||'';
-  document.getElementById('setMsgr').value=CONFIG.contacts.messenger||'';
-  document.getElementById('setDiscord').value=CONFIG.contacts.discord||'';
-  document.getElementById('setPass').value='';
-}
-function renderAdminPayments(){
-  document.getElementById('adminPayments').innerHTML=CONFIG.payments.map(p=>`<div class="a-card">
-    <div class="a-row3">
-      <div class="a-field"><label>Type</label><select data-yf="type" data-id="${p.id}">${['GCash','Maya','Bank','GoTyme','SeaBank','Other'].map(t=>`<option ${p.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
-      <div class="a-field"><label>Account name</label><input data-yf="name" data-id="${p.id}" value="${esc(p.name||'')}"></div>
-      <div class="a-field"><label>Number</label><input data-yf="number" data-id="${p.id}" value="${esc(p.number||'')}"></div>
-    </div>
-    <div class="a-actions">
-      <span class="toggle ${p.active?'on':''}" data-ytoggle="${p.id}"><span class="sw"></span>${p.active?'Active (shown to customers)':'Off'}</span>
-      <button class="mini-btn danger" data-delpay="${p.id}" style="margin-left:auto">Delete</button>
-    </div>
-  </div>`).join('') || '<p style="color:var(--dim);font-size:13px">No payment methods yet.</p>';
-}
-async function renderOrders(){
+async function renderAdminOrders(){
   const wrap=document.getElementById('adminOrders');
-  wrap.innerHTML='<p style="color:var(--dim);font-size:13px">Loading...</p>';
-  const orders=(await sList('krav:order:')).sort((a,b)=>b.createdAt-a.createdAt);
-  const pend=orders.filter(o=>o.status==='pending').length;
-  const n=document.getElementById('nOrders'); n.style.display=pend?'inline-grid':'none'; n.textContent=pend;
-  if(!orders.length){ wrap.innerHTML='<div class="empty-note">No orders yet. Orders placed on the website will show up here.</div>'; return; }
-  const stMap={pending:'st-pending',paid:'st-paid',delivered:'st-delivered'};
-  wrap.innerHTML=orders.map(o=>`<div class="ord-card">
-    <div class="ord-top"><span class="ord-ref">${o.id}</span><span class="ord-status ${stMap[o.status]||''}">${o.status}</span></div>
-    <div class="ord-items">${o.items.map(i=>esc(i.label)+' '+i.currency+' ×'+i.qty).join(', ')}</div>
-    <div class="ord-meta">
-      <span>IGN: ${esc(o.ign)}</span>${o.server?`<span>Server: ${esc(o.server)}</span>`:''}
-      <span>Total: ${peso(o.total)}</span>${o.payment?`<span>${esc(o.payment.type)}</span>`:''}
-      <span>${new Date(o.createdAt).toLocaleString()}</span>
-    </div>
-    ${o.note?`<div class="ord-meta" style="margin-top:5px">Note: ${esc(o.note)}</div>`:''}
-    <div class="a-actions" style="margin-top:11px">
-      <button class="mini-btn" data-ostatus="paid" data-oid="${o.id}">Mark Paid</button>
-      <button class="mini-btn" data-ostatus="delivered" data-oid="${o.id}">Mark Delivered</button>
-      <button class="mini-btn" data-ostatus="pending" data-oid="${o.id}">Mark Pending</button>
-      <button class="mini-btn danger" data-odel="${o.id}" style="margin-left:auto">Delete</button>
-    </div>
-  </div>`).join('');
+  try{ const d=await api('/api/admin/orders'); const orders=d.orders||[];
+    if(!orders.length){ wrap.innerHTML='<div class="empty-note">No orders yet.</div>'; return; }
+    wrap.innerHTML=orders.map(o=>'<div class="ord-row" data-adminorder="'+o.id+'"><div><div class="ref">'+o.id+' '+(o.unreadForSeller?'<span style="color:var(--danger)">●</span>':'')+'</div><div class="meta">'+esc(o.ign||'')+' · '+(o.items||[]).map(i=>i.label+' '+i.currency).join(', ')+' · '+peso(o.total)+' · '+esc(o.userEmail||'')+'</div></div><span class="ord-status stt-'+o.status+'">'+(STATUS_TEXT[o.status]||o.status)+'</span></div>').join('');
+  }catch(e){ wrap.innerHTML='<div class="empty-note">'+esc(e.message)+'</div>'; }
 }
-async function renderTickets(){
-  const wrap=document.getElementById('adminTickets');
-  wrap.innerHTML='<p style="color:var(--dim);font-size:13px">Loading...</p>';
-  const tks=(await sList('krav:ticket:')).sort((a,b)=>b.createdAt-a.createdAt);
-  const open=tks.filter(t=>t.status==='open').length;
-  const n=document.getElementById('nTickets'); n.style.display=open?'inline-grid':'none'; n.textContent=open;
-  if(!tks.length){ wrap.innerHTML='<div class="empty-note">No customer messages yet. Support messages and custom quote requests will appear here.</div>'; return; }
-  wrap.innerHTML=tks.map(t=>`<div class="ord-card">
-    <div class="ord-top">
-      <span style="font-weight:700">${esc(t.name)} <span style="font-weight:500;color:var(--dim);font-size:12.5px">· ${t.kind==='quote'?'Custom quote':'Support'}</span></span>
-      <span class="ord-status ${t.status==='open'?'st-open':'st-resolved'}">${t.status}</span>
-    </div>
-    <div class="ord-items">"${esc(t.msg)}"</div>
-    <div class="ord-meta"><span>Contact: ${esc(t.contact)}</span><span>${new Date(t.createdAt).toLocaleString()}</span></div>
-    <div class="a-actions" style="margin-top:11px">
-      <button class="mini-btn" data-tstatus="resolved" data-tid="${t.id}">Mark Resolved</button>
-      <button class="mini-btn" data-tstatus="open" data-tid="${t.id}">Reopen</button>
-      <button class="mini-btn danger" data-tdel="${t.id}" style="margin-left:auto">Delete</button>
-    </div>
-  </div>`).join('');
+let ADMTX={id:null,poll:null,shown:0,order:null};
+function openAdminOrder(id){ ADMTX.id=id; ADMTX.shown=0; ADMTX.order=null; TX.id=null; stopTxPoll(); openDrawer('tx'); document.getElementById('txTitle').textContent='Manage '+id; loadAdminTx(true); if(ADMTX.poll)clearInterval(ADMTX.poll); ADMTX.poll=setInterval(()=>loadAdminTx(false),5000); }
+function closeAdminTx(){ if(ADMTX.poll){clearInterval(ADMTX.poll);ADMTX.poll=null;} ADMTX.id=null; }
+async function loadAdminTx(full){ if(!ADMTX.id) return; try{ const d=await api('/api/orders/'+ADMTX.id); const prev=ADMTX.order; ADMTX.order=d.order; renderAdminTx(prev,full); }catch(e){} }
+function renderAdminTx(prev,full){
+  const o=ADMTX.order; if(!o) return;
+  const changed=!prev||prev.status!==o.status;
+  if(full||changed||!document.getElementById('atxShell')){
+    let btns='';
+    if(o.status==='proof_submitted') btns+='<button class="mini-btn good" data-astatus="payment_verified">✓ Verify payment</button>';
+    if(o.status==='payment_verified') btns+='<button class="mini-btn gold" data-astatus="delivered">📦 Mark delivered</button>';
+    if(o.status==='awaiting_payment') btns+='<span style="font-size:13px;color:var(--dim)">Waiting for buyer to pay &amp; upload proof.</span>';
+    if(o.status!=='completed'&&o.status!=='cancelled') btns+='<button class="mini-btn danger" data-astatus="cancelled">Cancel order</button>';
+    const items=o.items.map(i=>esc(i.label)+' '+i.currency+' ×'+i.qty).join(', ');
+    document.getElementById('txBody').innerHTML='<div id="atxShell"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><span class="ord-status stt-'+o.status+'">'+(STATUS_TEXT[o.status]||o.status)+'</span><span style="font-size:12.5px;color:var(--dim)">'+new Date(o.createdAt).toLocaleString()+'</span></div><div class="pay-detail" style="background:var(--panel2)"><div class="pd-row"><span>Buyer</span><span>'+esc(o.userEmail||'')+'</span></div><div class="pd-row"><span>IGN</span><span class="fm">'+esc(o.ign)+'</span></div>'+(o.server?'<div class="pd-row"><span>Server</span><span>'+esc(o.server)+'</span></div>':'')+'<div class="pd-row"><span>Items</span><span style="text-align:right;max-width:60%">'+items+'</span></div><div class="pd-row"><span>Total</span><span class="fm" style="color:var(--gold)">'+peso(o.total)+'</span></div>'+(o.payment?'<div class="pd-row"><span>Pay to</span><span>'+esc(o.payment.type)+' '+esc(o.payment.number)+'</span></div>':'')+(o.note?'<div class="pd-row"><span>Note</span><span style="text-align:right;max-width:60%">'+esc(o.note)+'</span></div>':'')+'</div>'+(o.proof?'<div class="group-label">Proof of payment '+(o.reference?'· Ref: '+esc(o.reference):'')+'</div><img src="'+o.proof+'" class="proof-img" data-zoom="1">':'<div style="font-size:13px;color:var(--dim);margin-bottom:10px">No proof uploaded yet.</div>')+'<div class="a-actions" style="margin-top:14px">'+btns+'</div><div class="group-label" style="margin-top:20px">💬 Chat with buyer</div><div class="ochat"><div class="ochat-body" id="aochatBody"></div><div class="ochat-foot"><input id="aochatInput" placeholder="Reply to buyer..."><button id="aochatSend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button></div></div></div>';
+    ADMTX.shown=0;
+    const ai=document.getElementById('aochatInput'); if(ai) ai.addEventListener('keydown',e=>{ if(e.key==='Enter') sendAdminMsg(); });
+    const asb=document.getElementById('aochatSend'); if(asb) asb.onclick=sendAdminMsg;
+  }
+  const body=document.getElementById('aochatBody'); if(body){ const msgs=o.messages||[];
+    if(msgs.length<ADMTX.shown){body.innerHTML='';ADMTX.shown=0;}
+    if(!msgs.length){ if(!body.dataset.empty){ body.dataset.empty='1'; body.innerHTML='<div style="color:var(--dim);font-size:13px;text-align:center;margin:auto">No messages yet.</div>'; } }
+    else { if(body.dataset.empty){ body.innerHTML=''; body.dataset.empty=''; }
+      for(let i=ADMTX.shown;i<msgs.length;i++){ const m=msgs[i]; body.insertAdjacentHTML('beforeend','<div class="om '+(m.from==='seller'?'buyer':'seller')+'">'+esc(m.text)+'<span class="tt">'+(m.from==='seller'?'You':'Buyer')+' · '+new Date(m.at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'</span></div>'); }
+      ADMTX.shown=msgs.length; body.scrollTop=body.scrollHeight; }
+  }
 }
-async function renderChats(){
-  const wrap=document.getElementById('adminChats');
-  // preserve any reply text being typed before re-render
-  const typed={};
-  document.querySelectorAll('.reply-in').forEach(i=>{ if(i.value) typed[i.dataset.cid]=i.value; });
-  const convs=(await sList('krav:conv:')).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
-  const unread=convs.filter(c=>{ const last=c.messages[c.messages.length-1]; return last && last.from==='buyer'; }).length;
-  const n=document.getElementById('nChats'); n.style.display=unread?'inline-grid':'none'; n.textContent=unread;
-  if(!convs.length){ wrap.innerHTML='<div class="empty-note">No live chats yet. When a buyer starts a chat from the bubble on your site, the conversation appears here.</div>'; return; }
-  wrap.innerHTML=convs.map(c=>{
-    const last=c.messages[c.messages.length-1];
-    const waiting=last&&last.from==='buyer';
-    const thread=c.messages.length
-      ? c.messages.map(m=>`<div class="tmsg ${m.from}">${esc(m.text)}<span class="tt">${m.from==='owner'?'You':esc(c.name)} · ${new Date(m.at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span></div>`).join('')
-      : '<div style="color:var(--dim);font-size:13px">No messages yet.</div>';
-    return `<div class="ord-card">
-      <div class="ord-top">
-        <span style="font-weight:700">💬 ${esc(c.name)}</span>
-        <span class="ord-status ${waiting?'st-pending':'st-resolved'}">${waiting?'Waiting for reply':'Replied'}</span>
-      </div>
-      <div class="thread">${thread}</div>
-      <div class="reply-row">
-        <input class="reply-in" data-cid="${c.id}" placeholder="Type your reply..." value="${esc(typed[c.id]||'')}">
-        <button class="mini-btn gold" data-reply="${c.id}">Send</button>
-        <button class="mini-btn danger" data-cdel="${c.id}">Delete</button>
-      </div>
-    </div>`;
-  }).join('');
-  // scroll threads to bottom
-  wrap.querySelectorAll('.thread').forEach(t=>t.scrollTop=t.scrollHeight);
-}
-async function sendOwnerReply(cid){
-  const inp=document.querySelector(`.reply-in[data-cid="${cid}"]`);
-  const v=inp?inp.value.trim():'';
-  if(!v){ toast('Type a reply first','err'); return; }
-  const c=await sGet('krav:conv:'+cid);
-  if(!c){ toast('Chat not found','err'); return; }
-  c.messages.push({from:'owner',text:v,at:Date.now()});
-  c.updatedAt=Date.now();
-  if(await sSet('krav:conv:'+cid,c)){ if(inp)inp.value=''; toast('Reply sent ✓'); renderChats(); }
-  else toast('Could not send','err');
-}
-async function renderAdminReviews(){
-  const wrap=document.getElementById('adminReviews');
-  wrap.innerHTML='<p style="color:var(--dim);font-size:13px">Loading...</p>';
-  const revs=(await sList('krav:review:')).sort((a,b)=>b.createdAt-a.createdAt);
-  if(!revs.length){ wrap.innerHTML='<div class="empty-note">No reviews yet.</div>'; return; }
-  wrap.innerHTML=revs.map(r=>`<div class="ord-card">
-    <div class="ord-top"><span style="font-weight:700">${esc(r.name)} <span style="color:var(--gold)">${'★'.repeat(r.rating)}</span></span><span style="color:var(--dim);font-size:12.5px">${esc(r.game||'')}</span></div>
-    <div class="ord-items">"${esc(r.text)}"</div>
-    <div class="ord-meta"><span>${new Date(r.createdAt).toLocaleString()}</span></div>
-    <div class="a-actions" style="margin-top:11px"><button class="mini-btn danger" data-rvdel="${r.id}" style="margin-left:auto">Delete</button></div>
-  </div>`).join('');
-}
+async function sendAdminMsg(){ const i=document.getElementById('aochatInput'); const v=i.value.trim(); if(!v) return; i.value='';
+  try{ await api('/api/orders/'+ADMTX.id+'/message',{method:'POST',body:JSON.stringify({text:v})}); await loadAdminTx(false); }catch(e){ toast(e.message,'err'); } }
+async function setAdminStatus(st){ try{ await api('/api/orders/'+ADMTX.id+'/status',{method:'POST',body:JSON.stringify({status:st})}); toast('Updated: '+(STATUS_TEXT[st]||st)); loadAdminTx(true); renderAdminOrders(); }catch(e){ toast(e.message,'err'); } }
 
-/* ============ GLOBAL EVENTS ============ */
-document.addEventListener('click', async (e)=>{
+function renderAdminConfig(){
+  ['flyff','toram'].forEach(g=>{ const wrap=document.getElementById('admin'+g[0].toUpperCase()+g.slice(1)); const pk=(CONFIG.packages||[]).filter(p=>p.game===g);
+    wrap.innerHTML=pk.map(p=>'<div class="a-card"><div class="a-row3"><div class="a-field"><label>Amount</label><input data-pf="label" data-id="'+p.id+'" value="'+esc(p.label)+'"></div><div class="a-field"><label>Price (₱)</label><input type="number" data-pf="price" data-id="'+p.id+'" value="'+p.price+'"></div><div class="a-field"><label>Badge</label><input data-pf="badge" data-id="'+p.id+'" value="'+esc(p.badge||'')+'" placeholder="(none)" style="max-width:120px"></div></div><div class="a-actions"><span class="toggle '+(p.active?'on':'')+'" data-ptoggle="'+p.id+'"><span class="sw"></span>'+(p.active?'Visible':'Hidden')+'</span><button class="mini-btn danger" data-delpkg="'+p.id+'" style="margin-left:auto">Delete</button></div></div>').join('')||'<p style="color:var(--dim);font-size:13px">No packages.</p>';
+  });
+  document.getElementById('adminPayments').innerHTML=(CONFIG.payments||[]).map(p=>'<div class="a-card"><div class="a-row3"><div class="a-field"><label>Type</label><select data-yf="type" data-id="'+p.id+'">'+['GCash','Maya','Bank','GoTyme','SeaBank','Other'].map(t=>'<option '+(p.type===t?'selected':'')+'>'+t+'</option>').join('')+'</select></div><div class="a-field"><label>Account name</label><input data-yf="name" data-id="'+p.id+'" value="'+esc(p.name||'')+'"></div><div class="a-field"><label>Number</label><input data-yf="number" data-id="'+p.id+'" value="'+esc(p.number||'')+'"></div></div><div class="a-actions"><span class="toggle '+(p.active?'on':'')+'" data-ytoggle="'+p.id+'"><span class="sw"></span>'+(p.active?'Active':'Off')+'</span><button class="mini-btn danger" data-delpay="'+p.id+'" style="margin-left:auto">Delete</button></div></div>').join('')||'<p style="color:var(--dim);font-size:13px">No payment methods.</p>';
+  document.getElementById('setName').value=CONFIG.store.name||''; document.getElementById('setTagline').value=(CONFIG.store.tagline||'').replace('||',' '); document.getElementById('setLead').value=CONFIG.store.lead||''; document.getElementById('setAnnounce').value=CONFIG.store.announce||''; document.getElementById('setMsgr').value=CONFIG.contacts.messenger||''; document.getElementById('setDiscord').value=CONFIG.contacts.discord||''; document.getElementById('setPass').value='';
+}
+async function renderAdminReviews(){ const wrap=document.getElementById('adminReviews'); try{ const d=await api('/api/kv/list?prefix=krav:review:'); const r=(d.values||[]).sort((a,b)=>b.createdAt-a.createdAt);
+  wrap.innerHTML=r.length? r.map(x=>'<div class="a-card"><div style="display:flex;justify-content:space-between"><b>'+esc(x.name)+' <span style="color:var(--gold)">'+'★'.repeat(x.rating)+'</span></b><span style="color:var(--dim);font-size:12px">'+esc(x.game||'')+'</span></div><div style="color:var(--muted);font-size:13.5px;margin:8px 0">"'+esc(x.text)+'"</div></div>').join('') : '<div class="empty-note">No reviews yet.</div>';
+}catch(e){ wrap.innerHTML='<div class="empty-note">'+esc(e.message)+'</div>'; } }
+
+document.addEventListener('click', async e=>{
   const t=e.target;
   const add=t.closest('[data-add]'); if(add){ addToCart(add.dataset.add); return; }
-  const q=t.closest('[data-q]'); if(q){ const it=CART.find(i=>i.id===q.dataset.id); if(it){ it.qty+=q.dataset.q==='+'?1:-1; if(it.qty<=0)CART=CART.filter(i=>i.id!==it.id); } updateBadge(); renderCart(); return; }
+  const q=t.closest('[data-q]'); if(q){ const it=CART.find(i=>i.id===q.dataset.id); if(it){ it.qty+=q.dataset.q==='+'?1:-1; if(it.qty<=0)CART=CART.filter(i=>i.id!==it.id);} updateBadge(); renderCart(); return; }
   const rm=t.closest('[data-rm]'); if(rm){ CART=CART.filter(i=>i.id!==rm.dataset.rm); updateBadge(); renderCart(); return; }
   const po=t.closest('[data-pay]'); if(po){ selectedPay=po.dataset.pay; document.querySelectorAll('#payOpts .pay-opt').forEach(x=>x.classList.toggle('sel',x.dataset.pay===selectedPay)); return; }
-  const cl=t.closest('[data-close]'); if(cl){ const w=cl.dataset.close; if(['cart','co'].includes(w)) closeDrawer(w); else closeModal(w); return; }
-  const cu=t.closest('[data-custom]'); if(cu){ openSupport('quote',cu.dataset.custom); return; }
-
-  // chat chips
-  const chip=t.closest('[data-chip]'); if(chip){
-    const v=chip.dataset.chip;
-    if(v==='live'){ startLiveChat(); }
-    else if(v==='human'){ chatUser('Talk to a human'); setTimeout(()=>{ chatBot(humanAnswer()); chatChips(); },500); }
-    else if(v==='ticket'){ document.getElementById('chatBox').classList.remove('open'); openSupport('support'); }
-    else { const qa=CHAT_QA[Number(v)]; if(qa){ chatUser(qa.k); setTimeout(()=>{ chatBot(qa.a); chatChips(); },500); } }
-    return;
-  }
-
-  // review stars
-  const st=t.closest('#rvStars span'); if(st){ rvRating=Number(st.dataset.s); paintStars(); return; }
-
-  // admin
-  const tg=t.closest('[data-toggle]'); if(tg){ const p=CONFIG.packages.find(x=>x.id===tg.dataset.toggle); if(p){p.active=!p.active; renderAdmin();} return; }
-  const yt=t.closest('[data-ytoggle]'); if(yt){ const p=CONFIG.payments.find(x=>x.id===yt.dataset.ytoggle); if(p){p.active=!p.active; renderAdminPayments();} return; }
-  const dp=t.closest('[data-delpkg]'); if(dp){ CONFIG.packages=CONFIG.packages.filter(x=>x.id!==dp.dataset.delpkg); renderAdmin(); return; }
-  const dy=t.closest('[data-delpay]'); if(dy){ CONFIG.payments=CONFIG.payments.filter(x=>x.id!==dy.dataset.delpay); renderAdminPayments(); return; }
-  const ap=t.closest('[data-addpkg]'); if(ap){ CONFIG.packages.push({id:uid('p'),game:ap.dataset.addpkg,label:'0',price:0,badge:'',active:true}); renderAdmin(); return; }
-  const os=t.closest('[data-ostatus]'); if(os){ const o=await sGet('krav:order:'+os.dataset.oid); if(o){o.status=os.dataset.ostatus; await sSet('krav:order:'+o.id,o);} toast('Status updated'); renderOrders(); renderTickerAndStats(); return; }
-  const od=t.closest('[data-odel]'); if(od){ await sDel('krav:order:'+od.dataset.odel); toast('Order deleted'); renderOrders(); return; }
-  const ts=t.closest('[data-tstatus]'); if(ts){ const tk=await sGet('krav:ticket:'+ts.dataset.tid); if(tk){tk.status=ts.dataset.tstatus; await sSet('krav:ticket:'+tk.id,tk);} toast('Updated'); renderTickets(); return; }
-  const td=t.closest('[data-tdel]'); if(td){ await sDel('krav:ticket:'+td.dataset.tdel); toast('Deleted'); renderTickets(); return; }
-  const rd=t.closest('[data-rvdel]'); if(rd){ await sDel('krav:review:'+rd.dataset.rvdel); toast('Review deleted'); renderAdminReviews(); renderReviews(); return; }
-  const rp=t.closest('[data-reply]'); if(rp){ sendOwnerReply(rp.dataset.reply); return; }
-  const cdl=t.closest('[data-cdel]'); if(cdl){ await sDel('krav:conv:'+cdl.dataset.cdel); toast('Chat deleted'); renderChats(); return; }
+  const cl=t.closest('[data-close]'); if(cl){ const w=cl.dataset.close; if(w==='cart')closeDrawer('cart'); else if(w==='co')closeDrawer('co'); else if(w==='tx'){closeTx(); closeAdminTx();} else if(w==='mo')closeDrawer('mo'); else closeModal(w); return; }
+  const oo=t.closest('[data-openorder]'); if(oo){ closeDrawer('mo'); openTransaction(oo.dataset.openorder); return; }
+  const ao=t.closest('[data-adminorder]'); if(ao){ openAdminOrder(ao.dataset.adminorder); return; }
+  const az=t.closest('[data-zoom]'); if(az){ document.getElementById('lightboxImg').src=az.getAttribute('src'); document.getElementById('lightbox').classList.add('open'); return; }
+  if(t.id==='lightbox'){ document.getElementById('lightbox').classList.remove('open'); return; }
+  const as=t.closest('[data-astatus]'); if(as){ setAdminStatus(as.dataset.astatus); return; }
+  const stx=t.closest('#rvStars span'); if(stx){ rvRating=Number(stx.dataset.s); paintStars(); return; }
+  const pt=t.closest('[data-ptoggle]'); if(pt){ const p=CONFIG.packages.find(x=>x.id===pt.dataset.ptoggle); if(p){p.active=!p.active; renderAdminConfig();} return; }
+  const yt=t.closest('[data-ytoggle]'); if(yt){ const p=CONFIG.payments.find(x=>x.id===yt.dataset.ytoggle); if(p){p.active=!p.active; renderAdminConfig();} return; }
+  const dpk=t.closest('[data-delpkg]'); if(dpk){ CONFIG.packages=CONFIG.packages.filter(x=>x.id!==dpk.dataset.delpkg); renderAdminConfig(); return; }
+  const dpy=t.closest('[data-delpay]'); if(dpy){ CONFIG.payments=CONFIG.payments.filter(x=>x.id!==dpy.dataset.delpay); renderAdminConfig(); return; }
+  const apk=t.closest('[data-addpkg]'); if(apk){ CONFIG.packages=CONFIG.packages||[]; CONFIG.packages.push({id:'p'+Math.random().toString(36).slice(2,7),game:apk.dataset.addpkg,label:'0',price:0,badge:'',active:true}); renderAdminConfig(); return; }
 });
-
-document.addEventListener('input',(e)=>{
-  const pf=e.target.closest('[data-pf]'); if(pf){ const p=CONFIG.packages.find(x=>x.id===pf.dataset.id); if(p) p[pf.dataset.pf]= pf.dataset.pf==='price'? (Number(pf.value)||0) : pf.value; }
+document.addEventListener('input', e=>{
+  const pf=e.target.closest('[data-pf]'); if(pf){ const p=CONFIG.packages.find(x=>x.id===pf.dataset.id); if(p) p[pf.dataset.pf]= pf.dataset.pf==='price'?(Number(pf.value)||0):pf.value; }
   const yf=e.target.closest('[data-yf]'); if(yf){ const p=CONFIG.payments.find(x=>x.id===yf.dataset.id); if(p) p[yf.dataset.yf]=yf.value; }
 });
 
+document.getElementById('cartOpen').onclick=()=>{ renderCart(); openDrawer('cart'); };
+document.getElementById('checkoutBtn').onclick=startCheckout;
+document.getElementById('placeBtn').onclick=placeOrder;
 document.getElementById('cartOverlay').onclick=()=>closeDrawer('cart');
 document.getElementById('coOverlay').onclick=()=>closeDrawer('co');
-['confirmModal','trackModal','adminLogin','reviewModal','supportModal'].forEach(id=>{
-  document.getElementById(id).addEventListener('click',e=>{ if(e.target.id===id) closeModal(id); });
-});
-
-document.getElementById('cartOpen').onclick=()=>{ renderCart(); openDrawer('cart'); };
-document.getElementById('checkoutBtn').onclick=openCheckout;
-document.getElementById('placeBtn').onclick=placeOrder;
-document.getElementById('confDone').onclick=()=>closeModal('confirmModal');
-const openTrack=(e)=>{ e.preventDefault(); document.getElementById('trackResult').innerHTML=''; document.getElementById('trackInput').value=''; openModal('trackModal'); };
-document.getElementById('trackLink').onclick=openTrack;
-document.getElementById('trackLink2').onclick=openTrack;
-document.getElementById('supportLink').onclick=(e)=>{ e.preventDefault(); openSupport('support'); };
-document.getElementById('trackBtn').onclick=trackOrder;
-document.getElementById('copyBtn').onclick=()=>{ const ta=document.getElementById('confSummary'); ta.select(); navigator.clipboard.writeText(ta.value).then(()=>toast('Copied! Paste it in Messenger/Discord.')).catch(()=>toast('Copy failed','err')); };
+document.getElementById('txOverlay').onclick=()=>{ closeTx(); closeAdminTx(); };
+document.getElementById('moOverlay').onclick=()=>closeDrawer('mo');
+document.getElementById('acctBtn').onclick=()=>{ if(USER){ openMyOrders(); } else openAuth('login'); };
+document.getElementById('myOrdersLink').onclick=openMyOrders;
+document.getElementById('tabLogin').onclick=()=>setAuthTab('login');
+document.getElementById('tabReg').onclick=()=>setAuthTab('reg');
+document.getElementById('authSubmit').onclick=doAuth;
+document.getElementById('aPass').addEventListener('keydown',e=>{ if(e.key==='Enter') doAuth(); });
 document.getElementById('writeReview').onclick=openReview;
 document.getElementById('rvSubmit').onclick=submitReview;
-document.getElementById('supSubmit').onclick=submitSupport;
+['authModal','reviewModal','adminLogin'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{ if(e.target.id===id) closeModal(id); }));
 
-// chat
-document.getElementById('chatFab').onclick=()=>{ const cb=document.getElementById('chatBox'); if(cb.classList.contains('open')){ cb.classList.remove('open'); stopPoll(); } else openChat(); };
-document.getElementById('chatClose').onclick=()=>{ document.getElementById('chatBox').classList.remove('open'); stopPoll(); };
-document.getElementById('chatSend').onclick=()=>{ const i=document.getElementById('chatInput'); const v=i.value.trim(); if(v){ chatHandle(v); i.value=''; } };
-document.getElementById('chatInput').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('chatSend').click(); });
-document.addEventListener('keydown',e=>{ if(e.key==='Enter' && e.target.classList && e.target.classList.contains('reply-in')) sendOwnerReply(e.target.dataset.cid); });
-
-// admin open/login
 document.getElementById('adminOpen').onclick=()=>{ document.getElementById('adminPass').value=''; openModal('adminLogin'); setTimeout(()=>document.getElementById('adminPass').focus(),100); };
-document.getElementById('adminLoginBtn').onclick=async()=>{
-  const pw=document.getElementById('adminPass').value;
-  try{
-    const d=await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:pw})});
-    ADMIN_TOKEN=d.token; try{ localStorage.setItem('krav:token',ADMIN_TOKEN); }catch(e){}
-    closeModal('adminLogin'); renderAdmin(); renderOrders(); renderTickets(); renderAdminReviews(); renderChats();
-    document.getElementById('adminPanel').classList.add('open');
-    OWNER=true; checkNewMessages();
-  } catch(e){ toast('Wrong password','err'); }
-};
+document.getElementById('adminLoginBtn').onclick=async()=>{ try{ const d=await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:document.getElementById('adminPass').value})}); ADMIN_TOKEN=d.token; localStorage.setItem('krav:atok',ADMIN_TOKEN); closeModal('adminLogin'); await loadConfig(); renderAdminConfig(); renderAdminOrders(); renderAdminReviews(); document.getElementById('adminPanel').classList.add('open'); OWNER=true; lastAttention=null; checkAttention(); }catch(e){ toast('Wrong password','err'); } };
 document.getElementById('adminPass').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('adminLoginBtn').click(); });
-document.getElementById('adminClose').onclick=()=>document.getElementById('adminPanel').classList.remove('open');
+document.getElementById('adminClose').onclick=()=>{ document.getElementById('adminPanel').classList.remove('open'); };
 document.getElementById('viewStoreBtn').onclick=()=>{ document.getElementById('adminPanel').classList.remove('open'); renderStore(); };
-document.getElementById('refreshOrders').onclick=renderOrders;
-document.getElementById('refreshTickets').onclick=renderTickets;
+document.getElementById('refreshAOrders').onclick=renderAdminOrders;
 document.getElementById('refreshReviews').onclick=renderAdminReviews;
-document.getElementById('refreshChats').onclick=renderChats;
-// auto-refresh live chats while the admin Chats pane is open
-setInterval(()=>{
-  if(document.getElementById('adminPanel').classList.contains('open') &&
-     document.getElementById('pane-chats').classList.contains('active')) renderChats();
-},7000);
-document.getElementById('addPayment').onclick=()=>{ CONFIG.payments.push({id:uid('pay'),type:'GCash',name:'',number:'',active:false}); renderAdminPayments(); };
+document.getElementById('addPayment').onclick=()=>{ CONFIG.payments=CONFIG.payments||[]; CONFIG.payments.push({id:'pay'+Math.random().toString(36).slice(2,7),type:'GCash',name:'',number:'',active:false}); renderAdminConfig(); };
+document.querySelectorAll('.admin-tab').forEach(tab=>tab.onclick=()=>{ document.querySelectorAll('.admin-tab').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.admin-pane').forEach(x=>x.classList.remove('active')); tab.classList.add('active'); document.getElementById('pane-'+tab.dataset.pane).classList.add('active'); if(tab.dataset.pane==='aorders')renderAdminOrders(); if(tab.dataset.pane==='areviews')renderAdminReviews(); });
+async function saveCfg(msg){ try{ await api('/api/kv',{method:'POST',body:JSON.stringify({key:'krav:config',value:{store:CONFIG.store,contacts:CONFIG.contacts,payments:CONFIG.payments,packages:CONFIG.packages}})}); toast(msg); renderStore(); }catch(e){ toast(e.message,'err'); } }
+document.getElementById('saveProducts').onclick=()=>saveCfg('Products saved!');
+document.getElementById('savePayments').onclick=()=>saveCfg('Payments saved!');
+document.getElementById('saveSettings').onclick=async()=>{ CONFIG.store.name=document.getElementById('setName').value.trim()||'KrAV'; const tg=document.getElementById('setTagline').value.trim(); const w=tg.split(' '),mid=Math.ceil(w.length/2); CONFIG.store.tagline=w.slice(0,mid).join(' ')+'||'+w.slice(mid).join(' '); CONFIG.store.lead=document.getElementById('setLead').value.trim(); CONFIG.store.announce=document.getElementById('setAnnounce').value.trim(); CONFIG.contacts.messenger=document.getElementById('setMsgr').value.trim(); CONFIG.contacts.discord=document.getElementById('setDiscord').value.trim(); const np=document.getElementById('setPass').value.trim(); await saveCfg('Settings saved!'); if(np){ try{ await api('/api/admin/password',{method:'POST',body:JSON.stringify({newPassword:np})}); document.getElementById('setPass').value=''; toast('Password updated!'); }catch(e){} } };
 
-document.querySelectorAll('.admin-tab').forEach(tab=>{
-  tab.onclick=()=>{
-    document.querySelectorAll('.admin-tab').forEach(x=>x.classList.remove('active'));
-    document.querySelectorAll('.admin-pane').forEach(x=>x.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('pane-'+tab.dataset.pane).classList.add('active');
-    if(tab.dataset.pane==='orders')renderOrders();
-    if(tab.dataset.pane==='tickets')renderTickets();
-    if(tab.dataset.pane==='reviews')renderAdminReviews();
-    if(tab.dataset.pane==='chats')renderChats();
-  };
-});
-
-document.getElementById('saveProducts').onclick=async()=>{ if(await saveConfig()){ toast('Products saved!'); renderStore(); } else toast('Save failed','err'); };
-document.getElementById('savePayments').onclick=async()=>{ if(await saveConfig()){ toast('Payments saved!'); renderStore(); } else toast('Save failed','err'); };
-document.getElementById('saveSettings').onclick=async()=>{
-  CONFIG.store.name=document.getElementById('setName').value.trim()||'KrAV';
-  const tg=document.getElementById('setTagline').value.trim();
-  const words=tg.split(' '); const mid=Math.ceil(words.length/2);
-  CONFIG.store.tagline=words.slice(0,mid).join(' ')+'||'+words.slice(mid).join(' ');
-  CONFIG.store.lead=document.getElementById('setLead').value.trim();
-  CONFIG.store.announce=document.getElementById('setAnnounce').value.trim();
-  CONFIG.contacts.messenger=document.getElementById('setMsgr').value.trim();
-  CONFIG.contacts.discord=document.getElementById('setDiscord').value.trim();
-  const newPass=document.getElementById('setPass').value.trim();
-  const ok=await saveConfig();
-  if(newPass){
-    try{ await api('/api/admin/password',{method:'POST',body:JSON.stringify({newPassword:newPass})}); document.getElementById('setPass').value=''; }
-    catch(e){ toast('Settings saved, but password change failed','err'); renderStore(); return; }
-  }
-  if(ok){ toast('Settings saved!'); renderStore(); } else toast('Save failed','err');
-};
-
-/* scroll reveal */
-const io=new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } }),{threshold:.08});
-
-/* ============ INIT ============ */
-(async function init(){
-  CONFIG=await sGet(CKEY);
-  if(!CONFIG){ CONFIG=JSON.parse(JSON.stringify(DEFAULT_CONFIG)); await saveConfig(); }
-  CONFIG.store=Object.assign({},DEFAULT_CONFIG.store,CONFIG.store);
-  CONFIG.contacts=Object.assign({},DEFAULT_CONFIG.contacts,CONFIG.contacts);
-  if(!Array.isArray(CONFIG.payments))CONFIG.payments=DEFAULT_CONFIG.payments;
-  if(!Array.isArray(CONFIG.packages))CONFIG.packages=DEFAULT_CONFIG.packages;
-  renderStore(); renderFaqs(); updateBadge(); renderCart();
-  renderReviews(); renderTickerAndStats();
-  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+(async function(){
+  updateAuthUI();
+  await loadConfig();
+  renderStore(); renderFaqs(); updateBadge(); renderCart(); renderReviews(); renderStats();
+  if(USER_TOKEN){ try{ const d=await api('/api/me'); USER=d.user; localStorage.setItem('krav:user',JSON.stringify(USER)); updateAuthUI(); }catch(e){ logout(); } }
 })();
 </script>
 </body>
