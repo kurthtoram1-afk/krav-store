@@ -183,6 +183,10 @@
   .stt-completed{background:rgba(62,224,160,.22);color:var(--good)}
   .stt-cancelled{background:rgba(255,107,122,.15);color:var(--danger)}
   .pay-detail{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:17px;margin-bottom:16px}
+  .tx-timer{display:flex;align-items:center;justify-content:center;gap:9px;background:rgba(255,201,60,.1);border:1px solid rgba(255,201,60,.35);border-radius:12px;padding:12px;margin-bottom:14px;font-weight:600;font-size:14px;color:var(--gold)}
+  .tx-timer.urgent{background:rgba(255,107,122,.12);border-color:rgba(255,107,122,.4);color:var(--danger);animation:tpulse 1s ease-in-out infinite}
+  @keyframes tpulse{0%,100%{opacity:1}50%{opacity:.6}}
+  .tx-timer b{font-family:var(--fm);font-size:16px}
   .pd-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px}.pd-row span:first-child{color:var(--muted)}.pd-row .fm{font-weight:700}
   .upload-zone{border:2px dashed var(--line);border-radius:14px;padding:26px;text-align:center;cursor:pointer;transition:.2s;color:var(--dim)}.upload-zone:hover{border-color:var(--gold);color:var(--gold)}
   .proof-preview{max-width:100%;border-radius:12px;border:1px solid var(--line);margin-top:12px}
@@ -609,11 +613,24 @@ async function placeOrder(){
 
 const STEP_LABELS=[['awaiting_payment','Order placed'],['proof_submitted','Proof sent'],['payment_verified','Verified'],['delivered','Delivered'],['completed','Completed']];
 const STATUS_TEXT={awaiting_payment:'Awaiting payment',proof_submitted:'Proof submitted',payment_verified:'Payment verified',delivered:'Delivered',completed:'Completed',cancelled:'Cancelled'};
-let TX={id:null,order:null,poll:null,shownMsgs:0};
-function openTransaction(id){ TX.id=id; TX.shownMsgs=0; TX.order=null; openDrawer('tx'); loadTx(true); startTxPoll(); }
-function closeTx(){ closeDrawer('tx'); stopTxPoll(); TX.id=null; }
+let TX={id:null,order:null,poll:null,shownMsgs:0,timer:null};
+function openTransaction(id){ TX.id=id; TX.shownMsgs=0; TX.order=null; openDrawer('tx'); loadTx(true); startTxPoll(); startTxTimer(); }
+function closeTx(){ closeDrawer('tx'); stopTxPoll(); stopTxTimer(); TX.id=null; }
 function startTxPoll(){ stopTxPoll(); TX.poll=setInterval(()=>loadTx(false),5000); }
 function stopTxPoll(){ if(TX.poll){clearInterval(TX.poll);TX.poll=null;} }
+function startTxTimer(){ stopTxTimer(); TX.timer=setInterval(tickTxTimer,1000); }
+function stopTxTimer(){ if(TX.timer){clearInterval(TX.timer);TX.timer=null;} }
+function tickTxTimer(){
+  const el=document.getElementById('txTimer'); const o=TX.order; if(!el||!o) return;
+  const mins=Number((CONFIG.store&&CONFIG.store.autoCancelMins)||0);
+  if(!mins || o.status!=='awaiting_payment'){ el.style.display='none'; return; }
+  el.style.display='flex';
+  const left=Math.max(0, o.createdAt + mins*60000 - Date.now());
+  if(left<=0){ el.innerHTML='⏳ Time is up — checking...'; el.classList.add('urgent'); loadTx(false); return; }
+  const m=Math.floor(left/60000), s=Math.floor((left%60000)/1000);
+  el.innerHTML='⏳ Pay within <b>'+m+':'+(s<10?'0':'')+s+'</b> or this order auto-cancels';
+  el.classList.toggle('urgent', left<60000);
+}
 async function loadTx(full){
   if(!TX.id) return;
   try{ const d=await api('/api/orders/'+TX.id); const prev=TX.order; TX.order=d.order; renderTx(prev, full); }
@@ -630,7 +647,9 @@ function renderTx(prev, full){
     let payBox = o.payment ? '<div class="pay-detail"><div class="pd-row"><span>Pay via</span><span class="fm">'+esc(o.payment.type)+'</span></div><div class="pd-row"><span>Account name</span><span class="fm">'+esc(o.payment.name)+'</span></div><div class="pd-row"><span>Account number</span><span class="fm">'+esc(o.payment.number)+'</span></div><div class="pd-row" style="border-top:1px solid var(--line-soft);margin-top:6px;padding-top:10px"><span>Amount to pay</span><span class="fm" style="color:var(--gold)">'+peso(o.total)+'</span></div></div>' : '';
     let action='';
     if(o.status==='awaiting_payment'){
-      action='<p style="font-size:13.5px;color:var(--muted);margin-bottom:10px">Send <b style="color:var(--gold)">'+peso(o.total)+'</b> to the account above, then upload your receipt screenshot:</p><div class="upload-zone" id="uploadZone"><div style="font-size:30px;margin-bottom:6px">📷</div>Tap to upload proof of payment<br><span style="font-size:12px">(screenshot of your GCash/bank receipt)</span></div><div id="proofPreviewWrap"></div>';
+      const mins=Number((CONFIG.store&&CONFIG.store.autoCancelMins)||0);
+      const timerHtml = mins>0 ? '<div id="txTimer" class="tx-timer"></div>' : '';
+      action=timerHtml+'<p style="font-size:13.5px;color:var(--muted);margin-bottom:10px">Send <b style="color:var(--gold)">'+peso(o.total)+'</b> to the account above, then upload your receipt screenshot:</p><div class="upload-zone" id="uploadZone"><div style="font-size:30px;margin-bottom:6px">📷</div>Tap to upload proof of payment<br><span style="font-size:12px">(screenshot of your GCash/bank receipt)</span></div><div id="proofPreviewWrap"></div>';
     } else if(o.status==='proof_submitted'){
       action='<div class="pay-detail" style="border-color:rgba(34,211,238,.3)"><b style="color:var(--cyan)">✓ Proof submitted!</b><p style="font-size:13.5px;color:var(--muted);margin-top:6px">Waiting for the seller to verify your payment. You will see it update here. Chat below if you have questions.</p></div>'+(o.proof?'<img src="'+o.proof+'" class="proof-preview" alt="proof">':'');
     } else if(o.status==='payment_verified'){
