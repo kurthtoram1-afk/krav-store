@@ -199,6 +199,11 @@
   .ord-row:hover{border-color:var(--gold)}
   .ord-row .ref{font-family:var(--fm);font-weight:700;color:var(--gold);font-size:14px}
   .ord-row .meta{font-size:12.5px;color:var(--dim);margin-top:3px}
+  .ord-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+  .ofilter{font-size:13px;font-weight:600;padding:8px 14px;border-radius:20px;border:1px solid var(--line);color:var(--muted);background:var(--panel);transition:.15s}
+  .ofilter:hover{color:var(--text);border-color:var(--violet)}
+  .ofilter.on{background:var(--gold);color:#1c1303;border-color:var(--gold)}
+  .ofilter .cnt{font-family:var(--fm);opacity:.7;margin-left:5px}
   .admin{position:fixed;inset:0;z-index:90;background:var(--ink);display:none;flex-direction:column;overflow:hidden}.admin.open{display:flex}
   .admin-top{display:flex;align-items:center;gap:14px;padding:16px 24px;border-bottom:1px solid var(--line);background:var(--ink2)}
   .admin-top .tag{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);background:var(--gold-soft);padding:5px 11px;border-radius:20px;font-weight:600}.admin-top .spacer{flex:1}
@@ -404,6 +409,7 @@
   </div>
   <div class="admin-body">
     <div class="admin-pane active" id="pane-aorders"><h3>Orders</h3><p class="hint">Manage transactions. Review proof of payment, verify, deliver, and chat with buyers. Red dot = needs your attention.</p>
+      <div class="ord-filters" id="ordFilters"></div>
       <div class="a-actions" style="margin-bottom:16px"><button class="mini-btn" id="refreshAOrders">↻ Refresh</button></div>
       <div id="adminOrders"></div>
     </div>
@@ -425,6 +431,7 @@
         <div class="a-field" style="margin-bottom:12px"><label>Hero headline</label><input id="setTagline"></div>
         <div class="a-field" style="margin-bottom:12px"><label>Hero description</label><textarea id="setLead" rows="2"></textarea></div>
         <div class="a-field" style="margin-bottom:12px"><label>Announcement bar (blank to hide)</label><input id="setAnnounce" placeholder="🎉 Weekend promo!"></div>
+        <div class="a-field" style="margin-bottom:12px;max-width:340px"><label>Auto-cancel unpaid orders after (minutes) <span style="color:var(--dim);font-weight:400">— 0 = off</span></label><input id="setAutoCancel" type="number" min="0" placeholder="e.g. 60"><div style="font-size:12px;color:var(--dim);margin-top:6px">Orders with no payment proof get cancelled automatically after this many minutes. Keeps your Pending list clean.</div></div>
         <div class="a-row"><div class="a-field"><label>Messenger link</label><input id="setMsgr" placeholder="https://m.me/yourpage"></div><div class="a-field"><label>Discord link</label><input id="setDiscord" placeholder="https://discord.gg/xxxx"></div></div>
         <div class="a-field" style="margin-top:12px;max-width:280px"><label>Admin password <span style="color:var(--dim);font-weight:400">(blank = keep current)</span></label><input id="setPass" placeholder="New password"></div>
       </div>
@@ -664,11 +671,24 @@ async function checkAttention(){
 }
 setInterval(checkAttention,8000);
 
+let adminOrderFilter='pending';
+const ORDER_GROUPS={
+  pending:{label:'Pending / Awaiting',match:['awaiting_payment','proof_submitted','pending']},
+  paid:{label:'Paid / Active',match:['payment_verified','delivered','paid']},
+  completed:{label:'Completed',match:['completed']},
+  cancelled:{label:'Cancelled',match:['cancelled']},
+  all:{label:'All',match:null}
+};
+function orderInGroup(o,g){ const m=ORDER_GROUPS[g].match; return m===null? true : m.indexOf(o.status)>=0; }
 async function renderAdminOrders(){
-  const wrap=document.getElementById('adminOrders');
+  const wrap=document.getElementById('adminOrders'); const fwrap=document.getElementById('ordFilters');
   try{ const d=await api('/api/admin/orders'); const orders=d.orders||[];
-    if(!orders.length){ wrap.innerHTML='<div class="empty-note">No orders yet.</div>'; return; }
-    wrap.innerHTML=orders.map(o=>'<div class="ord-row" data-adminorder="'+o.id+'"><div><div class="ref">'+o.id+' '+(o.unreadForSeller?'<span style="color:var(--danger)">●</span>':'')+'</div><div class="meta">'+esc(o.ign||'')+' · '+(o.items||[]).map(i=>i.label+' '+i.currency).join(', ')+' · '+peso(o.total)+' · '+esc(o.userEmail||'')+'</div></div><span class="ord-status stt-'+o.status+'">'+(STATUS_TEXT[o.status]||o.status)+'</span></div>').join('');
+    // build filter chips with counts
+    const order=['pending','paid','completed','cancelled','all'];
+    fwrap.innerHTML=order.map(g=>{ const cnt=orders.filter(o=>orderInGroup(o,g)).length; const need=ORDER_GROUPS[g].match? orders.filter(o=>orderInGroup(o,g)&&o.unreadForSeller).length:0; return '<button class="ofilter '+(adminOrderFilter===g?'on':'')+'" data-ofilter="'+g+'">'+ORDER_GROUPS[g].label+'<span class="cnt">'+cnt+'</span>'+(need?' <span style="color:var(--danger)">●</span>':'')+'</button>'; }).join('');
+    const list=orders.filter(o=>orderInGroup(o,adminOrderFilter));
+    if(!list.length){ wrap.innerHTML='<div class="empty-note">No orders in this section.</div>'; return; }
+    wrap.innerHTML=list.map(o=>'<div class="ord-row" data-adminorder="'+o.id+'"><div><div class="ref">'+o.id+' '+(o.unreadForSeller?'<span style="color:var(--danger)">●</span>':'')+'</div><div class="meta">'+esc(o.ign||'')+' · '+(o.items||[]).map(i=>i.label+' '+i.currency).join(', ')+' · '+peso(o.total)+' · '+esc(o.userEmail||'')+'</div></div><span class="ord-status stt-'+o.status+'">'+(STATUS_TEXT[o.status]||o.status)+'</span></div>').join('');
   }catch(e){ wrap.innerHTML='<div class="empty-note">'+esc(e.message)+'</div>'; }
 }
 let ADMTX={id:null,poll:null,shown:0,order:null};
@@ -707,7 +727,7 @@ function renderAdminConfig(){
     wrap.innerHTML=pk.map(p=>'<div class="a-card"><div class="a-row3"><div class="a-field"><label>Amount</label><input data-pf="label" data-id="'+p.id+'" value="'+esc(p.label)+'"></div><div class="a-field"><label>Price (₱)</label><input type="number" data-pf="price" data-id="'+p.id+'" value="'+p.price+'"></div><div class="a-field"><label>Badge</label><input data-pf="badge" data-id="'+p.id+'" value="'+esc(p.badge||'')+'" placeholder="(none)" style="max-width:120px"></div></div><div class="a-actions"><span class="toggle '+(p.active?'on':'')+'" data-ptoggle="'+p.id+'"><span class="sw"></span>'+(p.active?'Visible':'Hidden')+'</span><button class="mini-btn danger" data-delpkg="'+p.id+'" style="margin-left:auto">Delete</button></div></div>').join('')||'<p style="color:var(--dim);font-size:13px">No packages.</p>';
   });
   document.getElementById('adminPayments').innerHTML=(CONFIG.payments||[]).map(p=>'<div class="a-card"><div class="a-row3"><div class="a-field"><label>Type</label><select data-yf="type" data-id="'+p.id+'">'+['GCash','Maya','Bank','GoTyme','SeaBank','Other'].map(t=>'<option '+(p.type===t?'selected':'')+'>'+t+'</option>').join('')+'</select></div><div class="a-field"><label>Account name</label><input data-yf="name" data-id="'+p.id+'" value="'+esc(p.name||'')+'"></div><div class="a-field"><label>Number</label><input data-yf="number" data-id="'+p.id+'" value="'+esc(p.number||'')+'"></div></div><div class="a-actions"><span class="toggle '+(p.active?'on':'')+'" data-ytoggle="'+p.id+'"><span class="sw"></span>'+(p.active?'Active':'Off')+'</span><button class="mini-btn danger" data-delpay="'+p.id+'" style="margin-left:auto">Delete</button></div></div>').join('')||'<p style="color:var(--dim);font-size:13px">No payment methods.</p>';
-  document.getElementById('setName').value=CONFIG.store.name||''; document.getElementById('setTagline').value=(CONFIG.store.tagline||'').replace('||',' '); document.getElementById('setLead').value=CONFIG.store.lead||''; document.getElementById('setAnnounce').value=CONFIG.store.announce||''; document.getElementById('setMsgr').value=CONFIG.contacts.messenger||''; document.getElementById('setDiscord').value=CONFIG.contacts.discord||''; document.getElementById('setPass').value='';
+  document.getElementById('setName').value=CONFIG.store.name||''; document.getElementById('setTagline').value=(CONFIG.store.tagline||'').replace('||',' '); document.getElementById('setLead').value=CONFIG.store.lead||''; document.getElementById('setAnnounce').value=CONFIG.store.announce||''; document.getElementById('setAutoCancel').value=CONFIG.store.autoCancelMins||''; document.getElementById('setMsgr').value=CONFIG.contacts.messenger||''; document.getElementById('setDiscord').value=CONFIG.contacts.discord||''; document.getElementById('setPass').value='';
 }
 async function renderAdminReviews(){ const wrap=document.getElementById('adminReviews'); try{ const d=await api('/api/kv/list?prefix=krav:review:'); const r=(d.values||[]).sort((a,b)=>b.createdAt-a.createdAt);
   wrap.innerHTML=r.length? r.map(x=>'<div class="a-card"><div style="display:flex;justify-content:space-between"><b>'+esc(x.name)+' <span style="color:var(--gold)">'+'★'.repeat(x.rating)+'</span></b><span style="color:var(--dim);font-size:12px">'+esc(x.game||'')+'</span></div><div style="color:var(--muted);font-size:13.5px;margin:8px 0">"'+esc(x.text)+'"</div></div>').join('') : '<div class="empty-note">No reviews yet.</div>';
@@ -722,6 +742,7 @@ document.addEventListener('click', async e=>{
   const cl=t.closest('[data-close]'); if(cl){ const w=cl.dataset.close; if(w==='cart')closeDrawer('cart'); else if(w==='co')closeDrawer('co'); else if(w==='tx'){closeTx(); closeAdminTx();} else if(w==='mo')closeDrawer('mo'); else closeModal(w); return; }
   const oo=t.closest('[data-openorder]'); if(oo){ closeDrawer('mo'); openTransaction(oo.dataset.openorder); return; }
   const ao=t.closest('[data-adminorder]'); if(ao){ openAdminOrder(ao.dataset.adminorder); return; }
+  const of=t.closest('[data-ofilter]'); if(of){ adminOrderFilter=of.dataset.ofilter; renderAdminOrders(); return; }
   const az=t.closest('[data-zoom]'); if(az){ document.getElementById('lightboxImg').src=az.getAttribute('src'); document.getElementById('lightbox').classList.add('open'); return; }
   if(t.id==='lightbox'){ document.getElementById('lightbox').classList.remove('open'); return; }
   const as=t.closest('[data-astatus]'); if(as){ setAdminStatus(as.dataset.astatus); return; }
@@ -766,7 +787,7 @@ document.querySelectorAll('.admin-tab').forEach(tab=>tab.onclick=()=>{ document.
 async function saveCfg(msg){ try{ await api('/api/kv',{method:'POST',body:JSON.stringify({key:'krav:config',value:{store:CONFIG.store,contacts:CONFIG.contacts,payments:CONFIG.payments,packages:CONFIG.packages}})}); toast(msg); renderStore(); }catch(e){ toast(e.message,'err'); } }
 document.getElementById('saveProducts').onclick=()=>saveCfg('Products saved!');
 document.getElementById('savePayments').onclick=()=>saveCfg('Payments saved!');
-document.getElementById('saveSettings').onclick=async()=>{ CONFIG.store.name=document.getElementById('setName').value.trim()||'KrAV'; const tg=document.getElementById('setTagline').value.trim(); const w=tg.split(' '),mid=Math.ceil(w.length/2); CONFIG.store.tagline=w.slice(0,mid).join(' ')+'||'+w.slice(mid).join(' '); CONFIG.store.lead=document.getElementById('setLead').value.trim(); CONFIG.store.announce=document.getElementById('setAnnounce').value.trim(); CONFIG.contacts.messenger=document.getElementById('setMsgr').value.trim(); CONFIG.contacts.discord=document.getElementById('setDiscord').value.trim(); const np=document.getElementById('setPass').value.trim(); await saveCfg('Settings saved!'); if(np){ try{ await api('/api/admin/password',{method:'POST',body:JSON.stringify({newPassword:np})}); document.getElementById('setPass').value=''; toast('Password updated!'); }catch(e){} } };
+document.getElementById('saveSettings').onclick=async()=>{ CONFIG.store.name=document.getElementById('setName').value.trim()||'KrAV'; const tg=document.getElementById('setTagline').value.trim(); const w=tg.split(' '),mid=Math.ceil(w.length/2); CONFIG.store.tagline=w.slice(0,mid).join(' ')+'||'+w.slice(mid).join(' '); CONFIG.store.lead=document.getElementById('setLead').value.trim(); CONFIG.store.announce=document.getElementById('setAnnounce').value.trim(); CONFIG.store.autoCancelMins=Math.max(0,parseInt(document.getElementById('setAutoCancel').value)||0); CONFIG.contacts.messenger=document.getElementById('setMsgr').value.trim(); CONFIG.contacts.discord=document.getElementById('setDiscord').value.trim(); const np=document.getElementById('setPass').value.trim(); await saveCfg('Settings saved!'); if(np){ try{ await api('/api/admin/password',{method:'POST',body:JSON.stringify({newPassword:np})}); document.getElementById('setPass').value=''; toast('Password updated!'); }catch(e){} } };
 
 let _lastY=window.scrollY, _scrollDir='down';
 window.addEventListener('scroll',()=>{ const y=window.scrollY; if(y>_lastY)_scrollDir='down'; else if(y<_lastY)_scrollDir='up'; _lastY=y; },{passive:true});
