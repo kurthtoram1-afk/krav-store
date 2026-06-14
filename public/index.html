@@ -299,7 +299,11 @@
   </div>
   <nav class="nav-links">
     <div class="nav-drop"><a href="#flyff">Games <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg></a>
-      <div class="drop-menu" id="gamesDrop"></div>
+      <div class="drop-menu">
+        <a class="drop-item" href="#flyff"><span class="gi gi-f">FU</span><span><b>Flyff Universe</b><small>Penya packages</small></span></a>
+        <a class="drop-item" href="#toram"><span class="gi gi-t">TO</span><span><b>Toram Online</b><small>Spina packages</small></span></a>
+        <div class="drop-item soon"><span class="gi gi-s">+</span><span><b>More games soon</b><small>Items &amp; new currencies</small></span></div>
+      </div>
     </div>
     <a href="#how">How it works</a><a href="#reviews">Reviews</a><a href="#faq">FAQ</a>
   </nav>
@@ -448,7 +452,6 @@
   <div class="admin-tabs">
     <div class="admin-tab active" data-pane="aorders">Orders<span class="n" id="nOrders" style="display:none">0</span></div>
     <div class="admin-tab" data-pane="products">Products &amp; Prices</div>
-    <div class="admin-tab" data-pane="games">Games</div>
     <div class="admin-tab" data-pane="payments">Payments</div>
     <div class="admin-tab" data-pane="areviews">Reviews</div>
     <div class="admin-tab" data-pane="settings">Store &amp; Links</div>
@@ -465,11 +468,6 @@
       <div class="group-label">Flyff Universe — Penya</div><div id="adminFlyff"></div><button class="mini-btn" data-addpkg="flyff">+ Add Penya package</button>
       <div class="group-label">Toram Online — Spina</div><div id="adminToram"></div><button class="mini-btn" data-addpkg="toram">+ Add Spina package</button>
       <div class="a-actions" style="margin-top:24px"><button class="mini-btn gold" id="saveProducts">Save changes</button></div>
-    </div>
-    <div class="admin-pane" id="pane-games"><h3>Games</h3><p class="hint">Edit the Games menu shown on your store. Change names, set an icon (upload a picture or use short text like "FU"), and add new games. Drag-free — just edit and Save.</p>
-      <div id="adminGames"></div>
-      <button class="mini-btn" id="addGame">+ Add game</button>
-      <div class="a-actions" style="margin-top:24px"><button class="mini-btn gold" id="saveGames">Save changes</button></div>
     </div>
     <div class="admin-pane" id="pane-payments"><h3>Payment Methods</h3><p class="hint">If your GCash hits its limit, toggle it off and switch on another. Only active ones show to buyers.</p>
       <div id="adminPayments"></div><button class="mini-btn" id="addPayment">+ Add payment method</button>
@@ -509,7 +507,6 @@
 </div>
 <div id="toast"></div>
 <input type="file" id="proofFile" accept="image/*" style="display:none">
-<input type="file" id="gameIconFile" accept="image/*" style="display:none">
 
 <script>
 let USER_TOKEN = localStorage.getItem('krav:utok')||null;
@@ -549,21 +546,6 @@ function renderStore(){
   const cb=document.getElementById('contactBtns'); cb.innerHTML='';
   if(CONFIG.contacts.messenger) cb.insertAdjacentHTML('beforeend','<a class="btn btn-msgr" href="'+esc(CONFIG.contacts.messenger)+'" target="_blank">Messenger</a>');
   if(CONFIG.contacts.discord) cb.insertAdjacentHTML('beforeend','<a class="btn btn-discord" href="'+esc(CONFIG.contacts.discord)+'" target="_blank">Discord</a>');
-  renderGamesNav();
-}
-const DEFAULT_GAMES=[
-  {id:'g_flyff',name:'Flyff Universe',sub:'Penya packages',badge:'FU',color:'f',img:'',link:'#flyff',active:true,soon:false},
-  {id:'g_toram',name:'Toram Online',sub:'Spina packages',badge:'TO',color:'t',img:'',link:'#toram',active:true,soon:false},
-  {id:'g_soon',name:'More games soon',sub:'Items & new currencies',badge:'+',color:'s',img:'',link:'',active:true,soon:true}
-];
-function gamesList(){ return (CONFIG.games && CONFIG.games.length) ? CONFIG.games : DEFAULT_GAMES; }
-function gameIcon(g){ return g.img ? '<span class="gi gi-'+(g.color||'f')+'" style="padding:0;overflow:hidden"><img src="'+g.img+'" style="width:100%;height:100%;object-fit:cover"></span>' : '<span class="gi gi-'+(g.color||'f')+'">'+esc(g.badge||'?')+'</span>'; }
-function renderGamesNav(){
-  const wrap=document.getElementById('gamesDrop'); if(!wrap) return;
-  wrap.innerHTML=gamesList().filter(g=>g.active!==false).map(g=>{
-    const inner=gameIcon(g)+'<span><b>'+esc(g.name)+'</b><small>'+esc(g.sub||'')+'</small></span>';
-    return g.soon ? '<div class="drop-item soon">'+inner+'</div>' : '<a class="drop-item" href="'+esc(g.link||'#')+'">'+inner+'</a>';
-  }).join('');
 }
 const FAQS=[
   {q:'How does escrow / proof of payment work?',a:'After you pay, you upload a screenshot of your receipt on your order page. The seller verifies it before delivering your currency in-game — so both sides are protected.'},
@@ -736,22 +718,8 @@ document.getElementById('proofFile').addEventListener('change', e=>{
   reader.readAsDataURL(file);
   e.target.value='';
 });
-let gameIconTarget=null;
-document.getElementById('gameIconFile').addEventListener('change', e=>{
-  const file=e.target.files[0]; if(!file||!gameIconTarget) return;
-  const reader=new FileReader();
-  reader.onload=ev=>{ const img=new Image(); img.onload=()=>{
-    const sz=120; const c=document.createElement('canvas'); c.width=sz; c.height=sz;
-    const ctx=c.getContext('2d'); const m=Math.min(img.width,img.height);
-    ctx.drawImage(img,(img.width-m)/2,(img.height-m)/2,m,m,0,0,sz,sz);
-    let q=0.8, dataUrl=c.toDataURL('image/jpeg',q);
-    while(dataUrl.length>120000 && q>0.4){ q-=0.1; dataUrl=c.toDataURL('image/jpeg',q); }
-    const g=(CONFIG.games||[]).find(x=>x.id===gameIconTarget); if(g){ g.img=dataUrl; renderAdminGames(); renderGamesNav(); toast('Picture set — remember to Save'); }
-    gameIconTarget=null;
-  }; img.src=ev.target.result; };
-  reader.readAsDataURL(file);
-  e.target.value='';
-});
+async function submitProof(dataUrl){
+  try{ await api('/api/orders/'+TX.id+'/proof',{method:'POST',body:JSON.stringify({image:dataUrl})}); toast('Proof submitted! Seller will verify soon. ✓'); loadTx(true); }
   catch(e){ toast(e.message,'err'); }
 }
 
@@ -945,21 +913,6 @@ function renderAdminConfig(){
   });
   document.getElementById('adminPayments').innerHTML=(CONFIG.payments||[]).map(p=>'<div class="a-card"><div class="a-row3"><div class="a-field"><label>Type</label><select data-yf="type" data-id="'+p.id+'">'+['GCash','Maya','Bank','GoTyme','SeaBank','Other'].map(t=>'<option '+(p.type===t?'selected':'')+'>'+t+'</option>').join('')+'</select></div><div class="a-field"><label>Account name</label><input data-yf="name" data-id="'+p.id+'" value="'+esc(p.name||'')+'"></div><div class="a-field"><label>Number</label><input data-yf="number" data-id="'+p.id+'" value="'+esc(p.number||'')+'"></div></div><div class="a-actions"><span class="toggle '+(p.active?'on':'')+'" data-ytoggle="'+p.id+'"><span class="sw"></span>'+(p.active?'Active':'Off')+'</span><button class="mini-btn danger" data-delpay="'+p.id+'" style="margin-left:auto">Delete</button></div></div>').join('')||'<p style="color:var(--dim);font-size:13px">No payment methods.</p>';
   document.getElementById('setName').value=CONFIG.store.name||''; document.getElementById('setTagline').value=(CONFIG.store.tagline||'').replace('||',' '); document.getElementById('setLead').value=CONFIG.store.lead||''; document.getElementById('setAnnounce').value=CONFIG.store.announce||''; document.getElementById('setAutoCancel').value=CONFIG.store.autoCancelMins||''; document.getElementById('setMsgr').value=CONFIG.contacts.messenger||''; document.getElementById('setDiscord').value=CONFIG.contacts.discord||''; document.getElementById('setPass').value='';
-  renderAdminGames();
-}
-function renderAdminGames(){
-  if(!CONFIG.games || !CONFIG.games.length) CONFIG.games = JSON.parse(JSON.stringify(DEFAULT_GAMES));
-  const wrap=document.getElementById('adminGames'); if(!wrap) return;
-  wrap.innerHTML=CONFIG.games.map(g=>'<div class="a-card"><div style="display:flex;gap:14px;align-items:center;margin-bottom:12px">'
-    +'<span class="gi gi-'+(g.color||'f')+'" data-gameicon="'+g.id+'" title="Click to upload picture" style="cursor:pointer;padding:0;overflow:hidden;width:46px;height:46px;flex:none">'+(g.img?'<img src="'+g.img+'" style="width:100%;height:100%;object-fit:cover">':esc(g.badge||'?'))+'</span>'
-    +'<div style="flex:1"><div class="a-row"><div class="a-field"><label>Game name</label><input data-gf="name" data-id="'+g.id+'" value="'+esc(g.name||'')+'"></div><div class="a-field"><label>Subtitle</label><input data-gf="sub" data-id="'+g.id+'" value="'+esc(g.sub||'')+'"></div></div></div></div>'
-    +'<div class="a-row3"><div class="a-field"><label>Icon text (if no picture)</label><input data-gf="badge" data-id="'+g.id+'" value="'+esc(g.badge||'')+'" maxlength="3" style="max-width:120px"></div>'
-    +'<div class="a-field"><label>Color</label><select data-gf="color" data-id="'+g.id+'">'+[['f','Gold'],['t','Cyan'],['s','Violet']].map(c=>'<option value="'+c[0]+'" '+(g.color===c[0]?'selected':'')+'>'+c[1]+'</option>').join('')+'</select></div>'
-    +'<div class="a-field"><label>Link (optional)</label><input data-gf="link" data-id="'+g.id+'" value="'+esc(g.link||'')+'" placeholder="#flyff"></div></div>'
-    +'<div class="a-actions"><span class="toggle '+(g.active!==false?'on':'')+'" data-gtoggle="'+g.id+'"><span class="sw"></span>'+(g.active!==false?'Shown':'Hidden')+'</span>'
-    +'<span class="toggle '+(g.soon?'on':'')+'" data-gsoon="'+g.id+'" style="margin-left:8px"><span class="sw"></span>"Soon" label</span>'
-    +(g.img?'<button class="mini-btn" data-gameimg-clear="'+g.id+'">Remove picture</button>':'')
-    +'<button class="mini-btn danger" data-delgame="'+g.id+'" style="margin-left:auto">Delete</button></div></div>').join('')||'<p style="color:var(--dim);font-size:13px">No games yet.</p>';
 }
 async function renderAdminReviews(){ const wrap=document.getElementById('adminReviews'); try{ const d=await api('/api/kv/list?prefix=krav:review:'); const r=(d.values||[]).sort((a,b)=>b.createdAt-a.createdAt);
   wrap.innerHTML=r.length? r.map(x=>'<div class="a-card"><div style="display:flex;justify-content:space-between"><b>'+esc(x.name)+' <span style="color:var(--gold)">'+'★'.repeat(x.rating)+'</span></b><span style="color:var(--dim);font-size:12px">'+esc(x.game||'')+'</span></div><div style="color:var(--muted);font-size:13.5px;margin:8px 0">"'+esc(x.text)+'"</div></div>').join('') : '<div class="empty-note">No reviews yet.</div>';
@@ -987,16 +940,10 @@ document.addEventListener('click', async e=>{
   const dpk=t.closest('[data-delpkg]'); if(dpk){ CONFIG.packages=CONFIG.packages.filter(x=>x.id!==dpk.dataset.delpkg); renderAdminConfig(); return; }
   const dpy=t.closest('[data-delpay]'); if(dpy){ CONFIG.payments=CONFIG.payments.filter(x=>x.id!==dpy.dataset.delpay); renderAdminConfig(); return; }
   const apk=t.closest('[data-addpkg]'); if(apk){ CONFIG.packages=CONFIG.packages||[]; CONFIG.packages.push({id:'p'+Math.random().toString(36).slice(2,7),game:apk.dataset.addpkg,label:'0',price:0,badge:'',active:true}); renderAdminConfig(); return; }
-  const gtog=t.closest('[data-gtoggle]'); if(gtog){ const g=CONFIG.games.find(x=>x.id===gtog.dataset.gtoggle); if(g){ g.active=g.active===false?true:false; renderAdminGames(); renderGamesNav(); } return; }
-  const gso=t.closest('[data-gsoon]'); if(gso){ const g=CONFIG.games.find(x=>x.id===gso.dataset.gsoon); if(g){ g.soon=!g.soon; renderAdminGames(); renderGamesNav(); } return; }
-  const dgame=t.closest('[data-delgame]'); if(dgame){ CONFIG.games=CONFIG.games.filter(x=>x.id!==dgame.dataset.delgame); renderAdminGames(); renderGamesNav(); return; }
-  const giClear=t.closest('[data-gameimg-clear]'); if(giClear){ const g=CONFIG.games.find(x=>x.id===giClear.dataset['gameimgClear']); if(g){ g.img=''; renderAdminGames(); renderGamesNav(); } return; }
-  const gicon=t.closest('[data-gameicon]'); if(gicon){ gameIconTarget=gicon.dataset.gameicon; document.getElementById('gameIconFile').click(); return; }
 });
 document.addEventListener('input', e=>{
   const pf=e.target.closest('[data-pf]'); if(pf){ const p=CONFIG.packages.find(x=>x.id===pf.dataset.id); if(p) p[pf.dataset.pf]= pf.dataset.pf==='price'?(Number(pf.value)||0):pf.value; }
   const yf=e.target.closest('[data-yf]'); if(yf){ const p=CONFIG.payments.find(x=>x.id===yf.dataset.id); if(p) p[yf.dataset.yf]=yf.value; }
-  const gf=e.target.closest('[data-gf]'); if(gf){ const g=(CONFIG.games||[]).find(x=>x.id===gf.dataset.id); if(g){ g[gf.dataset.gf]=gf.value; if(gf.dataset.gf==='color'||gf.dataset.gf==='badge') renderGamesNav(); } }
 });
 
 document.getElementById('cartOpen').onclick=()=>{ renderCart(); openDrawer('cart'); };
@@ -1037,12 +984,10 @@ document.getElementById('supportClose').onclick=closeSupport;
 document.getElementById('supportSend').onclick=sendSupport;
 document.getElementById('supportInput').addEventListener('keydown',e=>{ if(e.key==='Enter') sendSupport(); });
 document.getElementById('addPayment').onclick=()=>{ CONFIG.payments=CONFIG.payments||[]; CONFIG.payments.push({id:'pay'+Math.random().toString(36).slice(2,7),type:'GCash',name:'',number:'',active:false}); renderAdminConfig(); };
-document.getElementById('addGame').onclick=()=>{ CONFIG.games=CONFIG.games||JSON.parse(JSON.stringify(DEFAULT_GAMES)); CONFIG.games.push({id:'g'+Math.random().toString(36).slice(2,7),name:'New Game',sub:'',badge:'NG',color:'f',img:'',link:'',active:true,soon:false}); renderAdminGames(); renderGamesNav(); };
-document.querySelectorAll('.admin-tab').forEach(tab=>tab.onclick=()=>{ document.querySelectorAll('.admin-tab').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.admin-pane').forEach(x=>x.classList.remove('active')); tab.classList.add('active'); document.getElementById('pane-'+tab.dataset.pane).classList.add('active'); if(tab.dataset.pane==='aorders')renderAdminOrders(); if(tab.dataset.pane==='areviews')renderAdminReviews(); if(tab.dataset.pane==='support')renderSupportList(); if(tab.dataset.pane==='games')renderAdminGames(); });
-async function saveCfg(msg){ try{ await api('/api/kv',{method:'POST',body:JSON.stringify({key:'krav:config',value:{store:CONFIG.store,contacts:CONFIG.contacts,payments:CONFIG.payments,packages:CONFIG.packages,games:CONFIG.games}})}); toast(msg); renderStore(); }catch(e){ toast(e.message,'err'); } }
+document.querySelectorAll('.admin-tab').forEach(tab=>tab.onclick=()=>{ document.querySelectorAll('.admin-tab').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.admin-pane').forEach(x=>x.classList.remove('active')); tab.classList.add('active'); document.getElementById('pane-'+tab.dataset.pane).classList.add('active'); if(tab.dataset.pane==='aorders')renderAdminOrders(); if(tab.dataset.pane==='areviews')renderAdminReviews(); if(tab.dataset.pane==='support')renderSupportList(); });
+async function saveCfg(msg){ try{ await api('/api/kv',{method:'POST',body:JSON.stringify({key:'krav:config',value:{store:CONFIG.store,contacts:CONFIG.contacts,payments:CONFIG.payments,packages:CONFIG.packages}})}); toast(msg); renderStore(); }catch(e){ toast(e.message,'err'); } }
 document.getElementById('saveProducts').onclick=()=>saveCfg('Products saved!');
 document.getElementById('savePayments').onclick=()=>saveCfg('Payments saved!');
-document.getElementById('saveGames').onclick=()=>saveCfg('Games saved!');
 document.getElementById('saveSettings').onclick=async()=>{ CONFIG.store.name=document.getElementById('setName').value.trim()||'KrAV'; const tg=document.getElementById('setTagline').value.trim(); const w=tg.split(' '),mid=Math.ceil(w.length/2); CONFIG.store.tagline=w.slice(0,mid).join(' ')+'||'+w.slice(mid).join(' '); CONFIG.store.lead=document.getElementById('setLead').value.trim(); CONFIG.store.announce=document.getElementById('setAnnounce').value.trim(); CONFIG.store.autoCancelMins=Math.max(0,parseInt(document.getElementById('setAutoCancel').value)||0); CONFIG.contacts.messenger=document.getElementById('setMsgr').value.trim(); CONFIG.contacts.discord=document.getElementById('setDiscord').value.trim(); const np=document.getElementById('setPass').value.trim(); await saveCfg('Settings saved!'); if(np){ try{ await api('/api/admin/password',{method:'POST',body:JSON.stringify({newPassword:np})}); document.getElementById('setPass').value=''; toast('Password updated!'); }catch(e){} } };
 
 let _lastY=window.scrollY, _scrollDir='down';
