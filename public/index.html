@@ -442,7 +442,7 @@
     <div class="admin-pane active" id="pane-aorders"><h3>Orders</h3><p class="hint">Manage transactions. Review proof of payment, verify, deliver, and chat with buyers. Red dot = needs your attention.</p>
       <div class="stat-strip" id="adminStats"></div>
       <div class="ord-filters" id="ordFilters"></div>
-      <div class="a-actions" style="margin-bottom:16px"><button class="mini-btn" id="refreshAOrders">↻ Refresh</button></div>
+      <div class="a-actions" style="margin-bottom:16px"><input id="ordSearch" placeholder="🔍 Search by order #, IGN, or email..." style="flex:1;min-width:220px;background:var(--ink2);border:1px solid var(--line);border-radius:11px;padding:11px 14px;color:var(--text);font-size:14px"><button class="mini-btn" id="refreshAOrders">↻ Refresh</button></div>
       <div id="adminOrders"></div>
     </div>
     <div class="admin-pane" id="pane-products"><h3>Products &amp; Prices</h3><p class="hint">Edit amounts and prices. Toggle on/off or add new. Click Save.</p>
@@ -739,7 +739,7 @@ async function asupLoad(){ if(!ASUP.id) return null; try{ const d=await api('/ap
 function renderAdminSupportChat(full){
   const wrap=document.getElementById('supportChat'); const c=ASUP.conv; if(!c){ wrap.innerHTML='<div class="empty-note">Select a conversation to reply.</div>'; return; }
   if(full || !document.getElementById('asupBody')){
-    wrap.innerHTML='<div class="a-card" style="padding:0;overflow:hidden"><div style="padding:14px 16px;border-bottom:1px solid var(--line-soft)"><b>'+esc(c.name||'Guest')+'</b>'+(c.email?' <span style="color:var(--dim);font-size:12.5px">'+esc(c.email)+'</span>':'')+'</div><div class="ochat-body" id="asupBody" style="height:340px"></div><div class="ochat-foot"><input id="asupInput" placeholder="Reply to visitor..."><button id="asupSend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button></div></div>';
+    wrap.innerHTML='<div class="a-card" style="padding:0;overflow:hidden"><div style="padding:14px 16px;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center"><div><b>'+esc(c.name||'Guest')+'</b>'+(c.email?' <span style="color:var(--dim);font-size:12.5px">'+esc(c.email)+'</span>':'')+'</div><button class="mini-btn danger" data-delconv="'+esc(c.id)+'">🗑 Delete</button></div><div class="ochat-body" id="asupBody" style="height:340px"></div><div class="ochat-foot"><input id="asupInput" placeholder="Reply to visitor..."><button id="asupSend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button></div></div>';
     ASUP.shown=0;
     document.getElementById('asupInput').addEventListener('keydown',e=>{ if(e.key==='Enter') sendAdminSupport(); });
     document.getElementById('asupSend').onclick=sendAdminSupport;
@@ -792,8 +792,8 @@ setInterval(checkAttention,8000);
 
 let adminOrderFilter='pending';
 const ORDER_GROUPS={
-  pending:{label:'Pending',match:['awaiting_payment','proof_submitted','pending']},
-  paid:{label:'Paid / Active',match:['payment_verified','delivered','paid']},
+  pending:{label:'Pending',match:['awaiting_payment','pending']},
+  paid:{label:'Paid',match:['proof_submitted','payment_verified','delivered','paid']},
   completed:{label:'Completed',match:['completed']},
   cancelled:{label:'Cancelled',match:['cancelled']},
   all:{label:'All',match:null}
@@ -812,8 +812,10 @@ async function renderAdminOrders(){
     // build filter chips with counts
     const order=['pending','paid','completed','cancelled','all'];
     fwrap.innerHTML=order.map(g=>{ const cnt=orders.filter(o=>orderInGroup(o,g)).length; const need=ORDER_GROUPS[g].match? orders.filter(o=>orderInGroup(o,g)&&o.unreadForSeller).length:0; return '<button class="ofilter '+(adminOrderFilter===g?'on':'')+'" data-ofilter="'+g+'">'+ORDER_GROUPS[g].label+'<span class="cnt">'+cnt+'</span>'+(need?' <span style="color:var(--danger)">●</span>':'')+'</button>'; }).join('');
-    const list=orders.filter(o=>orderInGroup(o,adminOrderFilter));
-    if(!list.length){ wrap.innerHTML='<div class="empty-note">No orders in this section.</div>'; return; }
+    const term=(document.getElementById('ordSearch')&&document.getElementById('ordSearch').value||'').trim().toLowerCase();
+    let list=orders.filter(o=>orderInGroup(o,adminOrderFilter));
+    if(term) list=list.filter(o=>(o.id+' '+(o.ign||'')+' '+(o.userEmail||'')).toLowerCase().indexOf(term)>=0);
+    if(!list.length){ wrap.innerHTML='<div class="empty-note">No orders'+(term?' match your search':' in this section')+'.</div>'; return; }
     wrap.innerHTML=list.map(o=>'<div class="ord-row" data-adminorder="'+o.id+'"><div><div class="ref">'+o.id+' '+(o.unreadForSeller?'<span style="color:var(--danger)">●</span>':'')+'</div><div class="meta">'+esc(o.ign||'')+' · '+(o.items||[]).map(i=>i.label+' '+i.currency).join(', ')+' · '+peso(o.total)+' · '+esc(o.userEmail||'')+'</div></div><span class="ord-status stt-'+o.status+'">'+(STATUS_TEXT[o.status]||o.status)+'</span></div>').join('');
   }catch(e){ wrap.innerHTML='<div class="empty-note">'+esc(e.message)+'</div>'; }
 }
@@ -830,8 +832,11 @@ function renderAdminTx(prev,full){
     if(o.status==='payment_verified') btns+='<button class="mini-btn gold" data-astatus="delivered">📦 Mark delivered</button>';
     if(o.status==='awaiting_payment') btns+='<span style="font-size:13px;color:var(--dim)">Waiting for buyer to pay &amp; upload proof.</span>';
     if(o.status!=='completed'&&o.status!=='cancelled') btns+='<button class="mini-btn danger" data-astatus="cancelled">Cancel order</button>';
+    btns+='<button class="mini-btn danger" data-delorder="'+o.id+'" style="margin-left:auto">🗑 Delete</button>';
     const items=o.items.map(i=>esc(i.label)+' '+i.currency+' ×'+i.qty).join(', ');
-    document.getElementById('txBody').innerHTML='<div id="atxShell"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><span class="ord-status stt-'+o.status+'">'+(STATUS_TEXT[o.status]||o.status)+'</span><span style="font-size:12.5px;color:var(--dim)">'+new Date(o.createdAt).toLocaleString()+'</span></div><div class="pay-detail" style="background:var(--panel2)"><div class="pd-row"><span>Buyer</span><span>'+esc(o.userEmail||'')+'</span></div><div class="pd-row"><span>IGN</span><span class="fm">'+esc(o.ign)+'</span></div>'+(o.server?'<div class="pd-row"><span>Server</span><span>'+esc(o.server)+'</span></div>':'')+'<div class="pd-row"><span>Items</span><span style="text-align:right;max-width:60%">'+items+'</span></div><div class="pd-row"><span>Total</span><span class="fm" style="color:var(--gold)">'+peso(o.total)+'</span></div>'+(o.payment?'<div class="pd-row"><span>Pay to</span><span>'+esc(o.payment.type)+' '+esc(o.payment.number)+'</span></div>':'')+(o.note?'<div class="pd-row"><span>Note</span><span style="text-align:right;max-width:60%">'+esc(o.note)+'</span></div>':'')+'</div>'+(o.proof?'<div class="group-label">Proof of payment '+(o.reference?'· Ref: '+esc(o.reference):'')+'</div><img src="'+o.proof+'" class="proof-img" data-zoom="1">':'<div style="font-size:13px;color:var(--dim);margin-bottom:10px">No proof uploaded yet.</div>')+'<div class="a-actions" style="margin-top:14px">'+btns+'</div><div class="group-label" style="margin-top:20px">💬 Chat with buyer</div><div class="ochat"><div class="ochat-body" id="aochatBody"></div><div class="ochat-foot"><input id="aochatInput" placeholder="Reply to buyer..."><button id="aochatSend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button></div></div></div>';
+    const cur=stepIndex(o.status); const cancelled=o.status==='cancelled';
+    const stepper = cancelled? '' : '<div class="stepper">'+STEP_LABELS.map((s,i)=>'<div class="st-node '+(i<cur?'done':'')+' '+(i===cur?'active':'')+'"><div class="st-dot">'+(i<cur?'✓':(i+1))+'</div><div class="st-lbl">'+s[1]+'</div></div>').join('')+'</div>';
+    document.getElementById('txBody').innerHTML='<div id="atxShell"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><span class="ord-status stt-'+o.status+'">'+(STATUS_TEXT[o.status]||o.status)+'</span><span style="font-size:12.5px;color:var(--dim)">'+new Date(o.createdAt).toLocaleString()+'</span></div>'+stepper+'<div class="pay-detail" style="background:var(--panel2)"><div class="pd-row"><span>Buyer</span><span>'+esc(o.userEmail||'')+'</span></div><div class="pd-row"><span>IGN</span><span class="fm">'+esc(o.ign)+'</span></div>'+(o.server?'<div class="pd-row"><span>Server</span><span>'+esc(o.server)+'</span></div>':'')+'<div class="pd-row"><span>Items</span><span style="text-align:right;max-width:60%">'+items+'</span></div><div class="pd-row"><span>Total</span><span class="fm" style="color:var(--gold)">'+peso(o.total)+'</span></div>'+(o.payment?'<div class="pd-row"><span>Pay to</span><span>'+esc(o.payment.type)+' '+esc(o.payment.number)+'</span></div>':'')+(o.note?'<div class="pd-row"><span>Note</span><span style="text-align:right;max-width:60%">'+esc(o.note)+'</span></div>':'')+'</div>'+(o.proof?'<div class="group-label">Proof of payment '+(o.reference?'· Ref: '+esc(o.reference):'')+'</div><img src="'+o.proof+'" class="proof-img" data-zoom="1">':'<div style="font-size:13px;color:var(--dim);margin-bottom:10px">No proof uploaded yet.</div>')+'<div class="a-actions" style="margin-top:14px">'+btns+'</div><div class="group-label" style="margin-top:20px">💬 Chat with buyer</div><div class="ochat"><div class="ochat-body" id="aochatBody"></div><div class="ochat-foot"><input id="aochatInput" placeholder="Reply to buyer..."><button id="aochatSend"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg></button></div></div></div>';
     ADMTX.shown=0;
     const ai=document.getElementById('aochatInput'); if(ai) ai.addEventListener('keydown',e=>{ if(e.key==='Enter') sendAdminMsg(); });
     const asb=document.getElementById('aochatSend'); if(asb) asb.onclick=sendAdminMsg;
@@ -847,6 +852,10 @@ function renderAdminTx(prev,full){
 async function sendAdminMsg(){ const i=document.getElementById('aochatInput'); const v=i.value.trim(); if(!v) return; i.value='';
   try{ await api('/api/orders/'+ADMTX.id+'/message',{method:'POST',body:JSON.stringify({text:v})}); await loadAdminTx(false); }catch(e){ toast(e.message,'err'); } }
 async function setAdminStatus(st){ try{ await api('/api/orders/'+ADMTX.id+'/status',{method:'POST',body:JSON.stringify({status:st})}); toast('Updated: '+(STATUS_TEXT[st]||st)); loadAdminTx(true); renderAdminOrders(); }catch(e){ toast(e.message,'err'); } }
+async function deleteOrder(id){ if(!confirm('Delete order '+id+' permanently? This cannot be undone.')) return;
+  try{ await api('/api/orders/'+id,{method:'DELETE'}); toast('Order deleted'); closeAdminTx(); closeDrawer('tx'); renderAdminOrders(); checkAttention(); }catch(e){ toast(e.message,'err'); } }
+async function deleteConv(id){ if(!confirm('Delete this support conversation permanently?')) return;
+  try{ await api('/api/kv?key='+encodeURIComponent('krav:conv:'+id),{method:'DELETE'}); toast('Conversation deleted'); ASUP.id=null; ASUP.conv=null; if(ASUP.poll){clearInterval(ASUP.poll);ASUP.poll=null;} document.getElementById('supportChat').innerHTML='<div class="empty-note">Select a conversation to reply.</div>'; renderSupportList(); checkAttention(); }catch(e){ toast(e.message,'err'); } }
 
 function renderAdminConfig(){
   ['flyff','toram'].forEach(g=>{ const wrap=document.getElementById('admin'+g[0].toUpperCase()+g.slice(1)); const pk=(CONFIG.packages||[]).filter(p=>p.game===g);
@@ -870,6 +879,8 @@ document.addEventListener('click', async e=>{
   const ao=t.closest('[data-adminorder]'); if(ao){ openAdminOrder(ao.dataset.adminorder); return; }
   const of=t.closest('[data-ofilter]'); if(of){ adminOrderFilter=of.dataset.ofilter; renderAdminOrders(); return; }
   const sc=t.closest('[data-supconv]'); if(sc){ openSupportConv(sc.dataset.supconv); return; }
+  const delo=t.closest('[data-delorder]'); if(delo){ deleteOrder(delo.dataset.delorder); return; }
+  const delc=t.closest('[data-delconv]'); if(delc){ deleteConv(delc.dataset.delconv); return; }
   const az=t.closest('[data-zoom]'); if(az){ document.getElementById('lightboxImg').src=az.getAttribute('src'); document.getElementById('lightbox').classList.add('open'); return; }
   if(t.id==='lightbox'){ document.getElementById('lightbox').classList.remove('open'); return; }
   const as=t.closest('[data-astatus]'); if(as){ setAdminStatus(as.dataset.astatus); return; }
@@ -908,6 +919,7 @@ document.getElementById('adminPass').addEventListener('keydown',e=>{ if(e.key===
 document.getElementById('adminClose').onclick=()=>{ document.getElementById('adminPanel').classList.remove('open'); };
 document.getElementById('viewStoreBtn').onclick=()=>{ document.getElementById('adminPanel').classList.remove('open'); renderStore(); };
 document.getElementById('refreshAOrders').onclick=renderAdminOrders;
+document.getElementById('ordSearch').addEventListener('input',()=>renderAdminOrders());
 document.getElementById('refreshReviews').onclick=renderAdminReviews;
 document.getElementById('refreshSupport').onclick=renderSupportList;
 document.getElementById('supportFab').onclick=()=>{ if(SUP.open) closeSupport(); else openSupport(); };
