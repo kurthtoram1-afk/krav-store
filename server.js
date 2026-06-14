@@ -206,6 +206,16 @@ const server = http.createServer(async (req,res)=>{
         const o=await store.get('krav:order:'+mOrder[1]); if(!o) return send(res,404,{error:'Order not found'});
         const admin=isAdmin(req); const email=userEmail(req);
         if(!admin && o.userEmail!==email) return send(res,403,{error:'forbidden'});
+        // inline auto-cancel if this order is unpaid and past the limit
+        if(o.status==='awaiting_payment'){
+          const cfg=await store.get('krav:config')||{}; const mins=Number((cfg.store&&cfg.store.autoCancelMins)||0);
+          if(mins>0 && Number(o.createdAt) < Date.now()-mins*60000){
+            const now=Date.now(); o.status='cancelled'; o.updatedAt=now; o.cancelReason='auto';
+            o.timeline=o.timeline||[]; o.timeline.push({status:'cancelled',at:now,auto:true});
+            o.messages=o.messages||[]; o.messages.push({from:'seller',text:'This order was automatically cancelled because payment was not completed in time. You can place a new order anytime.',at:now});
+            o.unreadForBuyer=true; await store.set('krav:order:'+o.id,o);
+          }
+        }
         // mark read for the viewer
         if(admin && o.unreadForSeller){ o.unreadForSeller=false; await store.set('krav:order:'+o.id,o); }
         if(!admin && o.unreadForBuyer){ o.unreadForBuyer=false; await store.set('krav:order:'+o.id,o); }
