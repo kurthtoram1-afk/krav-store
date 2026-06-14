@@ -211,6 +211,12 @@ const server = http.createServer(async (req,res)=>{
         if(!admin && o.unreadForBuyer){ o.unreadForBuyer=false; await store.set('krav:order:'+o.id,o); }
         return send(res,200,{ order:o });
       }
+      // delete order (admin only)
+      if(mOrder && req.method==='DELETE'){
+        if(!isAdmin(req)) return send(res,403,{error:'forbidden'});
+        await store.del('krav:order:'+mOrder[1]);
+        return send(res,200,{ ok:true });
+      }
       // submit proof (owner only)
       const mProof = p.match(/^\/api\/orders\/([A-Za-z0-9\-]+)\/proof$/);
       if(mProof && req.method==='POST'){
