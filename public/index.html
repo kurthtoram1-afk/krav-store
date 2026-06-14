@@ -207,8 +207,10 @@
   .ord-row .meta{font-size:12.5px;color:var(--dim);margin-top:3px}
   .ord-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
   .stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
-  .stat-tile{background:linear-gradient(165deg,var(--panel2),var(--panel) 75%);border:1px solid var(--line);border-radius:15px;padding:16px 18px;position:relative;overflow:hidden}
-  .stat-tile::after{content:'';position:absolute;top:0;right:0;width:70px;height:70px;border-radius:50%;filter:blur(26px);opacity:.5}
+  .stat-tile{background:linear-gradient(165deg,var(--panel2),var(--panel) 75%);border:1px solid var(--line);border-radius:15px;padding:16px 18px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s}
+  .stat-tile:hover{transform:translateY(-3px);border-color:var(--violet)}
+  .stat-tile::after{content:'';position:absolute;top:0;right:0;width:70px;height:70px;border-radius:50%;filter:blur(26px);opacity:.5;animation:tileglow 3.5s ease-in-out infinite}
+  @keyframes tileglow{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.75;transform:scale(1.25)}}
   .stat-tile.g::after{background:var(--gold)}.stat-tile.v::after{background:var(--violet)}.stat-tile.c::after{background:var(--cyan)}.stat-tile.gr::after{background:var(--good)}
   .stat-tile .sv{font-family:var(--fd);font-weight:700;font-size:24px;position:relative;z-index:1}
   .stat-tile .sl{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-top:3px;position:relative;z-index:1}
@@ -218,6 +220,17 @@
   .ofilter.on{background:var(--gold);color:#1c1303;border-color:var(--gold)}
   .ofilter .cnt{font-family:var(--fm);opacity:.7;margin-left:5px}
   .admin{position:fixed;inset:0;z-index:90;background:radial-gradient(1100px 600px at 80% -10%,rgba(139,92,246,.14),transparent 60%),radial-gradient(900px 500px at -5% 10%,rgba(255,201,60,.06),transparent 55%),var(--ink);display:none;flex-direction:column;overflow:hidden}.admin.open{display:flex}
+  .admin::before,.admin::after{content:'';position:absolute;border-radius:50%;filter:blur(70px);pointer-events:none;z-index:0;opacity:.5}
+  .admin::before{width:420px;height:420px;background:radial-gradient(circle,rgba(139,92,246,.5),transparent 70%);top:-120px;right:-60px;animation:drift1 18s ease-in-out infinite}
+  .admin::after{width:380px;height:380px;background:radial-gradient(circle,rgba(34,211,238,.32),transparent 70%);bottom:-140px;left:-80px;animation:drift2 22s ease-in-out infinite}
+  @keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-80px,60px) scale(1.15)}}
+  @keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(70px,-50px) scale(1.12)}}
+  .admin-top,.admin-tabs,.admin-body{position:relative;z-index:1}
+  .admin-orb{width:30px;height:30px;border-radius:50%;flex:none;background:conic-gradient(from 0deg,var(--gold),var(--violet),var(--cyan),var(--gold));animation:orbitspin 4s linear infinite;box-shadow:0 0 16px rgba(139,92,246,.6);position:relative}
+  .admin-orb::after{content:'';position:absolute;inset:5px;border-radius:50%;background:var(--ink2)}
+  .live-pill{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--good);background:rgba(62,224,160,.12);border:1px solid rgba(62,224,160,.3);padding:5px 11px;border-radius:20px}
+  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 8px var(--good);animation:livepulse 1.6s ease-in-out infinite}
+  @keyframes livepulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
   .admin-top{display:flex;align-items:center;gap:14px;padding:16px 26px;border-bottom:1px solid var(--line-soft);background:rgba(12,10,24,.7);backdrop-filter:blur(14px)}
   .admin-top .tag{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);background:linear-gradient(105deg,var(--gold-soft),rgba(139,92,246,.12));border:1px solid rgba(255,201,60,.3);padding:5px 12px;border-radius:20px;font-weight:700}.admin-top .spacer{flex:1}
   .admin-tabs{display:flex;gap:7px;padding:14px 26px;border-bottom:1px solid var(--line-soft);background:rgba(12,10,24,.4);overflow-x:auto}
@@ -435,7 +448,7 @@
 </div></div>
 
 <div class="admin" id="adminPanel">
-  <div class="admin-top"><div class="brand" style="font-size:18px"><span class="bname">Kr<b style="color:var(--gold)">AV</b></span></div><span class="tag">Seller</span><div class="spacer"></div><button class="mini-btn" id="viewStoreBtn">View store</button><button class="mini-btn danger" id="adminClose">Exit</button></div>
+  <div class="admin-top"><div class="admin-orb"></div><div class="brand" style="font-size:18px"><span class="bname">Kr<b style="color:var(--gold)">AV</b></span></div><span class="tag">Seller</span><span class="live-pill"><span class="live-dot"></span>Live</span><div class="spacer"></div><button class="mini-btn" id="viewStoreBtn">View store</button><button class="mini-btn danger" id="adminClose">Exit</button></div>
   <div class="admin-tabs">
     <div class="admin-tab active" data-pane="aorders">Orders<span class="n" id="nOrders" style="display:none">0</span></div>
     <div class="admin-tab" data-pane="products">Products &amp; Prices</div>
