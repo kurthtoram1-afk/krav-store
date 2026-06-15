@@ -89,6 +89,20 @@ function verifyPw(pw, stored){
   return a.length===b.length && crypto.timingSafeEqual(a,b);
 }
 
+/* ===== TOTP (Google Authenticator) 2FA ===== */
+const B32='ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+function base32Encode(buf){ let bits='',out=''; for(const b of buf) bits+=b.toString(2).padStart(8,'0'); for(let i=0;i+5<=bits.length;i+=5) out+=B32[parseInt(bits.substr(i,5),2)]; const rem=bits.length%5; if(rem) out+=B32[parseInt(bits.substr(bits.length-rem).padEnd(5,'0'),2)]; return out; }
+function base32Decode(str){ let bits=''; for(const c of String(str).replace(/=+$/,'').toUpperCase()){ const v=B32.indexOf(c); if(v<0) continue; bits+=v.toString(2).padStart(5,'0'); } const bytes=[]; for(let i=0;i+8<=bits.length;i+=8) bytes.push(parseInt(bits.substr(i,8),2)); return Buffer.from(bytes); }
+function totpAt(secret, t){ let counter=Math.floor((t/1000)/30); const buf=Buffer.alloc(8); for(let i=7;i>=0;i--){ buf[i]=counter&0xff; counter=Math.floor(counter/256); } const hmac=crypto.createHmac('sha1',base32Decode(secret)).update(buf).digest(); const off=hmac[hmac.length-1]&0xf; const code=((hmac[off]&0x7f)<<24)|((hmac[off+1]&0xff)<<16)|((hmac[off+2]&0xff)<<8)|(hmac[off+3]&0xff); return (code%1000000).toString().padStart(6,'0'); }
+function verifyTotp(secret, token){ if(!secret||!token) return false; token=String(token).trim(); for(let w=-1;w<=1;w++){ if(totpAt(secret, Date.now()+w*30000)===token) return true; } return false; }
+
+/* ===== admin login rate limiting (in-memory) ===== */
+let loginFails=0, lockedUntil=0;
+function isLocked(){ return Date.now() < lockedUntil; }
+function lockSecondsLeft(){ return Math.ceil((lockedUntil-Date.now())/1000); }
+function noteFail(){ loginFails++; if(loginFails>=5){ lockedUntil=Date.now()+15*60000; loginFails=0; } }
+function noteSuccess(){ loginFails=0; lockedUntil=0; }
+
 /* ================= helpers ================= */
 function send(res,code,body,type='application/json'){ const d=type==='application/json'?JSON.stringify(body):body; res.writeHead(code,{'Content-Type':type,'Cache-Control':'no-store'}); res.end(d); }
 function readBody(req){ return new Promise(r=>{ let b=''; req.on('data',c=>{ b+=c; if(b.length>BODY_LIMIT) req.destroy(); }); req.on('end',()=>{ try{ r(b?JSON.parse(b):{}); }catch{ r({}); } }); }); }
@@ -288,9 +302,43 @@ const server = http.createServer(async (req,res)=>{
 
       /* ---------- existing KV + stats + admin ---------- */
       if(p==='/api/admin/login' && req.method==='POST'){
+        if(isLocked()) return send(res,429,{error:'Too many attempts. Try again in '+lockSecondsLeft()+'s.'});
         const b=await readBody(req); const pw=await store.getPassword();
-        if(String(b.password||'')===String(pw)) return send(res,200,{ token:signToken({role:'admin'}) });
-        return send(res,401,{error:'invalid'});
+        if(String(b.password||'')!==String(pw)){ noteFail(); return send(res,401,{error:'invalid'}); }
+        const totpSecret=await store.get('krav:_totp');
+        if(totpSecret){
+          if(!b.code) return send(res,401,{error:'2FA code required', need2fa:true});
+          if(!verifyTotp(totpSecret, b.code)){ noteFail(); return send(res,401,{error:'Invalid 2FA code', need2fa:true}); }
+        }
+        noteSuccess();
+        return send(res,200,{ token:signToken({role:'admin'}) });
+      }
+      if(p==='/api/admin/2fa/status' && req.method==='GET'){
+        if(!isAdmin(req)) return send(res,403,{error:'forbidden'});
+        return send(res,200,{ enabled: !!(await store.get('krav:_totp')) });
+      }
+      if(p==='/api/admin/2fa/setup' && req.method==='POST'){
+        if(!isAdmin(req)) return send(res,403,{error:'forbidden'});
+        const secret=base32Encode(crypto.randomBytes(20));
+        await store.set('krav:_totp_pending', secret);
+        const uri='otpauth://totp/KrAV%20Seller?secret='+secret+'&issuer=KrAV&digits=6&period=30';
+        return send(res,200,{ secret, uri });
+      }
+      if(p==='/api/admin/2fa/enable' && req.method==='POST'){
+        if(!isAdmin(req)) return send(res,403,{error:'forbidden'});
+        const b=await readBody(req); const pending=await store.get('krav:_totp_pending');
+        if(!pending) return send(res,400,{error:'Start setup first'});
+        if(!verifyTotp(pending, b.code)) return send(res,401,{error:'That code is wrong. Check your authenticator app and try again.'});
+        await store.set('krav:_totp', pending); await store.del('krav:_totp_pending');
+        return send(res,200,{ ok:true });
+      }
+      if(p==='/api/admin/2fa/disable' && req.method==='POST'){
+        if(!isAdmin(req)) return send(res,403,{error:'forbidden'});
+        const b=await readBody(req); const secret=await store.get('krav:_totp');
+        if(!secret) return send(res,200,{ ok:true });
+        if(!verifyTotp(secret, b.code)) return send(res,401,{error:'Enter your current 2FA code to turn it off.'});
+        await store.del('krav:_totp');
+        return send(res,200,{ ok:true });
       }
       if(p==='/api/admin/password' && req.method==='POST'){
         if(!isAdmin(req)) return send(res,403,{error:'forbidden'});
@@ -304,7 +352,10 @@ const server = http.createServer(async (req,res)=>{
         return send(res,200,{ values:await store.list(prefix) });
       }
       if(p==='/api/kv' && req.method==='GET'){
-        const key=u.searchParams.get('key')||''; let val=await store.get(key);
+        const key=u.searchParams.get('key')||'';
+        // never expose internal secrets or per-user/order records through generic KV
+        if(key.startsWith('krav:_') || key==='_meta' || key.startsWith('krav:user:') || key.startsWith('krav:order:')) return send(res,403,{error:'forbidden'});
+        let val=await store.get(key);
         if(key==='krav:config' && val && val.store){ const c={...val,store:{...val.store}}; delete c.store.adminPass; val=c; }
         return send(res,200,{ value:val });
       }
