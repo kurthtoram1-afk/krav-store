@@ -17,6 +17,11 @@ const PUBLIC_DIR = path.join(__dirname, 'public');
 const DEFAULT_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'krav-admin';
 const MONGODB_URI = process.env.MONGODB_URI || '';
 const BODY_LIMIT = 8e6; // ~8MB (allows a compressed proof screenshot)
+// Email notifications (optional). Uses Brevo HTTP API — set these on Render to enable.
+const BREVO_API_KEY = process.env.BREVO_API_KEY || '';
+const SENDER_EMAIL  = process.env.SENDER_EMAIL || '';
+const SENDER_NAME   = process.env.SENDER_NAME || 'KrAV Store';
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 
 const STATUSES = ['awaiting_payment','proof_submitted','payment_verified','delivered','completed','cancelled'];
 
@@ -134,7 +139,7 @@ const SECURITY_HEADERS={
   'X-Frame-Options':'DENY',
   'Referrer-Policy':'no-referrer',
   'Permissions-Policy':'geolocation=(), microphone=(), camera=()',
-  'Content-Security-Policy':"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+  'Content-Security-Policy':"default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://*.googleusercontent.com; connect-src 'self' https://accounts.google.com; frame-src https://accounts.google.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 };
 function send(res,code,body,type='application/json'){ const d=type==='application/json'?JSON.stringify(body):body; res.writeHead(code,{'Content-Type':type,'Cache-Control':'no-store',...SECURITY_HEADERS}); res.end(d); }
 function readBody(req){
@@ -152,7 +157,7 @@ const MIME={'.html':'text/html','.css':'text/css','.js':'text/javascript','.json
 const uid = p => p + crypto.randomBytes(4).toString('hex');
 const orderId = () => 'KRAV-' + (Date.now().toString(36).toUpperCase().slice(-4)) + crypto.randomBytes(3).toString('hex').toUpperCase();
 const cleanEmail = e => String(e||'').trim().toLowerCase();
-function publicUser(u){ return u?{ email:u.email, name:u.name, createdAt:u.createdAt }:null; }
+function publicUser(u){ return u?{ email:u.email, name:u.name, createdAt:u.createdAt, points:Number(u.points||0) }:null; }
 function orderSummary(o){ return { id:o.id, status:o.status, total:o.total, items:o.items, createdAt:o.createdAt, updatedAt:o.updatedAt, hasProof:!!o.proof, unreadForSeller:o.unreadForSeller, unreadForBuyer:o.unreadForBuyer }; }
 
 function canWriteKV(key, exists, admin){
@@ -163,8 +168,46 @@ function canWriteKV(key, exists, admin){
   return admin;
 }
 
-async function buildStats(){
-  const orders = await store.list('krav:order:');
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+// Send an email via Brevo's HTTP API. Safe no-op if not configured; never throws.
+async function sendEmail(to, subject, html){
+  try{
+    if(!BREVO_API_KEY || !SENDER_EMAIL || !to) return false;
+    const r = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method:'POST',
+      headers:{ 'api-key':BREVO_API_KEY, 'Content-Type':'application/json', 'Accept':'application/json' },
+      body: JSON.stringify({ sender:{ name:SENDER_NAME, email:SENDER_EMAIL }, to:[{email:to}], subject, htmlContent:html })
+    });
+    return r.ok;
+  }catch(e){ console.error('email send failed:', e.message); return false; }
+}
+async function notifySeller(subject, html){
+  try{ const cfg=await store.get('krav:config')||{}; const em=cfg.email||{}; if(!em.enabled||!em.notifyEmail) return; await sendEmail(em.notifyEmail, subject, html); }catch(e){}
+}
+async function notifyBuyer(email, subject, html){
+  try{ const cfg=await store.get('krav:config')||{}; const em=cfg.email||{}; if(!em.enabled||!email) return; await sendEmail(email, subject, html); }catch(e){}
+}
+function emailWrap(title, lines){ return '<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto"><h2 style="color:#7b61ff">'+esc(title)+'</h2><div style="font-size:15px;line-height:1.6;color:#222">'+lines+'</div><p style="color:#999;font-size:12px;margin-top:24px">KrAV — Game Currency Store</p></div>'; }
+
+/* ===== registration security: email verification + Google sign-in ===== */
+function emailConfigured(){ return !!(BREVO_API_KEY && SENDER_EMAIL); }
+async function emailVerifyActive(){ if(!emailConfigured()) return false; const cfg=await store.get('krav:config')||{}; return !!(cfg.auth && cfg.auth.emailVerify); }
+function sixDigit(){ return String(crypto.randomInt(100000,1000000)); }
+// Verify a Google ID token via Google's tokeninfo endpoint. Returns {email,name} or null.
+async function verifyGoogleToken(credential){
+  if(!GOOGLE_CLIENT_ID || !credential) return null;
+  try{
+    const r=await fetch('https://oauth2.googleapis.com/tokeninfo?id_token='+encodeURIComponent(credential));
+    if(!r.ok) return null;
+    const d=await r.json();
+    if(d.aud!==GOOGLE_CLIENT_ID) return null;
+    if(d.email_verified!==true && d.email_verified!=='true') return null;
+    const email=cleanEmail(d.email); if(!email||!email.includes('@')) return null;
+    return { email, name: (d.name||d.given_name||email.split('@')[0]).slice(0,60) };
+  }catch(e){ console.error('google verify failed:', e.message); return null; }
+}
+
+async function buildStats(){  const orders = await store.list('krav:order:');
   const reviews = await store.list('krav:review:');
   const done = orders.filter(o=>o && (o.status==='delivered'||o.status==='completed'));
   done.sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
@@ -203,15 +246,55 @@ const server = http.createServer(async (req,res)=>{
     if(p.startsWith('/api/')){
 
       /* ---------- AUTH ---------- */
+      if(p==='/api/auth/config' && req.method==='GET'){
+        return send(res,200,{ googleClientId:GOOGLE_CLIENT_ID, emailVerify: await emailVerifyActive() });
+      }
+      if(p==='/api/auth/google' && req.method==='POST'){
+        if(!rateOk(req,'auth',25,15*60000)) return send(res,429,{error:'Too many attempts. Please wait a few minutes.'});
+        if(!GOOGLE_CLIENT_ID) return send(res,400,{error:'Google sign-in is not set up.'});
+        const b=await readBody(req); const g=await verifyGoogleToken(b.credential);
+        if(!g) return send(res,401,{error:'Google sign-in failed. Please try again.'});
+        let user=await store.get('krav:user:'+g.email);
+        if(!user){ user={ email:g.email, name:g.name, pw:'', google:true, emailVerified:true, points:0, createdAt:Date.now() }; await store.set('krav:user:'+g.email, user); }
+        return send(res,200,{ token:signToken({role:'user',sub:g.email}), user:publicUser(user) });
+      }
       if(p==='/api/auth/register' && req.method==='POST'){
         if(!rateOk(req,'auth',25,15*60000)) return send(res,429,{error:'Too many attempts. Please wait a few minutes.'});
         const b=await readBody(req); const email=cleanEmail(b.email).slice(0,120); const name=String(b.name||'').trim().slice(0,60); const pw=String(b.password||'');
         if(!email||!email.includes('@')||!name||pw.length<6) return send(res,400,{error:'Please enter a valid email, name, and a password of at least 6 characters.'});
         if(pw.length>200) return send(res,400,{error:'Password is too long.'});
         if(await store.has('krav:user:'+email)) return send(res,409,{error:'An account with this email already exists. Try logging in.'});
-        const user={ email, name, pw:await hashPw(pw), createdAt:Date.now() };
+        if(await emailVerifyActive()){
+          const code=sixDigit();
+          await store.set('krav:_pending:'+email, { email, name, pw:await hashPw(pw), code, exp:Date.now()+10*60000, tries:0 });
+          await sendEmail(email, 'Your KrAV verification code', emailWrap('Confirm your email', '<p>Hi '+esc(name)+', welcome to KrAV!</p><p>Your verification code is:</p><div style="font-size:34px;font-weight:bold;letter-spacing:6px;color:#7b61ff;margin:12px 0">'+code+'</div><p>Enter it on the site to finish creating your account. It expires in 10 minutes.</p>'));
+          return send(res,200,{ pending:true, email });
+        }
+        const user={ email, name, pw:await hashPw(pw), points:0, createdAt:Date.now() };
         await store.set('krav:user:'+email, user);
         return send(res,200,{ token:signToken({role:'user',sub:email}), user:publicUser(user) });
+      }
+      if(p==='/api/auth/verify' && req.method==='POST'){
+        if(!rateOk(req,'auth',30,15*60000)) return send(res,429,{error:'Too many attempts. Please wait a few minutes.'});
+        const b=await readBody(req); const email=cleanEmail(b.email); const code=String(b.code||'').trim();
+        const pend=await store.get('krav:_pending:'+email);
+        if(!pend) return send(res,400,{error:'No pending sign-up found. Please register again.'});
+        if(Date.now()>pend.exp){ await store.del('krav:_pending:'+email); return send(res,400,{error:'Code expired. Please register again.'}); }
+        if((pend.tries||0)>=5){ await store.del('krav:_pending:'+email); return send(res,429,{error:'Too many wrong codes. Please register again.'}); }
+        if(code!==pend.code){ pend.tries=(pend.tries||0)+1; await store.set('krav:_pending:'+email,pend); return send(res,401,{error:'Wrong code. Please check your email and try again.'}); }
+        if(await store.has('krav:user:'+email)){ await store.del('krav:_pending:'+email); return send(res,409,{error:'Account already exists. Please log in.'}); }
+        const user={ email, name:pend.name, pw:pend.pw, points:0, emailVerified:true, createdAt:Date.now() };
+        await store.set('krav:user:'+email, user); await store.del('krav:_pending:'+email);
+        return send(res,200,{ token:signToken({role:'user',sub:email}), user:publicUser(user) });
+      }
+      if(p==='/api/auth/resend' && req.method==='POST'){
+        if(!rateOk(req,'resend',5,15*60000)) return send(res,429,{error:'Please wait before requesting another code.'});
+        const b=await readBody(req); const email=cleanEmail(b.email);
+        const pend=await store.get('krav:_pending:'+email);
+        if(!pend) return send(res,400,{error:'No pending sign-up found.'});
+        pend.code=sixDigit(); pend.exp=Date.now()+10*60000; pend.tries=0; await store.set('krav:_pending:'+email,pend);
+        await sendEmail(email, 'Your KrAV verification code', emailWrap('Confirm your email', '<p>Your new verification code is:</p><div style="font-size:34px;font-weight:bold;letter-spacing:6px;color:#7b61ff;margin:12px 0">'+pend.code+'</div><p>It expires in 10 minutes.</p>'));
+        return send(res,200,{ ok:true });
       }
       if(p==='/api/auth/login' && req.method==='POST'){
         if(!rateOk(req,'auth',25,15*60000)) return send(res,429,{error:'Too many attempts. Please wait a few minutes.'});
@@ -246,18 +329,35 @@ const server = http.createServer(async (req,res)=>{
           total += Number(pkg.price)*qty;
         }
         if(!items.length) return send(res,400,{error:'Your cart is empty or items are unavailable.'});
+        // ---- loyalty: optional point redemption (validated server-side) ----
+        const lo=cfg.loyalty||{}; const buyer=await store.get('krav:user:'+email);
+        let pointsUsed=0, discount=0;
+        if(lo.enabled && b.redeemPoints){
+          const want=Math.max(0, parseInt(b.redeemPoints)||0);
+          const have=Number((buyer&&buyer.points)||0);
+          const ppp=Number(lo.pesoPerPoint)||0;
+          if(want>0 && ppp>0 && want>=Number(lo.minRedeem||0) && have>=want){
+            const maxByTotal=Math.ceil(total/ppp);
+            pointsUsed=Math.min(want, maxByTotal, have);
+            discount=Math.min(total, Math.floor(pointsUsed*ppp));
+          }
+        }
+        const grossTotal=total; total=Math.max(0, total-discount);
         const pay=payments.find(x=>x.id===b.paymentId && x.active) || payments.find(x=>x.active) || null;
         const now=Date.now();
         const order={
           id:orderId(), userEmail:email, ign:String(b.ign||'').trim().slice(0,80), server:String(b.server||'').trim().slice(0,80),
-          note:String(b.note||'').trim().slice(0,500), items, total,
+          note:String(b.note||'').trim().slice(0,500), items, total, grossTotal, pointsRedeemed:pointsUsed, discount,
           payment: pay?{type:pay.type,name:pay.name,number:pay.number}:null,
           status:'awaiting_payment', proof:null, reference:'',
           messages:[], timeline:[{status:'awaiting_payment',at:now}],
           unreadForSeller:false, unreadForBuyer:false, createdAt:now, updatedAt:now
         };
         if(!order.ign) return send(res,400,{error:'Please enter your in-game name (IGN).'});
+        if(pointsUsed>0 && buyer){ buyer.points=Number(buyer.points||0)-pointsUsed; await store.set('krav:user:'+email,buyer); }
         await store.set('krav:order:'+order.id, order);
+        const itemsTxt=items.map(i=>i.label+' '+i.currency+(i.qty>1?(' ×'+i.qty):'')).join(', ');
+        notifySeller('🛒 New order '+order.id, emailWrap('New order received', '<p><b>Order:</b> '+esc(order.id)+'</p><p><b>Buyer:</b> '+esc(email)+'</p><p><b>IGN:</b> '+esc(order.ign)+'</p><p><b>Items:</b> '+esc(itemsTxt)+'</p><p><b>Total:</b> \u20b1'+Number(total).toLocaleString()+'</p><p>Open your admin panel to view it.</p>'));
         return send(res,200,{ order });
       }
       // order detail (owner or admin)
@@ -301,6 +401,7 @@ const server = http.createServer(async (req,res)=>{
         o.status='proof_submitted'; o.updatedAt=Date.now(); o.unreadForSeller=true;
         o.timeline.push({status:'proof_submitted',at:o.updatedAt});
         await store.set('krav:order:'+o.id,o);
+        notifySeller('💳 Payment proof for '+o.id, emailWrap('Payment proof submitted', '<p><b>Order:</b> '+esc(o.id)+'</p><p><b>Buyer:</b> '+esc(email)+'</p><p>The buyer uploaded a payment screenshot. Open your admin panel to verify it and deliver.</p>'));
         return send(res,200,{ ok:true, order:o });
       }
       // chat message (owner or admin)
@@ -328,8 +429,17 @@ const server = http.createServer(async (req,res)=>{
         if(o.userEmail!==email) return send(res,403,{error:'forbidden'});
         if(o.status!=='delivered') return send(res,400,{error:'You can confirm only after the order is delivered.'});
         o.status='completed'; o.updatedAt=Date.now(); o.timeline.push({status:'completed',at:o.updatedAt}); o.unreadForSeller=true;
+        // award loyalty points (once) based on the amount actually paid
+        let earned=0;
+        try{
+          const cfg=await store.get('krav:config')||{}; const lo=cfg.loyalty||{};
+          if(lo.enabled && !o.pointsAwarded){
+            earned=Math.floor(Number(o.total||0)*Number(lo.earnPerPeso||0));
+            if(earned>0){ const u=await store.get('krav:user:'+email); if(u){ u.points=Number(u.points||0)+earned; await store.set('krav:user:'+email,u); } o.pointsAwarded=earned; }
+          }
+        }catch(e){}
         await store.set('krav:order:'+o.id,o);
-        return send(res,200,{ ok:true, order:o });
+        return send(res,200,{ ok:true, order:o, earnedPoints:earned });
       }
       // admin set status
       const mStatus = p.match(/^\/api\/orders\/([A-Za-z0-9\-]+)\/status$/);
@@ -338,8 +448,26 @@ const server = http.createServer(async (req,res)=>{
         const o=await store.get('krav:order:'+mStatus[1]); if(!o) return send(res,404,{error:'Order not found'});
         const b=await readBody(req); const st=String(b.status||'');
         if(!STATUSES.includes(st)) return send(res,400,{error:'bad status'});
-        o.status=st; o.updatedAt=Date.now(); o.timeline.push({status:st,at:o.updatedAt}); o.unreadForBuyer=true;
+        o.status=st; o.updatedAt=Date.now(); o.timeline=o.timeline||[]; o.timeline.push({status:st,at:o.updatedAt}); o.unreadForBuyer=true;
+        // ---- auto-delivery: post the editable instruction once, on the configured trigger ----
+        try{
+          const cfg=await store.get('krav:config')||{}; const d=cfg.delivery||{};
+          const trigger=d.onStatus||'payment_verified';
+          if(d.auto && st===trigger && !o.autoMsgSent){
+            const cur=(o.items&&o.items[0]&&o.items[0].currency)||'';
+            let tpl = cur==='Spina' ? (d.toram||d.default) : cur==='Penya' ? (d.flyff||d.default) : d.default;
+            tpl=String(tpl||'').trim();
+            if(tpl){
+              const itemsTxt=(o.items||[]).map(i=>i.label+' '+i.currency+(i.qty>1?(' ×'+i.qty):'')).join(', ');
+              const msg=tpl.replace(/\{ign\}/gi,o.ign||'').replace(/\{order\}/gi,o.id).replace(/\{items\}/gi,itemsTxt).replace(/\{total\}/gi,'\u20b1'+Number(o.total||0).toLocaleString());
+              o.messages=o.messages||[];
+              o.messages.push({ from:'seller', text:msg.slice(0,2000), at:Date.now(), auto:true });
+              o.autoMsgSent=true;
+            }
+          }
+        }catch(e){}
         await store.set('krav:order:'+o.id,o);
+        if(st==='delivered'){ notifyBuyer(o.userEmail, '✅ Your order '+o.id+' was delivered', emailWrap('Your order is on the way!', '<p>Hi'+(o.ign?(' '+esc(o.ign)):'')+',</p><p>Your order <b>'+esc(o.id)+'</b> has been marked <b>delivered</b>. Please check your in-game inbox / trade and confirm receipt in the store. Thank you for choosing KrAV!</p>')); }
         return send(res,200,{ ok:true, order:o });
       }
       // admin list all orders (summary)
@@ -418,7 +546,7 @@ const server = http.createServer(async (req,res)=>{
         // never expose internal secrets or per-user/order records through generic KV
         if(key.startsWith('krav:_') || key==='_meta' || key.startsWith('krav:user:') || key.startsWith('krav:order:')) return send(res,403,{error:'forbidden'});
         let val=await store.get(key);
-        if(key==='krav:config' && val && val.store){ const c={...val,store:{...val.store}}; delete c.store.adminPass; val=c; }
+        if(key==='krav:config' && val && typeof val==='object'){ const c={...val}; if(c.store){ c.store={...c.store}; delete c.store.adminPass; } if(!isAdmin(req)){ delete c.delivery; delete c.email; } val=c; }
         return send(res,200,{ value:val });
       }
       if(p==='/api/kv' && req.method==='POST'){
