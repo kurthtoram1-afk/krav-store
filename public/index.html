@@ -496,6 +496,11 @@
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><b style="font-family:var(--fd)">🔐 Two-Factor Authentication</b><span id="twofaStatus" class="live-pill" style="color:var(--dim);background:rgba(111,102,145,.12);border-color:var(--line)">Off</span></div>
         <p style="color:var(--dim);font-size:13px;margin-bottom:14px">Adds a 6-digit code from an authenticator app (Google Authenticator, Authy). Even if someone learns your password, they can't log in without your phone.</p>
         <div id="twofaBody"></div>
+        <div style="margin-top:16px;border-top:1px solid var(--line-soft);padding-top:14px">
+          <b style="font-family:var(--fd);font-size:13.5px">🚪 Sign out everywhere</b>
+          <p style="color:var(--dim);font-size:12.5px;margin:5px 0 10px">If you think someone got into your account, this instantly logs out every device. You'll stay logged in here.</p>
+          <button class="mini-btn danger" id="logoutAllBtn">Log out all other devices</button>
+        </div>
       </div>
       <div class="a-actions"><button class="mini-btn gold" id="saveSettings">Save changes</button></div>
     </div>
@@ -973,6 +978,7 @@ function renderAdminGames(){  if(!CONFIG.games || !CONFIG.games.length) CONFIG.g
 }
 async function render2fa(){
   const statusEl=document.getElementById('twofaStatus'); const body=document.getElementById('twofaBody'); if(!body) return;
+  const lab=document.getElementById('logoutAllBtn'); if(lab) lab.onclick=async()=>{ if(!confirm('Log out of every other device now?')) return; try{ const d=await api('/api/admin/logout-all',{method:'POST'}); if(d.token){ ADMIN_TOKEN=d.token; localStorage.setItem('krav:atok',ADMIN_TOKEN); } toast('All other devices have been logged out'); }catch(e){ toast(e.message,'err'); } };
   let enabled=false; try{ const d=await api('/api/admin/2fa/status'); enabled=d.enabled; }catch(e){}
   if(enabled){ statusEl.textContent='On'; statusEl.style.color='var(--good)'; statusEl.style.background='rgba(62,224,160,.12)'; statusEl.style.borderColor='rgba(62,224,160,.3)';
     body.innerHTML='<p style="color:var(--good);font-size:13.5px;margin-bottom:12px">✓ Protected. You\'ll need your authenticator code each time you log in.</p><div class="a-field" style="max-width:220px;margin-bottom:10px"><label>Enter current code to turn OFF</label><input id="twofaDisableCode" inputmode="numeric" maxlength="6" placeholder="123456" style="text-align:center;letter-spacing:4px;font-family:var(--fm)"></div><button class="mini-btn danger" id="twofaDisableBtn">Turn off 2FA</button>';
