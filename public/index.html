@@ -442,6 +442,7 @@
 <div class="modal" id="adminLogin"><div class="modal-card" style="max-width:380px">
   <div class="mc-head"><h3 style="margin-top:8px">Owner login</h3><p class="mc-sub">For the store owner only.</p></div>
   <div class="mc-body"><div class="field"><input type="password" id="adminPass" placeholder="Admin password"></div>
+  <div class="field" id="admin2faField" style="display:none"><label style="font-size:13px;color:var(--muted);margin-bottom:7px;display:block">6-digit code from your authenticator app</label><input id="admin2faCode" inputmode="numeric" maxlength="6" placeholder="123456" style="text-align:center;letter-spacing:6px;font-family:var(--fm);font-size:20px"></div>
   <button class="btn btn-gold" style="width:100%" id="adminLoginBtn">Log in</button>
   <p class="center" style="margin-top:12px"><span class="link" data-close="adminLogin">Cancel</span></p></div>
 </div></div>
@@ -490,6 +491,11 @@
         <div class="a-field" style="margin-bottom:12px;max-width:340px"><label>Auto-cancel unpaid orders after (minutes) <span style="color:var(--dim);font-weight:400">— 0 = off</span></label><input id="setAutoCancel" type="number" min="0" placeholder="e.g. 60"><div style="font-size:12px;color:var(--dim);margin-top:6px">Orders with no payment proof get cancelled automatically after this many minutes. Keeps your Pending list clean.</div></div>
         <div class="a-row"><div class="a-field"><label>Messenger link</label><input id="setMsgr" placeholder="https://m.me/yourpage"></div><div class="a-field"><label>Discord link</label><input id="setDiscord" placeholder="https://discord.gg/xxxx"></div></div>
         <div class="a-field" style="margin-top:12px;max-width:280px"><label>Admin password <span style="color:var(--dim);font-weight:400">(blank = keep current)</span></label><input id="setPass" placeholder="New password"></div>
+      </div>
+      <div class="a-card" id="twofaCard">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><b style="font-family:var(--fd)">🔐 Two-Factor Authentication</b><span id="twofaStatus" class="live-pill" style="color:var(--dim);background:rgba(111,102,145,.12);border-color:var(--line)">Off</span></div>
+        <p style="color:var(--dim);font-size:13px;margin-bottom:14px">Adds a 6-digit code from an authenticator app (Google Authenticator, Authy). Even if someone learns your password, they can't log in without your phone.</p>
+        <div id="twofaBody"></div>
       </div>
       <div class="a-actions"><button class="mini-btn gold" id="saveSettings">Save changes</button></div>
     </div>
@@ -952,8 +958,7 @@ function renderAdminConfig(){
   document.getElementById('setName').value=CONFIG.store.name||''; document.getElementById('setTagline').value=(CONFIG.store.tagline||'').replace('||',' '); document.getElementById('setLead').value=CONFIG.store.lead||''; document.getElementById('setAnnounce').value=CONFIG.store.announce||''; document.getElementById('setAutoCancel').value=CONFIG.store.autoCancelMins||''; document.getElementById('setMsgr').value=CONFIG.contacts.messenger||''; document.getElementById('setDiscord').value=CONFIG.contacts.discord||''; document.getElementById('setPass').value='';
   renderAdminGames();
 }
-function renderAdminGames(){
-  if(!CONFIG.games || !CONFIG.games.length) CONFIG.games = JSON.parse(JSON.stringify(DEFAULT_GAMES));
+function renderAdminGames(){  if(!CONFIG.games || !CONFIG.games.length) CONFIG.games = JSON.parse(JSON.stringify(DEFAULT_GAMES));
   const wrap=document.getElementById('adminGames'); if(!wrap) return;
   wrap.innerHTML=CONFIG.games.map(g=>'<div class="a-card"><div style="display:flex;gap:14px;align-items:center;margin-bottom:12px">'
     +'<span class="gi gi-edit gi-'+(g.color||'f')+'" data-gameicon="'+g.id+'" title="Click to upload picture" style="cursor:pointer;padding:0;overflow:hidden;width:46px;height:46px;flex:none">'+(g.img?'<img src="'+g.img+'" style="width:100%;height:100%;object-fit:cover">':esc(g.badge||'?'))+'</span>'
@@ -965,6 +970,31 @@ function renderAdminGames(){
     +'<span class="toggle '+(g.soon?'on':'')+'" data-gsoon="'+g.id+'" style="margin-left:8px"><span class="sw"></span>"Soon" label</span>'
     +(g.img?'<button class="mini-btn" data-gameimg-clear="'+g.id+'">Remove picture</button>':'')
     +'<button class="mini-btn danger" data-delgame="'+g.id+'" style="margin-left:auto">Delete</button></div></div>').join('')||'<p style="color:var(--dim);font-size:13px">No games yet.</p>';
+}
+async function render2fa(){
+  const statusEl=document.getElementById('twofaStatus'); const body=document.getElementById('twofaBody'); if(!body) return;
+  let enabled=false; try{ const d=await api('/api/admin/2fa/status'); enabled=d.enabled; }catch(e){}
+  if(enabled){ statusEl.textContent='On'; statusEl.style.color='var(--good)'; statusEl.style.background='rgba(62,224,160,.12)'; statusEl.style.borderColor='rgba(62,224,160,.3)';
+    body.innerHTML='<p style="color:var(--good);font-size:13.5px;margin-bottom:12px">✓ Protected. You\'ll need your authenticator code each time you log in.</p><div class="a-field" style="max-width:220px;margin-bottom:10px"><label>Enter current code to turn OFF</label><input id="twofaDisableCode" inputmode="numeric" maxlength="6" placeholder="123456" style="text-align:center;letter-spacing:4px;font-family:var(--fm)"></div><button class="mini-btn danger" id="twofaDisableBtn">Turn off 2FA</button>';
+    document.getElementById('twofaDisableBtn').onclick=async()=>{ try{ await api('/api/admin/2fa/disable',{method:'POST',body:JSON.stringify({code:document.getElementById('twofaDisableCode').value.trim()})}); toast('2FA turned off'); render2fa(); }catch(e){ toast(e.message,'err'); } };
+  } else { statusEl.textContent='Off'; statusEl.style.color='var(--dim)'; statusEl.style.background='rgba(111,102,145,.12)'; statusEl.style.borderColor='var(--line)';
+    body.innerHTML='<button class="mini-btn gold" id="twofaSetupBtn">Enable 2FA</button>';
+    document.getElementById('twofaSetupBtn').onclick=startTwofaSetup;
+  }
+}
+async function startTwofaSetup(){
+  const body=document.getElementById('twofaBody');
+  try{ const d=await api('/api/admin/2fa/setup',{method:'POST'});
+    body.innerHTML='<div style="background:var(--ink2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px">'
+      +'<p style="font-size:13.5px;margin-bottom:10px"><b>Step 1:</b> Install <b>Google Authenticator</b> (or Authy) on your phone.</p>'
+      +'<p style="font-size:13.5px;margin-bottom:8px"><b>Step 2:</b> Add account → "Enter setup key" → paste this key:</p>'
+      +'<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px"><code style="flex:1;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px;font-family:var(--fm);font-size:13px;word-break:break-all">'+esc(d.secret)+'</code><button class="mini-btn" id="copySecret">Copy</button></div>'
+      +'<p style="font-size:13.5px;margin-bottom:8px"><b>Step 3:</b> Enter the 6-digit code it shows:</p>'
+      +'<div style="display:flex;gap:8px"><input id="twofaEnableCode" inputmode="numeric" maxlength="6" placeholder="123456" style="background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--text);text-align:center;letter-spacing:4px;font-family:var(--fm);width:120px"><button class="mini-btn gold" id="twofaEnableBtn">Verify &amp; turn on</button></div>'
+      +'</div>';
+    document.getElementById('copySecret').onclick=()=>{ navigator.clipboard.writeText(d.secret).then(()=>toast('Key copied')); };
+    document.getElementById('twofaEnableBtn').onclick=async()=>{ try{ await api('/api/admin/2fa/enable',{method:'POST',body:JSON.stringify({code:document.getElementById('twofaEnableCode').value.trim()})}); toast('2FA is ON — your account is now protected 🔐'); render2fa(); }catch(e){ toast(e.message,'err'); } };
+  }catch(e){ toast(e.message,'err'); }
 }
 async function renderAdminReviews(){ const wrap=document.getElementById('adminReviews'); try{ const d=await api('/api/kv/list?prefix=krav:review:'); const r=(d.values||[]).sort((a,b)=>b.createdAt-a.createdAt);
   wrap.innerHTML=r.length? r.map(x=>'<div class="a-card"><div style="display:flex;justify-content:space-between"><b>'+esc(x.name)+' <span style="color:var(--gold)">'+'★'.repeat(x.rating)+'</span></b><span style="color:var(--dim);font-size:12px">'+esc(x.game||'')+'</span></div><div style="color:var(--muted);font-size:13.5px;margin:8px 0">"'+esc(x.text)+'"</div></div>').join('') : '<div class="empty-note">No reviews yet.</div>';
@@ -1029,7 +1059,7 @@ async function openAdminPanel(){
   document.getElementById('adminPanel').classList.add('open'); OWNER=true; lastAttention=null; checkAttention();
 }
 document.getElementById('adminOpen').onclick=()=>{ if(ADMIN_TOKEN){ openAdminPanel(); } else { document.getElementById('adminPass').value=''; openModal('adminLogin'); setTimeout(()=>document.getElementById('adminPass').focus(),100); } };
-document.getElementById('adminLoginBtn').onclick=async()=>{ try{ const d=await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:document.getElementById('adminPass').value})}); ADMIN_TOKEN=d.token; localStorage.setItem('krav:atok',ADMIN_TOKEN); closeModal('adminLogin'); openAdminPanel(); }catch(e){ toast('Wrong password','err'); } };
+document.getElementById('adminLoginBtn').onclick=async()=>{ try{ const code=document.getElementById('admin2faCode').value.trim(); const d=await api('/api/admin/login',{method:'POST',body:JSON.stringify({password:document.getElementById('adminPass').value, code:code})}); ADMIN_TOKEN=d.token; localStorage.setItem('krav:atok',ADMIN_TOKEN); document.getElementById('admin2faField').style.display='none'; document.getElementById('admin2faCode').value=''; closeModal('adminLogin'); openAdminPanel(); }catch(e){ if(e.message && (e.message.indexOf('2FA')>=0 || e.message.indexOf('2fa')>=0)){ document.getElementById('admin2faField').style.display='block'; setTimeout(()=>document.getElementById('admin2faCode').focus(),50); toast('Enter your 6-digit authenticator code'); } else { toast(e.message||'Wrong password','err'); } } };
 document.getElementById('adminPass').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('adminLoginBtn').click(); });
 document.getElementById('adminClose').onclick=()=>{ ADMIN_TOKEN=null; localStorage.removeItem('krav:atok'); OWNER=false; document.getElementById('ownerAlert').style.display='none'; document.getElementById('adminPanel').classList.remove('open'); toast('Logged out of seller panel'); };
 document.getElementById('viewStoreBtn').onclick=()=>{ document.getElementById('adminPanel').classList.remove('open'); renderStore(); };
@@ -1043,7 +1073,7 @@ document.getElementById('supportSend').onclick=sendSupport;
 document.getElementById('supportInput').addEventListener('keydown',e=>{ if(e.key==='Enter') sendSupport(); });
 document.getElementById('addPayment').onclick=()=>{ CONFIG.payments=CONFIG.payments||[]; CONFIG.payments.push({id:'pay'+Math.random().toString(36).slice(2,7),type:'GCash',name:'',number:'',active:false}); renderAdminConfig(); };
 document.getElementById('addGame').onclick=()=>{ CONFIG.games=CONFIG.games||JSON.parse(JSON.stringify(DEFAULT_GAMES)); CONFIG.games.push({id:'g'+Math.random().toString(36).slice(2,7),name:'New Game',sub:'',badge:'NG',color:'f',img:'',link:'',active:true,soon:false}); renderAdminGames(); renderGamesNav(); };
-document.querySelectorAll('.admin-tab').forEach(tab=>tab.onclick=()=>{ document.querySelectorAll('.admin-tab').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.admin-pane').forEach(x=>x.classList.remove('active')); tab.classList.add('active'); document.getElementById('pane-'+tab.dataset.pane).classList.add('active'); if(tab.dataset.pane==='aorders')renderAdminOrders(); if(tab.dataset.pane==='areviews')renderAdminReviews(); if(tab.dataset.pane==='support')renderSupportList(); if(tab.dataset.pane==='games')renderAdminGames(); });
+document.querySelectorAll('.admin-tab').forEach(tab=>tab.onclick=()=>{ document.querySelectorAll('.admin-tab').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.admin-pane').forEach(x=>x.classList.remove('active')); tab.classList.add('active'); document.getElementById('pane-'+tab.dataset.pane).classList.add('active'); if(tab.dataset.pane==='aorders')renderAdminOrders(); if(tab.dataset.pane==='areviews')renderAdminReviews(); if(tab.dataset.pane==='support')renderSupportList(); if(tab.dataset.pane==='games')renderAdminGames(); if(tab.dataset.pane==='settings')render2fa(); });
 async function saveCfg(msg){ try{ await api('/api/kv',{method:'POST',body:JSON.stringify({key:'krav:config',value:{store:CONFIG.store,contacts:CONFIG.contacts,payments:CONFIG.payments,packages:CONFIG.packages,games:CONFIG.games}})}); toast(msg); renderStore(); }catch(e){ toast(e.message,'err'); } }
 document.getElementById('saveProducts').onclick=()=>saveCfg('Products saved!');
 document.getElementById('savePayments').onclick=()=>saveCfg('Payments saved!');
