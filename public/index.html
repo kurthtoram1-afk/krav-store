@@ -400,6 +400,7 @@
     <div class="field"><label>Server / World <span style="color:var(--dim)">(optional)</span></label><input id="fServer" placeholder="e.g. your Flyff server or Toram world"></div>
     <div class="field"><label>Pay with <span class="req">*</span></label><div class="pay-opts" id="payOpts"></div></div>
     <div class="field"><label>Note <span style="color:var(--dim)">(optional)</span></label><textarea id="fNote" placeholder="Anything we should know?"></textarea></div>
+    <div class="field" id="redeemRow" style="display:none"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="redeemChk" style="width:auto"> <span id="redeemLabel">Use my points</span></label></div>
     <div class="cart-total" style="padding-top:10px;border-top:1px solid var(--line-soft)"><span>Total to pay</span><b id="coTotal">₱0</b></div>
   </div>
   <div class="drawer-foot"><button class="btn btn-gold" style="width:100%" id="placeBtn">Place order</button></div>
@@ -418,11 +419,20 @@
 <div class="modal" id="authModal"><div class="modal-card">
   <div class="mc-head"><h3 id="authTitle">Welcome to KrAV</h3><p class="mc-sub">Log in or create an account to order safely.</p></div>
   <div class="mc-body">
+    <div id="googleBtnWrap" style="display:none"><div id="googleBtn" style="display:flex;justify-content:center"></div><div style="text-align:center;color:var(--dim);font-size:12px;margin:14px 0;position:relative"><span style="background:var(--ink2);padding:0 10px">or use email</span><div style="position:absolute;top:50%;left:0;right:0;height:1px;background:var(--line-soft);z-index:-1"></div></div></div>
+    <div id="authMain">
     <div class="tabs"><button id="tabLogin" class="on">Log in</button><button id="tabReg">Sign up</button></div>
     <div id="regName" class="field" style="display:none"><label>Your name / IGN <span class="req">*</span></label><input id="aName" placeholder="e.g. BladeMaster"></div>
     <div class="field"><label>Email <span class="req">*</span></label><input id="aEmail" type="email" placeholder="you@email.com"></div>
     <div class="field"><label>Password <span class="req">*</span></label><input id="aPass" type="password" placeholder="At least 6 characters"></div>
     <button class="btn btn-gold" style="width:100%" id="authSubmit">Log in</button>
+    </div>
+    <div id="verifyStep" style="display:none">
+      <p style="font-size:14px;color:var(--muted);margin-bottom:14px">We sent a 6-digit code to <b id="verifyEmail"></b>. Enter it below to finish creating your account.</p>
+      <div class="field"><input id="verifyCode" inputmode="numeric" maxlength="6" placeholder="123456" style="text-align:center;letter-spacing:8px;font-family:var(--fm);font-size:22px"></div>
+      <button class="btn btn-gold" style="width:100%" id="verifyBtn">Verify &amp; create account</button>
+      <p class="center" style="margin-top:12px;font-size:13px"><span class="link" id="resendCode">Resend code</span> · <span class="link" id="backToReg">Back</span></p>
+    </div>
     <p class="center" style="margin-top:12px"><span class="link" data-close="authModal">Cancel</span></p>
   </div>
 </div></div>
@@ -491,6 +501,30 @@
         <div class="a-field" style="margin-bottom:12px;max-width:340px"><label>Auto-cancel unpaid orders after (minutes) <span style="color:var(--dim);font-weight:400">— 0 = off</span></label><input id="setAutoCancel" type="number" min="0" placeholder="e.g. 60"><div style="font-size:12px;color:var(--dim);margin-top:6px">Orders with no payment proof get cancelled automatically after this many minutes. Keeps your Pending list clean.</div></div>
         <div class="a-row"><div class="a-field"><label>Messenger link</label><input id="setMsgr" placeholder="https://m.me/yourpage"></div><div class="a-field"><label>Discord link</label><input id="setDiscord" placeholder="https://discord.gg/xxxx"></div></div>
         <div class="a-field" style="margin-top:12px;max-width:280px"><label>Admin password <span style="color:var(--dim);font-weight:400">(blank = keep current)</span></label><input id="setPass" placeholder="New password"></div>
+      </div>
+      <div class="a-card" id="emailCard">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><b style="font-family:var(--fd)">✉️ Email Notifications</b><span class="toggle" id="emailToggle"><span class="sw"></span>Off</span></div>
+        <p style="color:var(--dim);font-size:13px;margin-bottom:12px">Get an email when a new order comes in or a payment proof is uploaded — so you never miss a sale. Buyers also get an email when you deliver. <b>Setup needed</b> (see notes below).</p>
+        <div class="a-field" style="max-width:320px"><label>Your email (where alerts are sent)</label><input id="emailNotify" type="email" placeholder="you@gmail.com"></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px"><span class="toggle" id="verifyToggle"><span class="sw"></span>Off</span><span style="font-size:13.5px">Require <b>email verification code</b> on sign-up <span style="color:var(--dim)">(needs email setup below)</span></span></div>
+        <p style="color:var(--dim);font-size:12px;margin-top:10px">⚙️ To turn this on you must add a free email provider key on Render (<b>BREVO_API_KEY</b> + <b>SENDER_EMAIL</b>). Ask for the setup steps.</p>
+      </div>
+      <div class="a-card" id="deliveryCard">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><b style="font-family:var(--fd)">📦 Auto-Delivery Instructions</b><span class="toggle" id="dlvToggle"><span class="sw"></span>Off</span></div>
+        <p style="color:var(--dim);font-size:13px;margin-bottom:12px">When you click <b>"Verify payment"</b> on an order, this message is automatically sent to the buyer in their chat. Use placeholders: <code style="font-family:var(--fm);font-size:12px">{ign}</code> <code style="font-family:var(--fm);font-size:12px">{order}</code> <code style="font-family:var(--fm);font-size:12px">{items}</code> <code style="font-family:var(--fm);font-size:12px">{total}</code> — they fill in automatically.</p>
+        <div class="a-field" style="margin-bottom:12px"><label>Default message (used if no game-specific one is set)</label><textarea id="dlvDefault" rows="4" placeholder="Hi {ign}! Your payment for order {order} is verified. I'll deliver {items} now — please stay in-game so we can trade. Thank you!"></textarea></div>
+        <div class="a-field" style="margin-bottom:12px"><label>Penya (Flyff) message <span style="color:var(--dim);font-weight:400">— optional, leave blank to use default</span></label><textarea id="dlvFlyff" rows="3" placeholder="(optional Penya-specific instructions)"></textarea></div>
+        <div class="a-field"><label>Spina (Toram) message <span style="color:var(--dim);font-weight:400">— optional, leave blank to use default</span></label><textarea id="dlvToram" rows="3" placeholder="(optional Spina-specific instructions)"></textarea></div>
+      </div>
+      <div class="a-card" id="loyaltyCard">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><b style="font-family:var(--fd)">⭐ Loyalty Points</b><span class="toggle" id="loyaltyToggle"><span class="sw"></span>Off</span></div>
+        <p style="color:var(--dim);font-size:13px;margin-bottom:12px">Reward repeat buyers. They earn points on every completed order and can redeem them for discounts on future orders.</p>
+        <div class="a-row3">
+          <div class="a-field"><label>Points earned per ₱1 spent</label><input id="loyEarn" type="number" step="0.1" min="0" placeholder="1"></div>
+          <div class="a-field"><label>₱ value per point</label><input id="loyValue" type="number" step="0.01" min="0" placeholder="0.10"></div>
+          <div class="a-field"><label>Min. points to redeem</label><input id="loyMin" type="number" min="0" placeholder="50"></div>
+        </div>
+        <p style="color:var(--dim);font-size:12px;margin-top:8px">Example: 1 point per ₱1, ₱0.10 per point, min 50 → a ₱500 order earns 500 points; 500 points = ₱50 off next time.</p>
       </div>
       <div class="a-card" id="twofaCard">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px"><b style="font-family:var(--fd)">🔐 Two-Factor Authentication</b><span id="twofaStatus" class="live-pill" style="color:var(--dim);background:rgba(111,102,145,.12);border-color:var(--line)">Off</span></div>
@@ -602,7 +636,7 @@ function updateAuthUI(){
   if(USER){ lbl.textContent=USER.name.split(' ')[0]; av.textContent=USER.name[0].toUpperCase(); }
   else { lbl.textContent='Log in'; av.textContent='?'; }
 }
-function openAuth(mode, after){ authMode=mode||'login'; authAfter=after||null; setAuthTab(authMode); document.getElementById('authModal').classList.add('open'); }
+function openAuth(mode, after){ authMode=mode||'login'; authAfter=after||null; setAuthTab(authMode); document.getElementById('authMain').style.display='block'; document.getElementById('verifyStep').style.display='none'; document.getElementById('authModal').classList.add('open'); }
 function setAuthTab(m){ authMode=m;
   document.getElementById('tabLogin').classList.toggle('on',m==='login');
   document.getElementById('tabReg').classList.toggle('on',m==='reg');
@@ -615,13 +649,36 @@ async function doAuth(){
   try{
     const body = authMode==='reg'? {email:email,password:pass,name:name} : {email:email,password:pass};
     const d = await api(authMode==='reg'?'/api/auth/register':'/api/auth/login',{method:'POST',body:JSON.stringify(body)});
-    USER_TOKEN=d.token; USER=d.user;
-    localStorage.setItem('krav:utok',USER_TOKEN); localStorage.setItem('krav:user',JSON.stringify(USER));
-    // logging in as a user signs out the admin/seller session
-    if(ADMIN_TOKEN){ ADMIN_TOKEN=null; localStorage.removeItem('krav:atok'); OWNER=false; document.getElementById('adminPanel').classList.remove('open'); document.getElementById('ownerAlert').style.display='none'; }
-    updateAuthUI(); document.getElementById('authModal').classList.remove('open');
-    document.getElementById('aEmail').value=''; document.getElementById('aPass').value=''; document.getElementById('aName').value='';
+    if(d.pending){ // email verification required
+      pendingEmail=d.email; document.getElementById('verifyEmail').textContent=d.email;
+      document.getElementById('authMain').style.display='none'; document.getElementById('verifyStep').style.display='block';
+      setTimeout(()=>document.getElementById('verifyCode').focus(),60); toast('We sent a 6-digit code to your email ✉️'); return;
+    }
+    finishLogin(d);
     toast('Welcome, '+USER.name+'! 🎉');
+    if(authAfter){ const fn=authAfter; authAfter=null; fn(); }
+  }catch(e){ toast(e.message,'err'); }
+}
+let pendingEmail=null;
+function finishLogin(d){
+  USER_TOKEN=d.token; USER=d.user;
+  localStorage.setItem('krav:utok',USER_TOKEN); localStorage.setItem('krav:user',JSON.stringify(USER));
+  if(ADMIN_TOKEN){ ADMIN_TOKEN=null; localStorage.removeItem('krav:atok'); OWNER=false; document.getElementById('adminPanel').classList.remove('open'); document.getElementById('ownerAlert').style.display='none'; }
+  updateAuthUI(); document.getElementById('authModal').classList.remove('open');
+  document.getElementById('aEmail').value=''; document.getElementById('aPass').value=''; document.getElementById('aName').value='';
+  document.getElementById('authMain').style.display='block'; document.getElementById('verifyStep').style.display='none';
+}
+async function submitVerifyCode(){
+  const code=document.getElementById('verifyCode').value.trim();
+  if(code.length!==6){ toast('Enter the 6-digit code','err'); return; }
+  try{ const d=await api('/api/auth/verify',{method:'POST',body:JSON.stringify({email:pendingEmail,code})});
+    finishLogin(d); toast('Account verified — welcome, '+USER.name+'! 🎉');
+    if(authAfter){ const fn=authAfter; authAfter=null; fn(); }
+  }catch(e){ toast(e.message,'err'); }
+}
+async function onGoogleCredential(resp){
+  try{ const d=await api('/api/auth/google',{method:'POST',body:JSON.stringify({credential:resp.credential})});
+    finishLogin(d); toast('Welcome, '+USER.name+'! 🎉');
     if(authAfter){ const fn=authAfter; authAfter=null; fn(); }
   }catch(e){ toast(e.message,'err'); }
 }
@@ -647,15 +704,38 @@ function startCheckout(){
   const active=(CONFIG.payments||[]).filter(p=>p.active); const po=document.getElementById('payOpts');
   if(!active.length){ po.innerHTML='<div style="color:var(--dim);font-size:13px">No payment methods available right now.</div>'; selectedPay=null; }
   else { selectedPay=active[0].id; po.innerHTML=active.map(p=>'<div class="pay-opt '+(p.id===selectedPay?'sel':'')+'" data-pay="'+p.id+'"><div class="radio"></div><div><div class="po-type">'+esc(p.type)+'</div><div class="po-acct">'+esc(p.name)+' · '+esc(p.number)+'</div></div></div>').join(''); }
-  document.getElementById('coTotal').textContent=peso(cartTotal()); openDrawer('co');
+  document.getElementById('coTotal').textContent=peso(cartTotal());
+  setupRedeem();
+  openDrawer('co');
+}
+let redeemPlan=0; // points to redeem at checkout
+function setupRedeem(){
+  const row=document.getElementById('redeemRow'); const chk=document.getElementById('redeemChk'); redeemPlan=0; chk.checked=false;
+  const lo=CONFIG.loyalty||{}; const pts=Number((USER&&USER.points)||0); const total=cartTotal();
+  if(!lo.enabled || !Number(lo.pesoPerPoint) || pts < Number(lo.minRedeem||0) || pts<=0){ row.style.display='none'; updateCoTotal(); return; }
+  // how many points can apply to this order
+  const ppp=Number(lo.pesoPerPoint); const maxByTotal=Math.ceil(total/ppp); const usable=Math.min(pts, maxByTotal);
+  const disc=Math.min(total, Math.floor(usable*ppp));
+  document.getElementById('redeemLabel').innerHTML='Use my <b>'+pts.toLocaleString()+'</b> points — save <b style="color:var(--gold)">'+peso(disc)+'</b>';
+  row.style.display='block';
+  chk.onchange=()=>{ redeemPlan = chk.checked ? usable : 0; updateCoTotal(); };
+  updateCoTotal();
+}
+function updateCoTotal(){
+  const lo=CONFIG.loyalty||{}; const ppp=Number(lo.pesoPerPoint)||0; const total=cartTotal();
+  const disc = redeemPlan>0 ? Math.min(total, Math.floor(redeemPlan*ppp)) : 0;
+  document.getElementById('coTotal').textContent = disc>0 ? peso(total-disc)+' ' : peso(total);
+  const el=document.getElementById('coTotal'); if(disc>0){ el.innerHTML=peso(total-disc)+' <span style="color:var(--dim);font-size:13px;text-decoration:line-through;font-weight:400">'+peso(total)+'</span>'; }
 }
 async function placeOrder(){
   const ign=document.getElementById('fIgn').value.trim();
   if(!ign){ toast('Please enter your IGN','err'); return; }
   if(!selectedPay){ toast('Please select a payment method','err'); return; }
   try{
-    const d=await api('/api/orders',{method:'POST',body:JSON.stringify({ items:CART.map(i=>({id:i.id,qty:i.qty})), ign:ign, server:document.getElementById('fServer').value.trim(), note:document.getElementById('fNote').value.trim(), paymentId:selectedPay })});
-    CART=[]; updateBadge(); renderCart(); ['fIgn','fServer','fNote'].forEach(id=>document.getElementById(id).value='');
+    const d=await api('/api/orders',{method:'POST',body:JSON.stringify({ items:CART.map(i=>({id:i.id,qty:i.qty})), ign:ign, server:document.getElementById('fServer').value.trim(), note:document.getElementById('fNote').value.trim(), paymentId:selectedPay, redeemPoints:redeemPlan })});
+    if(d.order && typeof d.order.points!=='undefined'){} // (points balance refreshes on next /api/me)
+    try{ const me=await api('/api/me'); USER=me.user; localStorage.setItem('krav:user',JSON.stringify(USER)); updateAuthUI(); }catch(e){}
+    CART=[]; redeemPlan=0; updateBadge(); renderCart(); ['fIgn','fServer','fNote'].forEach(id=>document.getElementById(id).value='');
     closeDrawer('co'); openTransaction(d.order.id); toast('Order placed! Now pay and upload your proof. 🧾');
   }catch(e){ toast(e.message,'err'); }
 }
@@ -844,8 +924,10 @@ async function sendAdminSupport(){ const inp=document.getElementById('asupInput'
 async function openMyOrders(){
   if(!USER){ openAuth('login',()=>openMyOrders()); return; }
   openDrawer('mo'); const b=document.getElementById('moBody'); b.innerHTML='<div style="color:var(--dim);padding:20px;text-align:center">Loading...</div>';
-  try{ const d=await api('/api/me'); const o=d.orders||[];
-    b.innerHTML = o.length? o.map(x=>'<div class="ord-row" data-openorder="'+x.id+'"><div><div class="ref">'+x.id+'</div><div class="meta">'+x.items.map(i=>i.label+' '+i.currency).join(', ')+' · '+peso(x.total)+'</div></div><span class="ord-status stt-'+x.status+'">'+STATUS_TEXT[x.status]+'</span></div>').join('')+'<div style="text-align:center;margin-top:16px"><span class="link" id="logoutLink">Log out</span></div>' : '<div class="empty-note">No orders yet. Browse the store and place your first order!</div><div style="text-align:center;margin-top:16px"><span class="link" id="logoutLink">Log out</span></div>';
+  try{ const d=await api('/api/me'); const o=d.orders||[]; if(d.user){ USER=d.user; localStorage.setItem('krav:user',JSON.stringify(USER)); updateAuthUI(); }
+    const lo=CONFIG.loyalty||{}; const pts=Number((d.user&&d.user.points)||0);
+    const ptsCard = lo.enabled ? '<div class="a-card" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px"><div><div style="font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:1px">⭐ Your points</div><div style="font-family:var(--fd);font-size:24px;color:var(--gold)">'+pts.toLocaleString()+'</div></div><div style="font-size:12px;color:var(--dim);text-align:right;max-width:160px">Earn points on every order, redeem for discounts at checkout</div></div>' : '';
+    b.innerHTML = ptsCard + (o.length? o.map(x=>'<div class="ord-row" data-openorder="'+x.id+'"><div><div class="ref">'+x.id+'</div><div class="meta">'+x.items.map(i=>i.label+' '+i.currency).join(', ')+' · '+peso(x.total)+'</div></div><span class="ord-status stt-'+x.status+'">'+STATUS_TEXT[x.status]+'</span></div>').join('')+'<div style="text-align:center;margin-top:16px"><span class="link" id="logoutLink">Log out</span></div>' : '<div class="empty-note">No orders yet. Browse the store and place your first order!</div><div style="text-align:center;margin-top:16px"><span class="link" id="logoutLink">Log out</span></div>');
     const ll=document.getElementById('logoutLink'); if(ll) ll.onclick=()=>{ logout(); closeDrawer('mo'); toast('Logged out'); };
   }catch(e){ b.innerHTML='<div class="empty-note">'+esc(e.message)+'</div>'; }
 }
@@ -961,6 +1043,21 @@ function renderAdminConfig(){
   });
   document.getElementById('adminPayments').innerHTML=(CONFIG.payments||[]).map(p=>'<div class="a-card"><div class="a-row3"><div class="a-field"><label>Type</label><select data-yf="type" data-id="'+p.id+'">'+['GCash','Maya','Bank','GoTyme','SeaBank','Other'].map(t=>'<option '+(p.type===t?'selected':'')+'>'+t+'</option>').join('')+'</select></div><div class="a-field"><label>Account name</label><input data-yf="name" data-id="'+p.id+'" value="'+esc(p.name||'')+'"></div><div class="a-field"><label>Number</label><input data-yf="number" data-id="'+p.id+'" value="'+esc(p.number||'')+'"></div></div><div class="a-actions"><span class="toggle '+(p.active?'on':'')+'" data-ytoggle="'+p.id+'"><span class="sw"></span>'+(p.active?'Active':'Off')+'</span><button class="mini-btn danger" data-delpay="'+p.id+'" style="margin-left:auto">Delete</button></div></div>').join('')||'<p style="color:var(--dim);font-size:13px">No payment methods.</p>';
   document.getElementById('setName').value=CONFIG.store.name||''; document.getElementById('setTagline').value=(CONFIG.store.tagline||'').replace('||',' '); document.getElementById('setLead').value=CONFIG.store.lead||''; document.getElementById('setAnnounce').value=CONFIG.store.announce||''; document.getElementById('setAutoCancel').value=CONFIG.store.autoCancelMins||''; document.getElementById('setMsgr').value=CONFIG.contacts.messenger||''; document.getElementById('setDiscord').value=CONFIG.contacts.discord||''; document.getElementById('setPass').value='';
+  CONFIG.delivery=CONFIG.delivery||{auto:false,onStatus:'payment_verified',default:'',flyff:'',toram:''};
+  CONFIG.email=CONFIG.email||{enabled:false,notifyEmail:''};
+  CONFIG.loyalty=CONFIG.loyalty||{enabled:false,earnPerPeso:1,pesoPerPoint:0.1,minRedeem:50};
+  document.getElementById('loyEarn').value=CONFIG.loyalty.earnPerPeso||''; document.getElementById('loyValue').value=CONFIG.loyalty.pesoPerPoint||''; document.getElementById('loyMin').value=CONFIG.loyalty.minRedeem||'';
+  const lt=document.getElementById('loyaltyToggle'); lt.classList.toggle('on',!!CONFIG.loyalty.enabled); lt.innerHTML='<span class="sw"></span>'+(CONFIG.loyalty.enabled?'On':'Off');
+  lt.onclick=()=>{ CONFIG.loyalty.enabled=!CONFIG.loyalty.enabled; lt.classList.toggle('on',CONFIG.loyalty.enabled); lt.innerHTML='<span class="sw"></span>'+(CONFIG.loyalty.enabled?'On':'Off'); };
+  document.getElementById('emailNotify').value=CONFIG.email.notifyEmail||'';
+  const et=document.getElementById('emailToggle'); et.classList.toggle('on',!!CONFIG.email.enabled); et.innerHTML='<span class="sw"></span>'+(CONFIG.email.enabled?'On':'Off');
+  et.onclick=()=>{ CONFIG.email.enabled=!CONFIG.email.enabled; et.classList.toggle('on',CONFIG.email.enabled); et.innerHTML='<span class="sw"></span>'+(CONFIG.email.enabled?'On':'Off'); };
+  CONFIG.auth=CONFIG.auth||{emailVerify:false};
+  const vt=document.getElementById('verifyToggle'); vt.classList.toggle('on',!!CONFIG.auth.emailVerify); vt.innerHTML='<span class="sw"></span>'+(CONFIG.auth.emailVerify?'On':'Off');
+  vt.onclick=()=>{ CONFIG.auth.emailVerify=!CONFIG.auth.emailVerify; vt.classList.toggle('on',CONFIG.auth.emailVerify); vt.innerHTML='<span class="sw"></span>'+(CONFIG.auth.emailVerify?'On':'Off'); };
+  document.getElementById('dlvDefault').value=CONFIG.delivery.default||''; document.getElementById('dlvFlyff').value=CONFIG.delivery.flyff||''; document.getElementById('dlvToram').value=CONFIG.delivery.toram||'';
+  const dt=document.getElementById('dlvToggle'); dt.classList.toggle('on',!!CONFIG.delivery.auto); dt.querySelector('.sw').nextSibling&&(dt.innerHTML='<span class="sw"></span>'+(CONFIG.delivery.auto?'On':'Off'));
+  dt.onclick=()=>{ CONFIG.delivery.auto=!CONFIG.delivery.auto; dt.classList.toggle('on',CONFIG.delivery.auto); dt.innerHTML='<span class="sw"></span>'+(CONFIG.delivery.auto?'On':'Off'); };
   renderAdminGames();
 }
 function renderAdminGames(){  if(!CONFIG.games || !CONFIG.games.length) CONFIG.games = JSON.parse(JSON.stringify(DEFAULT_GAMES));
@@ -1052,6 +1149,9 @@ document.getElementById('myOrdersLink').onclick=openMyOrders;
 document.getElementById('tabLogin').onclick=()=>setAuthTab('login');
 document.getElementById('tabReg').onclick=()=>setAuthTab('reg');
 document.getElementById('authSubmit').onclick=doAuth;
+document.getElementById('verifyBtn').onclick=submitVerifyCode;
+document.getElementById('resendCode').onclick=async()=>{ if(!pendingEmail) return; try{ await api('/api/auth/resend',{method:'POST',body:JSON.stringify({email:pendingEmail})}); toast('New code sent ✉️'); }catch(e){ toast(e.message,'err'); } };
+document.getElementById('backToReg').onclick=()=>{ document.getElementById('authMain').style.display='block'; document.getElementById('verifyStep').style.display='none'; };
 document.getElementById('aPass').addEventListener('keydown',e=>{ if(e.key==='Enter') doAuth(); });
 document.getElementById('writeReview').onclick=openReview;
 document.getElementById('rvSubmit').onclick=submitReview;
@@ -1080,11 +1180,11 @@ document.getElementById('supportInput').addEventListener('keydown',e=>{ if(e.key
 document.getElementById('addPayment').onclick=()=>{ CONFIG.payments=CONFIG.payments||[]; CONFIG.payments.push({id:'pay'+Math.random().toString(36).slice(2,7),type:'GCash',name:'',number:'',active:false}); renderAdminConfig(); };
 document.getElementById('addGame').onclick=()=>{ CONFIG.games=CONFIG.games||JSON.parse(JSON.stringify(DEFAULT_GAMES)); CONFIG.games.push({id:'g'+Math.random().toString(36).slice(2,7),name:'New Game',sub:'',badge:'NG',color:'f',img:'',link:'',active:true,soon:false}); renderAdminGames(); renderGamesNav(); };
 document.querySelectorAll('.admin-tab').forEach(tab=>tab.onclick=()=>{ document.querySelectorAll('.admin-tab').forEach(x=>x.classList.remove('active')); document.querySelectorAll('.admin-pane').forEach(x=>x.classList.remove('active')); tab.classList.add('active'); document.getElementById('pane-'+tab.dataset.pane).classList.add('active'); if(tab.dataset.pane==='aorders')renderAdminOrders(); if(tab.dataset.pane==='areviews')renderAdminReviews(); if(tab.dataset.pane==='support')renderSupportList(); if(tab.dataset.pane==='games')renderAdminGames(); if(tab.dataset.pane==='settings')render2fa(); });
-async function saveCfg(msg){ try{ await api('/api/kv',{method:'POST',body:JSON.stringify({key:'krav:config',value:{store:CONFIG.store,contacts:CONFIG.contacts,payments:CONFIG.payments,packages:CONFIG.packages,games:CONFIG.games}})}); toast(msg); renderStore(); }catch(e){ toast(e.message,'err'); } }
+async function saveCfg(msg){ try{ await api('/api/kv',{method:'POST',body:JSON.stringify({key:'krav:config',value:{store:CONFIG.store,contacts:CONFIG.contacts,payments:CONFIG.payments,packages:CONFIG.packages,games:CONFIG.games,delivery:CONFIG.delivery,email:CONFIG.email,loyalty:CONFIG.loyalty,auth:CONFIG.auth}})}); toast(msg); renderStore(); }catch(e){ toast(e.message,'err'); } }
 document.getElementById('saveProducts').onclick=()=>saveCfg('Products saved!');
 document.getElementById('savePayments').onclick=()=>saveCfg('Payments saved!');
 document.getElementById('saveGames').onclick=()=>saveCfg('Games saved!');
-document.getElementById('saveSettings').onclick=async()=>{ CONFIG.store.name=document.getElementById('setName').value.trim()||'KrAV'; const tg=document.getElementById('setTagline').value.trim(); const w=tg.split(' '),mid=Math.ceil(w.length/2); CONFIG.store.tagline=w.slice(0,mid).join(' ')+'||'+w.slice(mid).join(' '); CONFIG.store.lead=document.getElementById('setLead').value.trim(); CONFIG.store.announce=document.getElementById('setAnnounce').value.trim(); CONFIG.store.autoCancelMins=Math.max(0,parseInt(document.getElementById('setAutoCancel').value)||0); CONFIG.contacts.messenger=document.getElementById('setMsgr').value.trim(); CONFIG.contacts.discord=document.getElementById('setDiscord').value.trim(); const np=document.getElementById('setPass').value.trim(); await saveCfg('Settings saved!'); if(np){ try{ await api('/api/admin/password',{method:'POST',body:JSON.stringify({newPassword:np})}); document.getElementById('setPass').value=''; toast('Password updated!'); }catch(e){} } };
+document.getElementById('saveSettings').onclick=async()=>{ CONFIG.store.name=document.getElementById('setName').value.trim()||'KrAV'; const tg=document.getElementById('setTagline').value.trim(); const w=tg.split(' '),mid=Math.ceil(w.length/2); CONFIG.store.tagline=w.slice(0,mid).join(' ')+'||'+w.slice(mid).join(' '); CONFIG.store.lead=document.getElementById('setLead').value.trim(); CONFIG.store.announce=document.getElementById('setAnnounce').value.trim(); CONFIG.store.autoCancelMins=Math.max(0,parseInt(document.getElementById('setAutoCancel').value)||0); CONFIG.contacts.messenger=document.getElementById('setMsgr').value.trim(); CONFIG.contacts.discord=document.getElementById('setDiscord').value.trim(); CONFIG.delivery=CONFIG.delivery||{auto:false,onStatus:'payment_verified'}; CONFIG.delivery.default=document.getElementById('dlvDefault').value.trim(); CONFIG.delivery.flyff=document.getElementById('dlvFlyff').value.trim(); CONFIG.delivery.toram=document.getElementById('dlvToram').value.trim(); CONFIG.delivery.onStatus='payment_verified'; CONFIG.email=CONFIG.email||{enabled:false}; CONFIG.email.notifyEmail=document.getElementById('emailNotify').value.trim(); CONFIG.loyalty=CONFIG.loyalty||{enabled:false}; CONFIG.loyalty.earnPerPeso=Math.max(0,parseFloat(document.getElementById('loyEarn').value)||0); CONFIG.loyalty.pesoPerPoint=Math.max(0,parseFloat(document.getElementById('loyValue').value)||0); CONFIG.loyalty.minRedeem=Math.max(0,parseInt(document.getElementById('loyMin').value)||0); const np=document.getElementById('setPass').value.trim(); await saveCfg('Settings saved!'); if(np){ try{ await api('/api/admin/password',{method:'POST',body:JSON.stringify({newPassword:np})}); document.getElementById('setPass').value=''; toast('Password updated!'); }catch(e){} } };
 
 let _lastY=window.scrollY, _scrollDir='down';
 window.addEventListener('scroll',()=>{ const y=window.scrollY; if(y>_lastY)_scrollDir='down'; else if(y<_lastY)_scrollDir='up'; _lastY=y; },{passive:true});
@@ -1104,7 +1204,21 @@ function applyReveal(){ document.querySelectorAll('.reveal').forEach(el=>{ if(!e
   applyReveal();
   if(USER_TOKEN){ try{ const d=await api('/api/me'); USER=d.user; localStorage.setItem('krav:user',JSON.stringify(USER)); updateAuthUI(); }catch(e){ logout(); } }
   if(ADMIN_TOKEN){ try{ await api('/api/admin/orders'); OWNER=true; checkAttention(); }catch(e){ ADMIN_TOKEN=null; localStorage.removeItem('krav:atok'); OWNER=false; } }
+  initAuthOptions();
 })();
+let AUTHCFG={googleClientId:'',emailVerify:false};
+async function initAuthOptions(){
+  try{ AUTHCFG=await api('/api/auth/config'); }catch(e){ return; }
+  if(AUTHCFG.googleClientId){
+    const s=document.createElement('script'); s.src='https://accounts.google.com/gsi/client'; s.async=true; s.defer=true;
+    s.onload=()=>{ try{
+      google.accounts.id.initialize({ client_id:AUTHCFG.googleClientId, callback:onGoogleCredential });
+      google.accounts.id.renderButton(document.getElementById('googleBtn'), { theme:'filled_black', size:'large', shape:'pill', text:'continue_with', width:300 });
+      document.getElementById('googleBtnWrap').style.display='block';
+    }catch(e){} };
+    document.head.appendChild(s);
+  }
+}
 </script>
 </body>
 </html>
